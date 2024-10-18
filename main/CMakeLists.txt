@@ -4,12 +4,14 @@ set(src_dirs    network
                 camera
                 lcd
                 face_recog
+                button
                 ".")
 
 set(include_dirs    network
                     camera
                     lcd
                     face_recog
+                    button
                     ".")
 
 

@@ -52,6 +52,6 @@ dependencies:
       storage_url: file:///C:/Espressif/registry
       type: service
     version: 8.4.0
-manifest_hash: eb3aa6096582292889d0e9b943925324c2bd7cd162dcd7db08aa4de6a4777adf
+manifest_hash: c9b42a72d886e1e855df60f1759866b7d409bf5ebf4952b5c13edcef94e0b460
 target: esp32s3
 version: 1.0.0
