@@ -4,9 +4,9 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-
 #include "esp_camera.h"
-
+#include "__base__.hpp"
+#include <list>
 
 #define CAMERA_MODULE_NAME "ESP-S3-EYE"
 #define CAMERA_PIN_PWDN -1
@@ -30,6 +30,26 @@
 #define CAMERA_PIN_D7 16
 
 #define XCLK_FREQ_HZ 10000000
+
+extern volatile bool is_camera_allow_run;
+
+class Camera : public Frame
+{
+public:
+    Camera( const pixformat_t pixel_format,
+            const framesize_t frame_size,
+            const uint8_t fb_count,
+            QueueHandle_t queue_o = nullptr);
+    void run();
+};
+
+
+
+
+
+
+
+
 
 #ifdef __cplusplus
 extern "C"

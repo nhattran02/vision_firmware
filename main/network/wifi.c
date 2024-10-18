@@ -189,7 +189,7 @@ void app_wifi_main()
         ESP_LOGW(TAG, "Neither AP nor STA have been configured. WiFi will be off.");
         return;
     }
-
+    
     ESP_ERROR_CHECK(esp_netif_init());
 
     ESP_ERROR_CHECK(esp_event_loop_create_default());
