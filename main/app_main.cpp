@@ -31,6 +31,7 @@ extern "C" void app_main()
     lcd->run();
     face->run();
     camera->run();
+    matrix_button->run();
 
     
 #else
