@@ -15,6 +15,7 @@
 
 #include "__base__.hpp"
 #include "camera.hpp"
+#include "button.hpp"
 
 typedef enum
 {
@@ -27,8 +28,7 @@ typedef enum
 class Face : public Observer, public Frame
 {
 private:
-
-
+    Button *key;
 public:
     HumanFaceDetectMSR01 detector;
     HumanFaceDetectMNP01 detector2;
@@ -49,9 +49,10 @@ public:
 
     uint8_t frame_count;
 
-    Face(QueueHandle_t queue_i = nullptr,
-            QueueHandle_t queue_o = nullptr,
-            void (*callback)(camera_fb_t *) = esp_camera_fb_return);
+    Face(Button *key,
+        QueueHandle_t queue_i = nullptr,
+        QueueHandle_t queue_o = nullptr,
+        void (*callback)(camera_fb_t *) = esp_camera_fb_return);
     ~Face();
 
     void update();

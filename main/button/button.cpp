@@ -66,8 +66,7 @@ static button_name_t get_button_pressed(int col, uint8_t row_state)
         {BUTTON_1, BUTTON_4, BUTTON_7, BUTTON_STAR},
         {BUTTON_2, BUTTON_5, BUTTON_8, BUTTON_0},
         {BUTTON_3, BUTTON_6, BUTTON_9, BUTTON_OK},
-        {BUTTON_ESC, BUTTON_MENU, BUTTON_UP, BUTTON_DOWN}
-    };
+        {BUTTON_ESC, BUTTON_MENU, BUTTON_UP, BUTTON_DOWN}};
 
     for (int row = 0; row < 4; row++)
     {
@@ -77,9 +76,8 @@ static button_name_t get_button_pressed(int col, uint8_t row_state)
         }
     }
 
-    return BUTTON_IDLE;  // No button pressed
+    return BUTTON_IDLE; // No button pressed
 }
-
 
 static void button_task(Button *self)
 {
@@ -89,12 +87,12 @@ static void button_task(Button *self)
     while (true)
     {
         int64_t backup_time = esp_timer_get_time();
-        
+
         for (int col = 0; col < 4; col++)
         {
             ESP_ERROR_CHECK(mcp23017_write_io(device, ~(col_pins[col]), MCP23017_GPIOB));
             vTaskDelay(pdMS_TO_TICKS(1));
-            
+
             uint8_t data = mcp23017_read_io(device, MCP23017_GPIOB);
             uint8_t row_state = (data & 0xF0) >> 4;
 
@@ -114,8 +112,8 @@ static void button_task(Button *self)
 
                     last_time = backup_time;
                     self->notify();
-                    self->pressed = BUTTON_IDLE;  // Reset button state
-                    break;  // Exit the column loop once a button is pressed
+                    self->pressed = BUTTON_IDLE; // Reset button state
+                    break;                       // Exit the column loop once a button is pressed
                 }
             }
         }

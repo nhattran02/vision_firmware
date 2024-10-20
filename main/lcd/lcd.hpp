@@ -7,6 +7,8 @@
 #include "esp_lcd_panel_ops.h"
 #include "__base__.hpp"
 #include "camera.hpp"
+#include "button.hpp"
+
 
 #define LCD_PIXEL_CLOCK_HZ     (20 * 1000 * 1000)
 #define LCD_BK_LIGHT_ON_LEVEL  1
@@ -29,13 +31,14 @@
 class LCD : public Observer, public Frame
 {
 private:
-    
+    Button *key;
 public:
     esp_lcd_panel_handle_t panel_handle;
     bool switch_on;
     bool paper_drawn;
     
-    LCD(QueueHandle_t xQueueFrameI = nullptr,
+    LCD(Button *key,
+        QueueHandle_t xQueueFrameI = nullptr,
         QueueHandle_t xQueueFrameO = nullptr,
         void (*callback)(camera_fb_t *) = esp_camera_fb_return);
 

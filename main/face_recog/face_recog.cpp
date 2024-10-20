@@ -48,9 +48,11 @@ static int rgb_printf(camera_fb_t *fb, uint32_t color, const char *format, ...)
     return len;
 }
 
-Face::Face(QueueHandle_t queue_i,
+Face::Face(Button *key,
+           QueueHandle_t queue_i,
            QueueHandle_t queue_o,
            void (*callback)(camera_fb_t *)) : Frame(queue_i, queue_o, callback),
+                                              key(key),
                                               detector(0.3F, 0.3F, 10, 0.3F),
                                               detector2(0.4F, 0.3F, 10),
                                               state(FACE_IDLE), // I changed this from FACE_IDLE to FACE_RECOGNIZE
@@ -75,6 +77,28 @@ Face::~Face()
 
 void Face::update()
 {
+    // Parse key
+    if (this->key->pressed > BUTTON_IDLE)
+    {
+        if (this->key->pressed == BUTTON_MENU)
+        {
+            this->state = FACE_IDLE;
+            this->switch_on = (this->key->menu == MENU_FACE_RECOGNITION) ? true : false;
+            ESP_LOGD(TAG, "%s", this->switch_on ? "ON" : "OFF");
+        }
+        else if (this->key->pressed == BUTTON_OK)
+        {
+            this->state = FACE_RECOGNIZE;
+        }
+        else if (this->key->pressed == BUTTON_UP)
+        {
+            this->state = FACE_ENROLL;
+        }
+        else if (this->key->pressed == BUTTON_DOWN)
+        {
+            this->state = FACE_DELETE;
+        }
+    }    
     ESP_LOGI(TAG, "Human face recognition state = %d", this->state);
 }
 
@@ -90,8 +114,8 @@ static void face_task(Face *self)
 
         if (xQueueReceive(self->queue_i, &frame, portMAX_DELAY))
         {
-            // if (self->switch_on)
-            // {
+            if (self->switch_on)
+            {
                 std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
                 std::list<dl::detect::result_t> &detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
 
@@ -160,7 +184,7 @@ static void face_task(Face *self)
 
                     self->frame_count--;
                 }
-            // }
+            }
 
             if (self->queue_o)
                 xQueueSend(self->queue_o, &frame, portMAX_DELAY);
