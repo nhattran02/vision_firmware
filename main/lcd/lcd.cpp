@@ -5,99 +5,11 @@
 #include "esp_camera.h"
 #include "logo_en_240x240_lcd.h"
 #include "esp_lcd_ili9341.h"
-#include "lvgl.h"
 #include "esp_timer.h"
-#include "lvgl.h"
-extern "C" {
-    #include "lvgl_demo_ui.h"
-}
 
-#define LVGL_TICK_PERIOD_MS    2
 
 static const char TAG[] = "lcd";
-static lv_disp_draw_buf_t disp_buf; 
-static lv_disp_drv_t disp_drv;
 
-static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
-{
-    lv_disp_drv_t *disp_driver = (lv_disp_drv_t *)user_ctx;
-    lv_disp_flush_ready(disp_driver);
-    return false;
-}
-
-static void lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
-{
-    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
-    int offsetx1 = area->x1;
-    int offsetx2 = area->x2;
-    int offsety1 = area->y1;
-    int offsety2 = area->y2;
-    // copy a buffer's content to a specific area of the display
-    esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
-}
-
-/* Rotate display and touch, when rotated screen in LVGL. Called when driver parameters are updated. */
-static void lvgl_port_update_callback(lv_disp_drv_t *drv)
-{
-    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
-
-    switch (drv->rotated) {
-    case LV_DISP_ROT_NONE:
-        // Rotate LCD display
-        esp_lcd_panel_swap_xy(panel_handle, false);
-        esp_lcd_panel_mirror(panel_handle, true, false);
-#if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
-        // Rotate LCD touch
-        esp_lcd_touch_set_mirror_y(tp, false);
-        esp_lcd_touch_set_mirror_x(tp, false);
-#endif
-        break;
-    case LV_DISP_ROT_90:
-        // Rotate LCD display
-        esp_lcd_panel_swap_xy(panel_handle, true);
-        esp_lcd_panel_mirror(panel_handle, true, true);
-#if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
-        // Rotate LCD touch
-        esp_lcd_touch_set_mirror_y(tp, false);
-        esp_lcd_touch_set_mirror_x(tp, false);
-#endif
-        break;
-    case LV_DISP_ROT_180:
-        // Rotate LCD display
-        esp_lcd_panel_swap_xy(panel_handle, false);
-        esp_lcd_panel_mirror(panel_handle, false, true);
-#if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
-        // Rotate LCD touch
-        esp_lcd_touch_set_mirror_y(tp, false);
-        esp_lcd_touch_set_mirror_x(tp, false);
-#endif
-        break;
-    case LV_DISP_ROT_270:
-        // Rotate LCD display
-        esp_lcd_panel_swap_xy(panel_handle, true);
-        esp_lcd_panel_mirror(panel_handle, false, false);
-#if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
-        // Rotate LCD touch
-        esp_lcd_touch_set_mirror_y(tp, false);
-        esp_lcd_touch_set_mirror_x(tp, false);
-#endif
-        break;
-    }
-}
-
-static void increase_lvgl_tick(void *arg)
-{
-    /* Tell LVGL how many milliseconds has elapsed */
-    lv_tick_inc(LVGL_TICK_PERIOD_MS);
-}
-
-static void lvgl_task(LCD *self)
-{
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(10));
-        lv_timer_handler();
-    }    
-}
 
 LCD::LCD(Button *key,
          QueueHandle_t queue_i,
@@ -132,9 +44,7 @@ LCD::LCD(Button *key,
             .dc_gpio_num = LCD_NUM_DC,
             .spi_mode = 0,
             .pclk_hz = LCD_PIXEL_CLOCK_HZ,
-            .trans_queue_depth = 10,     
-            .on_color_trans_done = notify_lvgl_flush_ready,
-            .user_ctx = &disp_drv,                 
+            .trans_queue_depth = 10,             
             .lcd_cmd_bits = LCD_CMD_BITS,
             .lcd_param_bits = LCD_PARAM_BITS,
         };
@@ -152,52 +62,17 @@ LCD::LCD(Button *key,
         ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
         ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
         ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
-
+        
         // turn on display
         esp_lcd_panel_disp_on_off(panel_handle, true);
 
         ESP_LOGI(TAG, "Turn on LCD backlight");
         gpio_set_level(LCD_NUM_BK_LIGHT, LCD_BK_LIGHT_ON_LEVEL);
-        
-        ESP_LOGI(TAG, "Initialize LVGL library");
-        lv_init();
-        lv_color_t *buf1 = (lv_color_t*) heap_caps_malloc(LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
-        assert(buf1);
-        lv_color_t *buf2 = (lv_color_t*) heap_caps_malloc(LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
-        assert(buf2);
-        // initialize LVGL draw buffers
-        lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 20);        
 
-        ESP_LOGI(TAG, "Register display driver to LVGL");
-        lv_disp_drv_init(&disp_drv);
-        disp_drv.hor_res = LCD_H_RES;
-        disp_drv.ver_res = LCD_V_RES;
-        disp_drv.flush_cb = lvgl_flush_cb;
-        disp_drv.drv_update_cb = lvgl_port_update_callback;
-        disp_drv.draw_buf = &disp_buf;
-        disp_drv.user_data = panel_handle;
-        lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
-
-        ESP_LOGI(TAG, "Install LVGL tick timer");
-        // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
-        const esp_timer_create_args_t lvgl_tick_timer_args = {
-            .callback = &increase_lvgl_tick,
-            .name = "lvgl_tick"
-        };
-        esp_timer_handle_t lvgl_tick_timer = NULL;
-        ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
-        ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000));
-
-        ESP_LOGI(TAG, "Display LVGL Meter Widget");
-        lvgl_demo_ui(disp);        
-
-        xTaskCreate((TaskFunction_t)lvgl_task, "lvgl_task", 5 * 1024, this, 5, NULL);
-        
-        // this->draw_wallpaper();
-        // vTaskDelay(pdMS_TO_TICKS(1000));
+        this->draw_wallpaper();
+        vTaskDelay(pdMS_TO_TICKS(1000));
     } while (0);
 }
-
 
 void LCD::draw_wallpaper()
 {
@@ -288,5 +163,7 @@ static void lcd_task(LCD *self)
 
 void LCD::run()
 {
-    xTaskCreatePinnedToCore((TaskFunction_t)lcd_task, TAG, 2 * 1024, this, 5, NULL, 1);
+    xTaskCreatePinnedToCore((TaskFunction_t)lcd_task, TAG, 3 * 1024, this, 5, NULL, 1);
 }
+
+

@@ -7,6 +7,7 @@
 #include "face_recog.hpp"
 #include "button.hpp"
 
+
 static const char *TAG = "main";
 
 #define NEW_VERSION 1
@@ -20,7 +21,6 @@ extern "C" void app_main()
     QueueHandle_t xQueueFrame2 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame3 = xQueueCreate(2, sizeof(camera_fb_t *));
 
-#if 1
     Button *matrix_button = new Button();
     Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
     Face *face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
@@ -33,7 +33,7 @@ extern "C" void app_main()
     face->run();
     camera->run();
     matrix_button->run();
-#endif 
+
     
 #else
     app_wifi_main();
