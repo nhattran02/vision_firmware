@@ -6,16 +6,124 @@
 #include "logo_en_240x240_lcd.h"
 #include "esp_lcd_ili9341.h"
 #include "esp_timer.h"
+#include "lvgl.h"
+extern "C"
+{
+    #include "lvgl_demo_ui.h"
+    #include "gui_guider.h"
+    #include "events_init.h"
+}
+
+#define USE_LVGL 1
+
+#if USE_LVGL
+
+#define LVGL_TICK_PERIOD_MS    2
+static lv_disp_draw_buf_t disp_buf;
+static lv_disp_drv_t disp_drv;
+static lv_indev_t * indev_keypad;
+static lv_group_t *g_key_op_group = NULL;
+
+static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
+{
+    lv_disp_drv_t *disp_driver = (lv_disp_drv_t *)user_ctx;
+    lv_disp_flush_ready(disp_driver);
+    return false;
+}
+
+/* Rotate display and touch, when rotated screen in LVGL. Called when driver parameters are updated. */
+static void lvgl_port_update_callback(lv_disp_drv_t *drv)
+{
+    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
+
+    switch (drv->rotated) {
+    case LV_DISP_ROT_NONE:
+        // Rotate LCD display
+        esp_lcd_panel_swap_xy(panel_handle, false);
+        esp_lcd_panel_mirror(panel_handle, true, false);
+#if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
+        // Rotate LCD touch
+        esp_lcd_touch_set_mirror_y(tp, false);
+        esp_lcd_touch_set_mirror_x(tp, false);
+#endif
+        break;
+    case LV_DISP_ROT_90:
+        // Rotate LCD display
+        esp_lcd_panel_swap_xy(panel_handle, true);
+        esp_lcd_panel_mirror(panel_handle, true, true);
+#if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
+        // Rotate LCD touch
+        esp_lcd_touch_set_mirror_y(tp, false);
+        esp_lcd_touch_set_mirror_x(tp, false);
+#endif
+        break;
+    case LV_DISP_ROT_180:
+        // Rotate LCD display
+        esp_lcd_panel_swap_xy(panel_handle, false);
+        esp_lcd_panel_mirror(panel_handle, false, true);
+#if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
+        // Rotate LCD touch
+        esp_lcd_touch_set_mirror_y(tp, false);
+        esp_lcd_touch_set_mirror_x(tp, false);
+#endif
+        break;
+    case LV_DISP_ROT_270:
+        // Rotate LCD display
+        esp_lcd_panel_swap_xy(panel_handle, true);
+        esp_lcd_panel_mirror(panel_handle, false, false);
+#if CONFIG_EXAMPLE_LCD_TOUCH_ENABLED
+        // Rotate LCD touch
+        esp_lcd_touch_set_mirror_y(tp, false);
+        esp_lcd_touch_set_mirror_x(tp, false);
+#endif
+        break;
+    }
+}
+
+static void lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
+{
+    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
+    int offsetx1 = area->x1;
+    int offsetx2 = area->x2;
+    int offsety1 = area->y1;
+    int offsety2 = area->y2;
+    // copy a buffer's content to a specific area of the display
+    esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
+}
+
+static void increase_lvgl_tick(void *arg)
+{
+    /* Tell LVGL how many milliseconds has elapsed */
+    lv_tick_inc(LVGL_TICK_PERIOD_MS);
+}
+
+static void keyboard_read(struct _lv_indev_drv_t *indev, lv_indev_data_t *data)
+{
+    static uint32_t last_key = 0;
+    uint32_t key_pr = detect_key();
+    if (key_pr > BUTTON_IDLE)
+    {
+        last_key = key_pr;
+        data->state = LV_INDEV_STATE_PRESSED;
+    }
+    else
+    {
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+    data->btn_id = last_key;
+}
+
+#endif // USE_LVGL
 
 
 static const char TAG[] = "lcd";
 
 
-LCD::LCD(Button *key,
+LCD::LCD(/* Button *key ,*/
          QueueHandle_t queue_i,
          QueueHandle_t queue_o,
          void (*callback)(camera_fb_t *)) : Frame(queue_i, queue_o, callback),
-                                            key(key),
+                                            /* key(key), */
                                             panel_handle(NULL),
                                             switch_on(false)
 {
@@ -44,7 +152,11 @@ LCD::LCD(Button *key,
             .dc_gpio_num = LCD_NUM_DC,
             .spi_mode = 0,
             .pclk_hz = LCD_PIXEL_CLOCK_HZ,
-            .trans_queue_depth = 10,             
+            .trans_queue_depth = 10,       
+#if USE_LVGL
+            .on_color_trans_done = notify_lvgl_flush_ready,
+            .user_ctx = &disp_drv,            
+#endif // USE_LVGL
             .lcd_cmd_bits = LCD_CMD_BITS,
             .lcd_param_bits = LCD_PARAM_BITS,
         };
@@ -55,7 +167,7 @@ LCD::LCD(Button *key,
         ESP_LOGI(TAG, "Install ILI9341 panel driver");
         esp_lcd_panel_dev_config_t panel_config = {
             .reset_gpio_num = LCD_NUM_RST,
-            .rgb_endian = LCD_RGB_ENDIAN_RGB, 
+            .rgb_endian = LCD_RGB_ENDIAN_BGR,
             .bits_per_pixel = 16,
         };
         ESP_ERROR_CHECK(esp_lcd_new_panel_ili9341(io_handle, &panel_config, &panel_handle));
@@ -69,8 +181,88 @@ LCD::LCD(Button *key,
         ESP_LOGI(TAG, "Turn on LCD backlight");
         gpio_set_level(LCD_NUM_BK_LIGHT, LCD_BK_LIGHT_ON_LEVEL);
 
+#if USE_LVGL
+        ESP_LOGI(TAG, "Initialize LVGL library");
+        lv_init();
+        // alloc draw buffers used by LVGL
+        // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
+        lv_color_t *buf1 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+        assert(buf1);
+        lv_color_t *buf2 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+        assert(buf2);
+        // initialize LVGL draw buffers
+        lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 20);
+
+        ESP_LOGI(TAG, "Register display driver to LVGL");
+        lv_disp_drv_init(&disp_drv);
+        disp_drv.hor_res = LCD_H_RES;
+        disp_drv.ver_res = LCD_V_RES;
+        disp_drv.flush_cb = lvgl_flush_cb;
+        disp_drv.drv_update_cb = lvgl_port_update_callback;
+        disp_drv.draw_buf = &disp_buf;
+        disp_drv.user_data = panel_handle;
+        lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
+
+        ESP_LOGI(TAG, "Install LVGL tick timer");
+        // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
+        const esp_timer_create_args_t lvgl_tick_timer_args = {
+            .callback = &increase_lvgl_tick,
+            .name = "lvgl_tick"
+        };
+        esp_timer_handle_t lvgl_tick_timer = NULL;
+        ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
+        ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000));    
+
+        // Register matrix button input device 
+        matrix_button_init();
+        static lv_indev_drv_t indev_drv;
+        lv_indev_drv_init(&indev_drv);  
+        indev_drv.type = LV_INDEV_TYPE_BUTTON;
+        indev_drv.read_cb = keyboard_read;
+        indev_keypad = lv_indev_drv_register(&indev_drv);
+
+
+        /*Assign keys to points on the screen*/
+        static const lv_point_t key_points[17] = {
+            {0, 0},    //BUTTON_IDLE
+            {0, 0},   //BUTTON_0
+            {0, 0},   //BUTTON_1
+            {0, 0},   //BUTTON_2
+            {0, 0},   //BUTTON_3
+            {0, 0},   //BUTTON_4
+            {0, 0},   //BUTTON_5
+            {0, 0},   //BUTTON_6
+            {0, 0},   //BUTTON_7
+            {0, 0},   //BUTTON_8
+            {0, 0},   //BUTTON_9
+            {60, 10},   //BUTTON_STAR
+            {0, 0},   //BUTTON_SHARP (OK)
+            {0, 0},   //BUTTON_ESC (A)
+            {245, 10},   //BUTTON_MENU (B)
+            {0, 0},   // BUTTON_UP (C)
+            {0, 0},   // BUTTON_DOWN (D)
+        };
+        lv_indev_set_button_points(indev_keypad, key_points);
+
+        ESP_LOGI(TAG, "Run LVGL UI");
+        
+        lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+
+        setup_ui(&guider_ui);
+
+        // lvgl_demo_ui(disp);
+
+        while (1) {
+            // raise the task priority of LVGL and/or reduce the handler period can improve the performance
+            vTaskDelay(pdMS_TO_TICKS(10));
+            // The task running lv_timer_handler should have lower priority than that running `lv_tick_inc`
+            lv_timer_handler();
+        }    
+
+#else 
         this->draw_wallpaper();
         vTaskDelay(pdMS_TO_TICKS(1000));
+#endif // USE_LVGL
     } while (0);
 }
 

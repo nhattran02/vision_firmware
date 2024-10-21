@@ -37,7 +37,7 @@ public:
     bool switch_on;
     bool paper_drawn;
     
-    LCD(Button *key,
+    LCD(/*Button *key ,*/
         QueueHandle_t xQueueFrameI = nullptr,
         QueueHandle_t xQueueFrameO = nullptr,
         void (*callback)(camera_fb_t *) = esp_camera_fb_return);

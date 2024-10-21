@@ -30,6 +30,12 @@ typedef struct
     button_name_t key; /**< button index on the channel */
 } key_config_t;
 
+void matrix_button_init(void);
+button_name_t detect_key(void);
+extern const char* button_names[];
+
+
+
 class Button : public Subject
 {
 public:

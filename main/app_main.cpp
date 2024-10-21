@@ -6,7 +6,7 @@
 #include "lcd.hpp"
 #include "face_recog.hpp"
 #include "button.hpp"
-
+#include "esp_log.h"
 
 static const char *TAG = "main";
 
@@ -21,19 +21,18 @@ extern "C" void app_main()
     QueueHandle_t xQueueFrame2 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame3 = xQueueCreate(2, sizeof(camera_fb_t *));
 
-    Button *matrix_button = new Button();
-    Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
-    Face *face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
-    LCD *lcd = new LCD(matrix_button, xQueueFrame2);
-    
-    matrix_button->attach(face);
-    matrix_button->attach(lcd);
-    
-    lcd->run();
-    face->run();
-    camera->run();
-    matrix_button->run();
+    // Button *matrix_button = new Button();
+    // Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
+    // Face *face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
+    LCD *lcd = new LCD(xQueueFrame2);
 
+    // matrix_button->attach(face);
+    // matrix_button->attach(lcd);
+    
+    // lcd->run();
+    // face->run();
+    // camera->run();
+    // matrix_button->run();
     
 #else
     app_wifi_main();

@@ -1,0 +1,178 @@
+/*
+* Copyright 2024 NXP
+* NXP Proprietary. This software is owned or controlled by NXP and may only be used strictly in
+* accordance with the applicable license terms. By expressly accepting such terms or by downloading, installing,
+* activating and/or otherwise using the software, you are agreeing that you have read, and that you agree to
+* comply with and are bound by, such license terms.  If you do not agree to be bound by the applicable license
+* terms, then you may not retain, install, activate or otherwise use the software.
+*/
+
+#include "lvgl.h"
+#include <stdio.h>
+#include "gui_guider.h"
+#include "events_init.h"
+
+
+
+void setup_scr_menu_screen(lv_ui *ui)
+{
+    //Write codes menu_screen
+    ui->menu_screen = lv_obj_create(NULL);
+    lv_obj_set_size(ui->menu_screen, 320, 240);
+    lv_obj_set_scrollbar_mode(ui->menu_screen, LV_SCROLLBAR_MODE_OFF);
+
+    //Write style for menu_screen, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_bg_opa(ui->menu_screen, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->menu_screen, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->menu_screen, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes menu_screen_data2_con
+    ui->menu_screen_data2_con = lv_obj_create(ui->menu_screen);
+    lv_obj_set_pos(ui->menu_screen_data2_con, 0, 30);
+    lv_obj_set_size(ui->menu_screen_data2_con, 320, 180);
+    lv_obj_set_scrollbar_mode(ui->menu_screen_data2_con, LV_SCROLLBAR_MODE_OFF);
+
+    //Write style for menu_screen_data2_con, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->menu_screen_data2_con, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui->menu_screen_data2_con, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui->menu_screen_data2_con, lv_color_hex(0x78797a), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui->menu_screen_data2_con, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->menu_screen_data2_con, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->menu_screen_data2_con, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->menu_screen_data2_con, lv_color_hex(0xbebfc0), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->menu_screen_data2_con, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->menu_screen_data2_con, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->menu_screen_data2_con, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->menu_screen_data2_con, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->menu_screen_data2_con, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->menu_screen_data2_con, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes menu_screen_esc_label
+    ui->menu_screen_esc_label = lv_label_create(ui->menu_screen);
+    lv_label_set_text(ui->menu_screen_esc_label, "ESC\n");
+    lv_label_set_long_mode(ui->menu_screen_esc_label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->menu_screen_esc_label, 3, 217);
+    lv_obj_set_size(ui->menu_screen_esc_label, 127, 17);
+
+    //Write style for menu_screen_esc_label, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->menu_screen_esc_label, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->menu_screen_esc_label, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->menu_screen_esc_label, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->menu_screen_esc_label, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->menu_screen_esc_label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->menu_screen_esc_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes menu_screen_ok_label
+    ui->menu_screen_ok_label = lv_label_create(ui->menu_screen);
+    lv_label_set_text(ui->menu_screen_ok_label, "OK");
+    lv_label_set_long_mode(ui->menu_screen_ok_label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->menu_screen_ok_label, 189, 217);
+    lv_obj_set_size(ui->menu_screen_ok_label, 127, 17);
+
+    //Write style for menu_screen_ok_label, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->menu_screen_ok_label, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->menu_screen_ok_label, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->menu_screen_ok_label, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->menu_screen_ok_label, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->menu_screen_ok_label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->menu_screen_ok_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes menu_screen_label_menu
+    ui->menu_screen_label_menu = lv_label_create(ui->menu_screen);
+    lv_label_set_text(ui->menu_screen_label_menu, "Menu");
+    lv_label_set_long_mode(ui->menu_screen_label_menu, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->menu_screen_label_menu, 96, 8);
+    lv_obj_set_size(ui->menu_screen_label_menu, 128, 17);
+    lv_obj_add_flag(ui->menu_screen_label_menu, LV_OBJ_FLAG_CLICKABLE);
+
+    //Write style for menu_screen_label_menu, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->menu_screen_label_menu, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->menu_screen_label_menu, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->menu_screen_label_menu, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->menu_screen_label_menu, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->menu_screen_label_menu, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->menu_screen_label_menu, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes menu_screen_wifi2_ok_icon
+    ui->menu_screen_wifi2_ok_icon = lv_img_create(ui->menu_screen);
+    lv_obj_add_flag(ui->menu_screen_wifi2_ok_icon, LV_OBJ_FLAG_CLICKABLE);
+    lv_img_set_src(ui->menu_screen_wifi2_ok_icon, &_wifi_alpha_24x24);
+    lv_img_set_pivot(ui->menu_screen_wifi2_ok_icon, 50,50);
+    lv_img_set_angle(ui->menu_screen_wifi2_ok_icon, 0);
+    lv_obj_set_pos(ui->menu_screen_wifi2_ok_icon, 14, 3);
+    lv_obj_set_size(ui->menu_screen_wifi2_ok_icon, 24, 24);
+    lv_obj_add_flag(ui->menu_screen_wifi2_ok_icon, LV_OBJ_FLAG_HIDDEN);
+
+    //Write style for menu_screen_wifi2_ok_icon, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_img_recolor_opa(ui->menu_screen_wifi2_ok_icon, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_img_opa(ui->menu_screen_wifi2_ok_icon, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->menu_screen_wifi2_ok_icon, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui->menu_screen_wifi2_ok_icon, true, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes menu_screen_wifi2_fail_icon
+    ui->menu_screen_wifi2_fail_icon = lv_img_create(ui->menu_screen);
+    lv_obj_add_flag(ui->menu_screen_wifi2_fail_icon, LV_OBJ_FLAG_CLICKABLE);
+    lv_img_set_src(ui->menu_screen_wifi2_fail_icon, &_wifi_off_alpha_24x24);
+    lv_img_set_pivot(ui->menu_screen_wifi2_fail_icon, 50,50);
+    lv_img_set_angle(ui->menu_screen_wifi2_fail_icon, 0);
+    lv_obj_set_pos(ui->menu_screen_wifi2_fail_icon, 14, 3);
+    lv_obj_set_size(ui->menu_screen_wifi2_fail_icon, 24, 24);
+
+    //Write style for menu_screen_wifi2_fail_icon, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_img_recolor_opa(ui->menu_screen_wifi2_fail_icon, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_img_opa(ui->menu_screen_wifi2_fail_icon, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->menu_screen_wifi2_fail_icon, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_clip_corner(ui->menu_screen_wifi2_fail_icon, true, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes menu_screen_btn2_wifi
+    ui->menu_screen_btn2_wifi = lv_btn_create(ui->menu_screen);
+    ui->menu_screen_btn2_wifi_label = lv_label_create(ui->menu_screen_btn2_wifi);
+    lv_label_set_text(ui->menu_screen_btn2_wifi_label, "");
+    lv_label_set_long_mode(ui->menu_screen_btn2_wifi_label, LV_LABEL_LONG_WRAP);
+    lv_obj_align(ui->menu_screen_btn2_wifi_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_pad_all(ui->menu_screen_btn2_wifi, 0, LV_STATE_DEFAULT);
+    lv_obj_set_width(ui->menu_screen_btn2_wifi_label, LV_PCT(100));
+    lv_obj_set_pos(ui->menu_screen_btn2_wifi, 54, 8);
+    lv_obj_set_size(ui->menu_screen_btn2_wifi, 10, 10);
+
+    //Write style for menu_screen_btn2_wifi, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_bg_opa(ui->menu_screen_btn2_wifi, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui->menu_screen_btn2_wifi, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->menu_screen_btn2_wifi, 5, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->menu_screen_btn2_wifi, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->menu_screen_btn2_wifi, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->menu_screen_btn2_wifi, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->menu_screen_btn2_wifi, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->menu_screen_btn2_wifi, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //The custom code of menu_screen.
+
+
+    //Update current screen layout.
+    lv_obj_update_layout(ui->menu_screen);
+
+}

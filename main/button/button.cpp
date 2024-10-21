@@ -7,7 +7,7 @@
 #include "freertos/task.h"
 #include "mcp23017.h"
 
-#define PRESS_INTERVAL              200000
+#define PRESS_INTERVAL              75
 #define I2C_MASTER_SCL_IO           41          /*!< gpio number for I2C master clock IO21*/
 #define I2C_MASTER_SDA_IO           42          /*!< gpio number for I2C master data  IO15*/
 #define I2C_MASTER_NUM              I2C_NUM_0   /*!< I2C port number for master dev */
@@ -20,7 +20,6 @@ static i2c_bus_handle_t i2c_bus = NULL;
 static mcp23017_handle_t device = NULL;
 static uint8_t col_pins[4] = {0x01, 0x02, 0x04, 0x08}; // from row 0 to row 3
 static uint8_t row_pins[4] = {0x10, 0x20, 0x40, 0x80}; // from col 0 to col 3
-
 const char* button_names[] = {
     "BUTTON_IDLE", "BUTTON_0", "BUTTON_1", "BUTTON_2", "BUTTON_3",
     "BUTTON_4", "BUTTON_5", "BUTTON_6", "BUTTON_7", "BUTTON_8",
@@ -28,12 +27,18 @@ const char* button_names[] = {
     "BUTTON_MENU", "BUTTON_UP", "BUTTON_DOWN"
 };
 
+
 Button::Button() : key_configs({{BUTTON_0}, {BUTTON_1}, {BUTTON_2}, {BUTTON_3}, 
                                 {BUTTON_4}, {BUTTON_5}, {BUTTON_6}, {BUTTON_7}, 
                                 {BUTTON_8}, {BUTTON_9}, {BUTTON_STAR}, {BUTTON_OK}, 
                                 {BUTTON_ESC}, {BUTTON_MENU}, {BUTTON_UP}, {BUTTON_DOWN}}),
                                 pressed(BUTTON_IDLE), menu(0)
 {   
+    matrix_button_init();
+}
+
+void matrix_button_init(void)
+{
     i2c_config_t conf = {
         I2C_MODE_MASTER, 
         I2C_MASTER_SDA_IO,
@@ -57,8 +62,8 @@ Button::Button() : key_configs({{BUTTON_0}, {BUTTON_1}, {BUTTON_2}, {BUTTON_3},
 
     ESP_ERROR_CHECK(mcp23017_set_io_dir(device, 0xF0, MCP23017_GPIOB)); 
     ESP_ERROR_CHECK(mcp23017_set_pullup(device, 0xFFFF));
-
 }
+
 
 static button_name_t get_button_pressed(int col, uint8_t row_state)
 {
@@ -77,6 +82,38 @@ static button_name_t get_button_pressed(int col, uint8_t row_state)
     }
 
     return BUTTON_IDLE; // No button pressed
+}
+
+button_name_t detect_key(void)
+{
+    button_name_t key_pressed = BUTTON_IDLE;
+
+    for (int col = 0; col < 4; col++)
+    {
+        ESP_ERROR_CHECK(mcp23017_write_io(device, ~(col_pins[col]), MCP23017_GPIOB));
+        vTaskDelay(pdMS_TO_TICKS(1));
+
+        uint8_t data = mcp23017_read_io(device, MCP23017_GPIOB);
+        uint8_t row_state = (data & 0xF0) >> 4;
+        
+        if (row_state != 0x0F)
+        {
+            vTaskDelay(pdMS_TO_TICKS(PRESS_INTERVAL));
+            data = mcp23017_read_io(device, MCP23017_GPIOB);
+            row_state = (data & 0xF0) >> 4;
+            if (row_state != 0x0F)
+            {
+                key_pressed = get_button_pressed(col, row_state);
+                
+                if (key_pressed != BUTTON_IDLE)
+                {
+                    ESP_LOGI(TAG, "%d[%s] is clicked;", key_pressed, button_names[key_pressed]);
+                    return key_pressed;
+                }                
+            }
+        }
+    }
+    return BUTTON_IDLE;
 }
 
 static void button_task(Button *self)
@@ -120,6 +157,7 @@ static void button_task(Button *self)
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
+
 
 void Button::run()
 {
