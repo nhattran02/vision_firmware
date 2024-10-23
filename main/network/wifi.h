@@ -6,6 +6,7 @@
 extern "C" {
 #endif
 
+	extern volatile bool wifi_connected;
 	void app_wifi_main();
 	void app_wifi_stop();
 

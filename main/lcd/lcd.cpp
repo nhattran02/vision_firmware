@@ -9,7 +9,6 @@
 #include "lvgl.h"
 extern "C"
 {
-    #include "lvgl_demo_ui.h"
     #include "gui_guider.h"
     #include "events_init.h"
 }
@@ -118,6 +117,14 @@ static void keyboard_read(struct _lv_indev_drv_t *indev, lv_indev_data_t *data)
 
 static const char TAG[] = "lcd";
 
+static void lvgl_timer_task(LCD *self)
+{
+    while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(10));
+        lv_timer_handler();
+    }
+}
 
 LCD::LCD(/* Button *key ,*/
          QueueHandle_t queue_i,
@@ -181,6 +188,7 @@ LCD::LCD(/* Button *key ,*/
         ESP_LOGI(TAG, "Turn on LCD backlight");
         gpio_set_level(LCD_NUM_BK_LIGHT, LCD_BK_LIGHT_ON_LEVEL);
 
+
 #if USE_LVGL
         ESP_LOGI(TAG, "Initialize LVGL library");
         lv_init();
@@ -213,6 +221,7 @@ LCD::LCD(/* Button *key ,*/
         ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
         ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000));    
 
+    #if 0 // USE_MATRIX_BUTTON
         // Register matrix button input device 
         matrix_button_init();
         static lv_indev_drv_t indev_drv;
@@ -237,27 +246,21 @@ LCD::LCD(/* Button *key ,*/
             {0, 0},   //BUTTON_9
             {60, 10},   //BUTTON_STAR
             {0, 0},   //BUTTON_SHARP (OK)
-            {0, 0},   //BUTTON_ESC (A)
+            {5, 220},   //BUTTON_ESC (A)
             {245, 10},   //BUTTON_MENU (B)
             {0, 0},   // BUTTON_UP (C)
             {0, 0},   // BUTTON_DOWN (D)
         };
         lv_indev_set_button_points(indev_keypad, key_points);
+    #endif // USE_MATRIX_BUTTON
 
         ESP_LOGI(TAG, "Run LVGL UI");
         
-        lv_disp_set_rotation(disp, LV_DISP_ROT_270);
+        lv_disp_set_rotation(disp, LV_DISP_ROT_90);
 
         setup_ui(&guider_ui);
 
-        // lvgl_demo_ui(disp);
-
-        while (1) {
-            // raise the task priority of LVGL and/or reduce the handler period can improve the performance
-            vTaskDelay(pdMS_TO_TICKS(10));
-            // The task running lv_timer_handler should have lower priority than that running `lv_tick_inc`
-            lv_timer_handler();
-        }    
+        xTaskCreate((TaskFunction_t)lvgl_timer_task, "lvgl timer task", 5 * 1024, this, 5, NULL);
 
 #else 
         this->draw_wallpaper();
@@ -357,5 +360,3 @@ void LCD::run()
 {
     xTaskCreatePinnedToCore((TaskFunction_t)lcd_task, TAG, 3 * 1024, this, 5, NULL, 1);
 }
-
-

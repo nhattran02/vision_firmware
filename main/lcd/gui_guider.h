@@ -36,11 +36,51 @@ typedef struct
 	lv_obj_t *menu_screen_data2_con;
 	lv_obj_t *menu_screen_esc_label;
 	lv_obj_t *menu_screen_ok_label;
-	lv_obj_t *menu_screen_label_menu;
-	lv_obj_t *menu_screen_wifi2_ok_icon;
-	lv_obj_t *menu_screen_wifi2_fail_icon;
+	lv_obj_t *menu_screen_menu_root;
+	lv_obj_t *menu_screen_menu_root_sidebar_page;
+	lv_obj_t *menu_screen_menu_root_subpage_1;
+	lv_obj_t *menu_screen_menu_root_cont_1;
+	lv_obj_t *menu_screen_menu_root_label_1;
+	lv_obj_t *menu_screen_menu_root_subpage_2;
+	lv_obj_t *menu_screen_menu_root_cont_2;
+	lv_obj_t *menu_screen_menu_root_label_2;
+	lv_obj_t *menu_screen_menu_root_subpage_3;
+	lv_obj_t *menu_screen_menu_root_cont_3;
+	lv_obj_t *menu_screen_menu_root_label_3;
+	lv_obj_t *menu_screen_menu_root_subpage_4;
+	lv_obj_t *menu_screen_menu_root_cont_4;
+	lv_obj_t *menu_screen_menu_root_label_4;
 	lv_obj_t *menu_screen_btn2_wifi;
 	lv_obj_t *menu_screen_btn2_wifi_label;
+	lv_obj_t *menu_screen_wifi2_ok_icon;
+	lv_obj_t *menu_screen_wifi2_fail_icon;
+	lv_obj_t *menu_screen_btn_menu_up;
+	lv_obj_t *menu_screen_btn_menu_up_label;
+	lv_obj_t *menu_screen_btn_menu_dwn;
+	lv_obj_t *menu_screen_btn_menu_dwn_label;
+	lv_obj_t *menu_screen_btn_next_screen2;
+	lv_obj_t *menu_screen_btn_next_screen2_label;
+	lv_obj_t *attendance_screen;
+	bool attendance_screen_del;
+	lv_obj_t *attendance_screen_data2_con;
+	lv_obj_t *attendance_screen_esc_label3;
+	lv_obj_t *attendance_screen_ok_label3;
+	lv_obj_t *attendance_screen_menu_attendance;
+	lv_obj_t *attendance_screen_menu_attendance_sidebar_page;
+	lv_obj_t *attendance_screen_menu_attendance_subpage_1;
+	lv_obj_t *attendance_screen_menu_attendance_cont_1;
+	lv_obj_t *attendance_screen_menu_attendance_label_1;
+	lv_obj_t *attendance_screen_menu_attendance_subpage_2;
+	lv_obj_t *attendance_screen_menu_attendance_cont_2;
+	lv_obj_t *attendance_screen_menu_attendance_label_2;
+	lv_obj_t *attendance_screen_btn3_wifi;
+	lv_obj_t *attendance_screen_btn3_wifi_label;
+	lv_obj_t *attendance_screen_wifi3_ok_icon;
+	lv_obj_t *attendance_screen_wifi3_fail_icon;
+	lv_obj_t *attendance_screen_btn_menu_up3;
+	lv_obj_t *attendance_screen_btn_menu_up3_label;
+	lv_obj_t *attendance_screen_btn_menu_dwn3;
+	lv_obj_t *attendance_screen_btn_menu_dwn3_label;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -65,6 +105,9 @@ extern lv_ui guider_ui;
 
 void setup_scr_main_screen(lv_ui *ui);
 void setup_scr_menu_screen(lv_ui *ui);
+void setup_scr_attendance_screen(lv_ui *ui);
+LV_IMG_DECLARE(_wifi_alpha_24x24);
+LV_IMG_DECLARE(_wifi_off_alpha_24x24);
 LV_IMG_DECLARE(_wifi_alpha_24x24);
 LV_IMG_DECLARE(_wifi_off_alpha_24x24);
 LV_IMG_DECLARE(_wifi_alpha_24x24);
@@ -73,6 +116,9 @@ LV_IMG_DECLARE(_wifi_off_alpha_24x24);
 LV_FONT_DECLARE(lv_font_montserrat_16)
 LV_FONT_DECLARE(lv_font_montserrat_48)
 LV_FONT_DECLARE(lv_font_montserrat_12)
+LV_FONT_DECLARE(lv_font_montserrat_18)
+LV_FONT_DECLARE(lv_font_montserrat_20)
+LV_FONT_DECLARE(lv_font_montserrat_24)
 
 
 #ifdef __cplusplus

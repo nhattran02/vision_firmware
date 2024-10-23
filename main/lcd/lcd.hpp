@@ -15,7 +15,7 @@
 #define LCD_BK_LIGHT_OFF_LEVEL !LCD_BK_LIGHT_ON_LEVEL
 #define LCD_NUM_SCLK           GPIO_NUM_21
 #define LCD_NUM_MOSI           GPIO_NUM_47
-#define LCD_NUM_MISO           GPIO_NUM_NC
+#define LCD_NUM_MISO           GPIO_NUM_NC //
 #define LCD_NUM_DC             GPIO_NUM_43
 #define LCD_NUM_RST            GPIO_NUM_NC
 #define LCD_NUM_CS             GPIO_NUM_44

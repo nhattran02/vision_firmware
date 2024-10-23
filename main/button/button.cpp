@@ -7,7 +7,7 @@
 #include "freertos/task.h"
 #include "mcp23017.h"
 
-#define PRESS_INTERVAL              75
+#define PRESS_INTERVAL              500000
 #define I2C_MASTER_SCL_IO           41          /*!< gpio number for I2C master clock IO21*/
 #define I2C_MASTER_SDA_IO           42          /*!< gpio number for I2C master data  IO15*/
 #define I2C_MASTER_NUM              I2C_NUM_0   /*!< I2C port number for master dev */
@@ -139,7 +139,8 @@ static void button_task(Button *self)
 
                 if (self->pressed != BUTTON_IDLE)
                 {
-                    ESP_LOGI(TAG, "%s is clicked", button_names[self->pressed]);
+                    ESP_LOGI(TAG, "%d[%s] is clicked;", self->pressed, button_names[self->pressed]);
+
 
                     if (self->pressed == BUTTON_MENU)
                     {
