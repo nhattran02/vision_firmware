@@ -141,7 +141,7 @@ void setup_scr_menu_screen(lv_ui *ui)
     lv_obj_set_pos(ui->menu_screen_menu_root, 0, -2);
     lv_obj_set_size(ui->menu_screen_menu_root, 1065, 200);
     lv_obj_set_scrollbar_mode(ui->menu_screen_menu_root, LV_SCROLLBAR_MODE_OFF);
-
+    
     //Write style for menu_screen_menu_root, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_bg_opa(ui->menu_screen_menu_root, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui->menu_screen_menu_root, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);

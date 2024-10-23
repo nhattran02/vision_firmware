@@ -22,6 +22,8 @@ typedef enum
     STATE_CHECK_OUT
 } ui_state_t;
 
+
+
 // Navigation variables
 ui_state_t screen_history[MAX_SCREEN_HISTORY];
 uint8_t screen_history_index = 0;
@@ -58,7 +60,7 @@ GUIHandler::GUIHandler(Button *key,
 {
 }
 
-void update_menu_selection(uint8_t menu_selected_item)
+static void update_menu_selection(uint8_t menu_selected_item)
 {
     lv_obj_clear_state(guider_ui.menu_screen_menu_root_cont_1, LV_STATE_CHECKED);
     lv_obj_clear_state(guider_ui.menu_screen_menu_root_cont_2, LV_STATE_CHECKED);
@@ -83,6 +85,8 @@ void update_menu_selection(uint8_t menu_selected_item)
     }
 
 }
+
+
 
 void GUIHandler::update()
 {

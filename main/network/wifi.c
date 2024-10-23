@@ -14,6 +14,8 @@
 #include "lwip/ip4_addr.h"
 #include "mdns.h"
 #include "wifi.h"
+#include "gui_guider.h"
+
 
 
  /* The examples use WiFi configuration that you can set via 'make menuconfig'.
@@ -45,6 +47,30 @@ static esp_netif_t* ap_netif = NULL;
 
 volatile bool wifi_connected = false;
 
+static void update_wifi_status(bool connect_status)
+{
+    if (connect_status)
+    {
+        lv_obj_add_flag(guider_ui.main_screen_wifi_fail_icon, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_add_flag(guider_ui.menu_screen_wifi2_fail_icon, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_add_flag(guider_ui.attendance_screen_wifi3_fail_icon, LV_OBJ_FLAG_HIDDEN); 
+
+        lv_obj_clear_flag(guider_ui.main_screen_wifi_ok_icon, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_clear_flag(guider_ui.menu_screen_wifi2_ok_icon, LV_OBJ_FLAG_HIDDEN); 
+        // lv_obj_clear_flag(guider_ui.attendance_screen_wifi3_ok_icon, LV_OBJ_FLAG_HIDDEN); 
+    }
+    else
+    {
+        lv_obj_clear_flag(guider_ui.main_screen_wifi_fail_icon, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_clear_flag(guider_ui.menu_screen_wifi2_fail_icon, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_clear_flag(guider_ui.attendance_screen_wifi3_fail_icon, LV_OBJ_FLAG_HIDDEN); 
+
+        lv_obj_add_flag(guider_ui.main_screen_wifi_ok_icon, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_add_flag(guider_ui.menu_screen_wifi2_ok_icon, LV_OBJ_FLAG_HIDDEN); 
+        // lv_obj_add_flag(guider_ui.attendance_screen_wifi3_ok_icon, LV_OBJ_FLAG_HIDDEN); 
+    }
+}
+
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
     int32_t event_id, void* event_data)
 {
@@ -73,6 +99,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         }
         else {
             wifi_connected = false;
+            update_wifi_status(wifi_connected);
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
         ESP_LOGI(TAG, "connect to the AP fail");
@@ -96,6 +123,7 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "got ip:" IPSTR "\n", IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         wifi_connected = true;
+        update_wifi_status(wifi_connected);
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
         break;
     default:
@@ -174,7 +202,7 @@ void app_wifi_main()
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     wifi_mode_t mode = WIFI_MODE_NULL;
-    
+
     if (strlen(EXAMPLE_ESP_WIFI_AP_SSID) && strlen(EXAMPLE_ESP_WIFI_SSID))
     {
         mode = WIFI_MODE_APSTA;

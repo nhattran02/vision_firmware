@@ -5,6 +5,7 @@
 #include "camera.hpp"
 #include "button.hpp"
 
+
 class GUIHandler : public Observer, public Frame
 {
 private:

@@ -120,7 +120,7 @@ void setup_scr_attendance_screen(lv_ui *ui)
     lv_menu_set_load_page_event(ui->attendance_screen_menu_attendance, ui->attendance_screen_menu_attendance_cont_2, ui->attendance_screen_menu_attendance_subpage_2);
     lv_event_send(ui->attendance_screen_menu_attendance_cont_1, LV_EVENT_CLICKED, NULL);
     lv_obj_set_pos(ui->attendance_screen_menu_attendance, 0, -2);
-    lv_obj_set_size(ui->attendance_screen_menu_attendance, 1065, 190);
+    lv_obj_set_size(ui->attendance_screen_menu_attendance, 1065, 200);
     lv_obj_set_scrollbar_mode(ui->attendance_screen_menu_attendance, LV_SCROLLBAR_MODE_OFF);
 
     //Write style for attendance_screen_menu_attendance, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
