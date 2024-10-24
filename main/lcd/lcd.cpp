@@ -11,7 +11,9 @@ extern "C"
 {
     #include "gui_guider.h"
     #include "events_init.h"
+    #include "gui_logic_utils.h"
 }
+
 
 #define USE_LVGL 1
 
@@ -255,9 +257,8 @@ LCD::LCD(/* Button *key ,*/
     #endif // USE_MATRIX_BUTTON
 
         ESP_LOGI(TAG, "Run LVGL UI");
-        
+        push_screen_to_history(STATE_MAIN_SCREEN);
         lv_disp_set_rotation(disp, LV_DISP_ROT_90);
-
         setup_ui(&guider_ui);
 
         xTaskCreate((TaskFunction_t)lvgl_timer_task, "lvgl timer task", 5 * 1024, this, 5, NULL);

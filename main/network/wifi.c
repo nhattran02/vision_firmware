@@ -15,6 +15,7 @@
 #include "mdns.h"
 #include "wifi.h"
 #include "gui_guider.h"
+#include "gui_logic_utils.h"
 
 
 
@@ -25,7 +26,7 @@
  */
 #define EXAMPLE_ESP_WIFI_SSID CONFIG_ESP_WIFI_SSID
 #define EXAMPLE_ESP_WIFI_PASS CONFIG_ESP_WIFI_PASSWORD
-#define EXAMPLE_ESP_MAXIMUM_RETRY CONFIG_ESP_MAXIMUM_RETRY
+#define EXAMPLE_ESP_MAXIMUM_RETRY 1
 #define EXAMPLE_ESP_WIFI_AP_SSID CONFIG_ESP_WIFI_AP_SSID
 #define EXAMPLE_ESP_WIFI_AP_PASS CONFIG_ESP_WIFI_AP_PASSWORD
 #define EXAMPLE_MAX_STA_CONN CONFIG_MAX_STA_CONN
@@ -47,27 +48,44 @@ static esp_netif_t* ap_netif = NULL;
 
 volatile bool wifi_connected = false;
 
-static void update_wifi_status(bool connect_status)
+void update_wifi_status(bool connect_status)
 {
+    ui_state_t current_screen = peek_current_screen();
     if (connect_status)
     {
-        lv_obj_add_flag(guider_ui.main_screen_wifi_fail_icon, LV_OBJ_FLAG_HIDDEN);
-        // lv_obj_add_flag(guider_ui.menu_screen_wifi2_fail_icon, LV_OBJ_FLAG_HIDDEN);
-        // lv_obj_add_flag(guider_ui.attendance_screen_wifi3_fail_icon, LV_OBJ_FLAG_HIDDEN); 
-
-        lv_obj_clear_flag(guider_ui.main_screen_wifi_ok_icon, LV_OBJ_FLAG_HIDDEN);
-        // lv_obj_clear_flag(guider_ui.menu_screen_wifi2_ok_icon, LV_OBJ_FLAG_HIDDEN); 
-        // lv_obj_clear_flag(guider_ui.attendance_screen_wifi3_ok_icon, LV_OBJ_FLAG_HIDDEN); 
+        if (current_screen == STATE_MAIN_SCREEN)
+        {
+            lv_obj_add_flag(guider_ui.main_screen_wifi_fail_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(guider_ui.main_screen_wifi_ok_icon, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_MENU_SCREEN)
+        {
+            lv_obj_add_flag(guider_ui.menu_screen_wifi2_fail_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(guider_ui.menu_screen_wifi2_ok_icon, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_ATTENDANCE_SCREEN)
+        {
+            lv_obj_add_flag(guider_ui.attendance_screen_wifi3_fail_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(guider_ui.attendance_screen_wifi3_ok_icon, LV_OBJ_FLAG_HIDDEN);
+        }
     }
     else
     {
-        lv_obj_clear_flag(guider_ui.main_screen_wifi_fail_icon, LV_OBJ_FLAG_HIDDEN);
-        // lv_obj_clear_flag(guider_ui.menu_screen_wifi2_fail_icon, LV_OBJ_FLAG_HIDDEN);
-        // lv_obj_clear_flag(guider_ui.attendance_screen_wifi3_fail_icon, LV_OBJ_FLAG_HIDDEN); 
-
-        lv_obj_add_flag(guider_ui.main_screen_wifi_ok_icon, LV_OBJ_FLAG_HIDDEN);
-        // lv_obj_add_flag(guider_ui.menu_screen_wifi2_ok_icon, LV_OBJ_FLAG_HIDDEN); 
-        // lv_obj_add_flag(guider_ui.attendance_screen_wifi3_ok_icon, LV_OBJ_FLAG_HIDDEN); 
+        if (current_screen == STATE_MAIN_SCREEN)
+        {
+            lv_obj_clear_flag(guider_ui.main_screen_wifi_fail_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(guider_ui.main_screen_wifi_ok_icon, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_MENU_SCREEN)
+        {
+            lv_obj_clear_flag(guider_ui.menu_screen_wifi2_fail_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(guider_ui.menu_screen_wifi2_ok_icon, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_ATTENDANCE_SCREEN)
+        {
+            lv_obj_clear_flag(guider_ui.attendance_screen_wifi3_fail_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(guider_ui.attendance_screen_wifi3_ok_icon, LV_OBJ_FLAG_HIDDEN);
+        }
     }
 }
 
@@ -100,7 +118,10 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         else {
             wifi_connected = false;
             update_wifi_status(wifi_connected);
-            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+            if (s_wifi_event_group != NULL)
+            {
+                xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+            }
         }
         ESP_LOGI(TAG, "connect to the AP fail");
         break;
@@ -124,7 +145,10 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base,
         s_retry_num = 0;
         wifi_connected = true;
         update_wifi_status(wifi_connected);
-        xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        if (s_wifi_event_group != NULL)
+        {
+            xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        }
         break;
     default:
         break;
