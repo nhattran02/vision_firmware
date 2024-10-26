@@ -1,0 +1,108 @@
+/*
+* Copyright 2024 NXP
+* NXP Proprietary. This software is owned or controlled by NXP and may only be used strictly in
+* accordance with the applicable license terms. By expressly accepting such terms or by downloading, installing,
+* activating and/or otherwise using the software, you are agreeing that you have read, and that you agree to
+* comply with and are bound by, such license terms.  If you do not agree to be bound by the applicable license
+* terms, then you may not retain, install, activate or otherwise use the software.
+*/
+
+#ifndef GUI_GUIDER_H
+#define GUI_GUIDER_H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "lvgl.h"
+
+typedef struct
+{
+  
+	lv_obj_t *main_screen;
+	bool main_screen_del;
+	lv_obj_t *main_screen_cont_1;
+	lv_obj_t *main_screen_label_date;
+	lv_obj_t *main_screen_label_day;
+	lv_obj_t *main_screen_label_time;
+	lv_obj_t *main_screen_label_home_name;
+	lv_obj_t *main_screen_label_WIFI;
+	lv_obj_t *main_screen_label_BT;
+	lv_obj_t *main_screen_label_SD;
+	lv_obj_t *main_screen_label_USB;
+	lv_obj_t *menu_screen;
+	bool menu_screen_del;
+	lv_obj_t *menu_screen_label_time2;
+	lv_obj_t *menu_screen_label_menu_name;
+	lv_obj_t *menu_screen_label_WIFI2;
+	lv_obj_t *menu_screen_label_BT2;
+	lv_obj_t *menu_screen_label_SD2;
+	lv_obj_t *menu_screen_label_USB2;
+	lv_obj_t *menu_screen_btn_esc2;
+	lv_obj_t *menu_screen_btn_esc2_label;
+	lv_obj_t *menu_screen_btn_ok2;
+	lv_obj_t *menu_screen_btn_ok2_label;
+	lv_obj_t *menu_screen_cont_connection;
+	lv_obj_t *menu_screen_label_connection_symbol;
+	lv_obj_t *menu_screen_label_connection_text;
+	lv_obj_t *menu_screen_cont_attendance;
+	lv_obj_t *menu_screen_label_attendance_symbol;
+	lv_obj_t *menu_screen_label_attendance_text;
+	lv_obj_t *menu_screen_cont_data;
+	lv_obj_t *menu_screen_label_data_symbol;
+	lv_obj_t *menu_screen_label_data_text;
+	lv_obj_t *menu_screen_cont_setting;
+	lv_obj_t *menu_screen_label_setting_symbol;
+	lv_obj_t *menu_screen_label_setting_text;
+	lv_obj_t *attendance_screen;
+	bool attendance_screen_del;
+	lv_obj_t *attendance_screen_label_time3;
+	lv_obj_t *attendance_screen_label_attendance_name;
+	lv_obj_t *attendance_screen_label_WIFI3;
+	lv_obj_t *attendance_screen_label_BT3;
+	lv_obj_t *attendance_screen_label_SD3;
+	lv_obj_t *attendance_screen_label_USB3;
+	lv_obj_t *attendance_screen_btn_esc3;
+	lv_obj_t *attendance_screen_btn_esc3_label;
+	lv_obj_t *attendance_screen_btn_ok3;
+	lv_obj_t *attendance_screen_btn_ok3_label;
+	lv_obj_t *attendance_screen_cont_check_in;
+	lv_obj_t *attendance_screen_label_checkin_symbol;
+	lv_obj_t *attendance_screen_label_checkin_text;
+	lv_obj_t *attendance_screen_cont_check_out;
+	lv_obj_t *attendance_screen_label_checkout_symbol;
+	lv_obj_t *attendance_screen_label_checkout_text;
+}lv_ui;
+
+typedef void (*ui_setup_scr_t)(lv_ui * ui);
+
+void ui_init_style(lv_style_t * style);
+
+void ui_load_scr_animation(lv_ui *ui, lv_obj_t ** new_scr, bool new_scr_del, bool * old_scr_del, ui_setup_scr_t setup_scr,
+                           lv_scr_load_anim_t anim_type, uint32_t time, uint32_t delay, bool is_clean, bool auto_del);
+
+void ui_animation(void * var, int32_t duration, int32_t delay, int32_t start_value, int32_t end_value, lv_anim_path_cb_t path_cb,
+                       uint16_t repeat_cnt, uint32_t repeat_delay, uint32_t playback_time, uint32_t playback_delay,
+                       lv_anim_exec_xcb_t exec_cb, lv_anim_start_cb_t start_cb, lv_anim_ready_cb_t ready_cb, lv_anim_deleted_cb_t deleted_cb);
+
+
+void init_scr_del_flag(lv_ui *ui);
+
+void setup_ui(lv_ui *ui);
+
+
+extern lv_ui guider_ui;
+
+
+void setup_scr_main_screen(lv_ui *ui);
+void setup_scr_menu_screen(lv_ui *ui);
+void setup_scr_attendance_screen(lv_ui *ui);
+
+LV_FONT_DECLARE(lv_font_montserrat_16)
+LV_FONT_DECLARE(lv_font_montserrat_48)
+LV_FONT_DECLARE(lv_font_montserrat_12)
+
+
+#ifdef __cplusplus
+}
+#endif
+#endif

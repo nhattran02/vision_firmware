@@ -6,6 +6,8 @@
 #include "lcd.hpp"
 #include "face_recog.hpp"
 #include "button.hpp"
+#include "gui_logic_handle.hpp"
+
 
 
 static const char *TAG = "main";
@@ -25,9 +27,13 @@ extern "C" void app_main()
     Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
     Face *face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
     LCD *lcd = new LCD(matrix_button, xQueueFrame2);
+    GUIHandler *gui_handler = new GUIHandler(matrix_button);
+    
     
     matrix_button->attach(face);
     matrix_button->attach(lcd);
+    matrix_button->attach(gui_handler);
+
     
     lcd->run();
     face->run();

@@ -77,6 +77,7 @@ Face::~Face()
 
 void Face::update()
 {
+#if 0
     // Parse key
     if (this->key->pressed > BUTTON_IDLE)
     {
@@ -100,6 +101,7 @@ void Face::update()
         }
     }    
     ESP_LOGI(TAG, "Human face recognition state = %d", this->state);
+#endif    
 }
 
 static void face_task(Face *self)

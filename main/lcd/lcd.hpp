@@ -27,6 +27,10 @@
 #define LCD_PARAM_BITS         8
 #define LCD_HOST               SPI2_HOST
 
+void disable_lvgl();
+void enable_lvgl();
+extern volatile bool lcd_switch_on;
+
 
 class LCD : public Observer, public Frame
 {

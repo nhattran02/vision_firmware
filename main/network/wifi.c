@@ -14,6 +14,8 @@
 #include "lwip/ip4_addr.h"
 #include "mdns.h"
 #include "wifi.h"
+#include "gui_guider.h"
+
 
 
  /* The examples use WiFi configuration that you can set via 'make menuconfig'.
@@ -23,7 +25,7 @@
  */
 #define EXAMPLE_ESP_WIFI_SSID CONFIG_ESP_WIFI_SSID
 #define EXAMPLE_ESP_WIFI_PASS CONFIG_ESP_WIFI_PASSWORD
-#define EXAMPLE_ESP_MAXIMUM_RETRY CONFIG_ESP_MAXIMUM_RETRY
+#define EXAMPLE_ESP_MAXIMUM_RETRY 1
 #define EXAMPLE_ESP_WIFI_AP_SSID CONFIG_ESP_WIFI_AP_SSID
 #define EXAMPLE_ESP_WIFI_AP_PASS CONFIG_ESP_WIFI_AP_PASSWORD
 #define EXAMPLE_MAX_STA_CONN CONFIG_MAX_STA_CONN
@@ -42,6 +44,42 @@ static esp_netif_t* ap_netif = NULL;
  * - we failed to connect after the maximum amount of retries */
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
+
+volatile bool wifi_connected = false;
+
+void update_wifi_status(bool connect_status, ui_state_t current_screen)
+{
+    if (connect_status)
+    {
+        if (current_screen == STATE_MAIN_SCREEN)
+        {
+            lv_obj_clear_flag(guider_ui.main_screen_label_WIFI, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_MENU_SCREEN)
+        {
+            lv_obj_clear_flag(guider_ui.menu_screen_label_WIFI2, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_ATTENDANCE_SCREEN)
+        {
+            lv_obj_clear_flag(guider_ui.attendance_screen_label_WIFI3, LV_OBJ_FLAG_HIDDEN);
+        }
+    }
+    else
+    {
+        if (current_screen == STATE_MAIN_SCREEN)
+        {
+            lv_obj_add_flag(guider_ui.main_screen_label_WIFI, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_MENU_SCREEN)
+        {
+            lv_obj_add_flag(guider_ui.menu_screen_label_WIFI2, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_ATTENDANCE_SCREEN)
+        {
+            lv_obj_add_flag(guider_ui.attendance_screen_label_WIFI3, LV_OBJ_FLAG_HIDDEN);
+        }
+    }
+}
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
     int32_t event_id, void* event_data)
@@ -70,7 +108,12 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
             ESP_LOGI(TAG, "retry to connect to the AP");
         }
         else {
-            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+            wifi_connected = false;
+            update_wifi_status(wifi_connected, current_state);
+            if (s_wifi_event_group != NULL)
+            {
+                xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+            }
         }
         ESP_LOGI(TAG, "connect to the AP fail");
         break;
@@ -92,7 +135,12 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base,
         event = (ip_event_got_ip_t*)event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR "\n", IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
-        xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        wifi_connected = true;
+        update_wifi_status(wifi_connected, current_state);
+        if (s_wifi_event_group != NULL)
+        {
+            xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        }
         break;
     default:
         break;
