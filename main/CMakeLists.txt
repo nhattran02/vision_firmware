@@ -5,6 +5,7 @@ set(src_dirs    network
                 lcd
                 face_recog
                 button
+                fingerprint
                 ".")
 
 set(include_dirs    network
@@ -12,6 +13,7 @@ set(include_dirs    network
                     lcd
                     face_recog
                     button
+                    fingerprint
                     ".")
 
 

@@ -7,18 +7,19 @@
 #include "face_recog.hpp"
 #include "button.hpp"
 #include "gui_logic_handle.hpp"
-
+#include "fingerprint.hpp"
 
 
 static const char *TAG = "main";
 
-#define NEW_VERSION 1
+#define TEST_R307 0
 
 static QueueHandle_t xQueueHttpFrame = NULL;
 
+
 extern "C" void app_main()
 {
-#if NEW_VERSION
+
     QueueHandle_t xQueueFrame1 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame2 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame3 = xQueueCreate(2, sizeof(camera_fb_t *));
@@ -28,28 +29,17 @@ extern "C" void app_main()
     Face *face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
     LCD *lcd = new LCD(matrix_button, xQueueFrame2);
     GUIHandler *gui_handler = new GUIHandler(matrix_button);
-    
+    Fingerprint *fingerprint = new Fingerprint(matrix_button, xQueueFrame3);
     
     matrix_button->attach(face);
     matrix_button->attach(lcd);
     matrix_button->attach(gui_handler);
-
+    matrix_button->attach(fingerprint);
     
     lcd->run();
     face->run();
     camera->run();
     matrix_button->run();
+    fingerprint->fingerprint_enroll_run();
 
-    
-#else
-    app_wifi_main();
-
-    xQueueHttpFrame = xQueueCreate(2, sizeof(camera_fb_t *));
-
-    register_camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueHttpFrame);
-                        
-    register_httpd(xQueueHttpFrame, NULL, true);
-    // register_http_client(xQueueHttpFrame, NULL, true);
-    // register_websocket_client(xQueueHttpFrame, NULL, true);
-#endif // NEW_VERSION
 }

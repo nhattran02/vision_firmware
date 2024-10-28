@@ -102,8 +102,6 @@ static void button_task(Button *self)
 
                 if (self->pressed != BUTTON_IDLE)
                 {
-                    ESP_LOGI(TAG, "%s is clicked", button_names[self->pressed]);
-
                     if (self->pressed == BUTTON_MENU)
                     {
                         self->menu++;

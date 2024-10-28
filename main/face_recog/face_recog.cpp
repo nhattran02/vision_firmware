@@ -56,7 +56,7 @@ Face::Face(Button *key,
                                               detector(0.3F, 0.3F, 10, 0.3F),
                                               detector2(0.4F, 0.3F, 10),
                                               state(FACE_IDLE), // I changed this from FACE_IDLE to FACE_RECOGNIZE
-                                              switch_on(false)
+                                              switch_on(true)
 {
 #if CONFIG_MFN_V1
 #if CONFIG_S8
@@ -173,7 +173,7 @@ static void face_task(Face *self)
                         if (self->recognize_result.id > 0)
                             rgb_printf(frame, RGB565_MASK_GREEN, "ID %d", self->recognize_result.id);
                         else
-                            rgb_print(frame, RGB565_MASK_RED, "who ?");
+                            rgb_print(frame, RGB565_MASK_RED, "UNKNOWN");
                         break;
 
                     case FACE_ENROLL:

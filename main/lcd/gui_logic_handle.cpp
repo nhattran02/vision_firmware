@@ -81,20 +81,18 @@ void GUIHandler::update()
         {
         case STATE_MAIN_SCREEN:
         {
-            ESP_LOGI(TAG, "STATE_MAIN_SCREEN");
 
             if (this->key->pressed == BUTTON_MENU)
             {
                 current_state = STATE_MENU_SCREEN;
                 setup_scr_menu_screen(&guider_ui);
-                lv_scr_load_anim(guider_ui.menu_screen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 300, 0, true);
+                lv_scr_load_anim(guider_ui.menu_screen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 0, 0, true);
                 update_data_gui(STATE_MENU_SCREEN);
             }
             break;
         }
         case STATE_MENU_SCREEN:
         {
-            ESP_LOGI(TAG, "STATE_MENU_SCREEN");
 
             if (this->key->pressed == BUTTON_UP)
             {
@@ -114,7 +112,7 @@ void GUIHandler::update()
                 {
                     current_state = STATE_ATTENDANCE_SCREEN;
                     setup_scr_attendance_screen(&guider_ui);
-                    lv_scr_load_anim(guider_ui.attendance_screen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 300, 0, true);
+                    lv_scr_load_anim(guider_ui.attendance_screen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 0, 0, true);
                     update_data_gui(STATE_ATTENDANCE_SCREEN);
 
                     break;
@@ -144,7 +142,7 @@ void GUIHandler::update()
                 // ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.menu_screen_del, setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, true, true);
 
                 setup_scr_main_screen(&guider_ui);
-                lv_scr_load_anim(guider_ui.main_screen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 300, 0, true);
+                lv_scr_load_anim(guider_ui.main_screen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 0, 0, true);
                 
                 update_data_gui(STATE_MAIN_SCREEN);
             }
@@ -152,31 +150,26 @@ void GUIHandler::update()
         }
         case STATE_ATTENDANCE:
         {
-            ESP_LOGI(TAG, "STATE_ATTENDANCE");
 
             break;
         }
         case STATE_WIRELESS_CONNECTION:
         {
-            ESP_LOGI(TAG, "STATE_WIRELESS_CONNECTION");
 
             break;
         }
         case STATE_DATA_MANAGEMENT:
         {
-            ESP_LOGI(TAG, "STATE_DATA_MANAGEMENT");
 
             break;
         }
         case STATE_SETTINGS:
         {
-            ESP_LOGI(TAG, "STATE_SETTINGS");
 
             break;
         }
         case STATE_ATTENDANCE_SCREEN:
         {
-            ESP_LOGI(TAG, "STATE_ATTENDANCE_SCREEN");
             if (this->key->pressed == BUTTON_UP)
             {
                 attendance_selected_item = (attendance_selected_item - 1 + 2) % 2;
@@ -193,13 +186,11 @@ void GUIHandler::update()
                 {
                 case 0:
                 {
-                    ESP_LOGI(TAG, "Check in");
                     is_attendance_check_in = true;
                     break;
                 }
                 case 1:
                 {
-                    ESP_LOGI(TAG, "Check out");
                     is_attendance_check_in = false;
                     break;
                 }
@@ -207,7 +198,6 @@ void GUIHandler::update()
                     break;
                 }
                 disable_lvgl();
-                vTaskDelay(pdMS_TO_TICKS(500));
                 lcd_switch_on = true;
             }
             else if (this->key->pressed == BUTTON_ESC)
@@ -219,14 +209,12 @@ void GUIHandler::update()
         }
         case STATE_CHECK_IN:
         {
-            ESP_LOGI(TAG, "STATE_CHECK_IN");
 
             break;
         } 
         case STATE_CHECK_OUT:
         {
-            ESP_LOGI(TAG, "STATE_CHECK_OUT");
-
+            
             break;
         }
         }

@@ -243,7 +243,7 @@ LCD::LCD(Button *key,
         setup_ui(&guider_ui);
 
         xTaskCreate((TaskFunction_t)lvgl_timer_task, "lvgl timer task", 5 * 1024, this, 5, NULL);
-
+        
         // Disable LVGL for drawing wallpaper
         
         // disable_lvgl();
