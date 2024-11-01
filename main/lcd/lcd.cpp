@@ -163,7 +163,7 @@ LCD::LCD(Button *key,
             .sclk_io_num = LCD_NUM_SCLK,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
-            .max_transfer_sz = LCD_H_RES * 20 * sizeof(uint16_t),
+            .max_transfer_sz = LCD_H_RES * 10 * sizeof(uint16_t),
         };
         ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &bus_conf, SPI_DMA_CH_AUTO));
 
@@ -239,7 +239,7 @@ LCD::LCD(Button *key,
 
         ESP_LOGI(TAG, "Run LVGL UI");
         
-        lv_disp_set_rotation(disp, LV_DISP_ROT_90);
+        lv_disp_set_rotation(disp, LV_DISP_ROT_270);
         setup_ui(&guider_ui);
 
         xTaskCreate((TaskFunction_t)lvgl_timer_task, "lvgl timer task", 5 * 1024, this, 5, NULL);

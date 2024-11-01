@@ -1,9 +1,9 @@
 dependencies:
   espressif/button:
-    component_hash: 00234b1af144d0870d25dace49c256d96996c7f88b5b460356bf2441b88d345f
+    component_hash: 5357a6a2c0c47fa67eb9a4dad8cbd78f848d05409b3557e49ec9948898655cfb
     source:
       type: service
-    version: 3.3.2
+    version: 3.4.0
   espressif/cmake_utilities:
     component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
     source:
@@ -20,10 +20,10 @@ dependencies:
       type: service
     version: 3.0.4
   espressif/esp_codec_dev:
-    component_hash: c6f0436538a956cc3f9c418df50829192dbb7f1f6b3012d23c7a4312d0ea18c7
+    component_hash: af363202469b2bbecc87f3268729adf37c18c886eba55cab4c268cc9be25b6af
     source:
       type: service
-    version: 1.3.1
+    version: 1.3.2
   espressif/esp_lcd_ili9341:
     component_hash: e301db2697027ddab3dd77486b14bbc4868dc1b10770aed1cb2f5cc99f777c83
     source:
@@ -31,10 +31,10 @@ dependencies:
       type: service
     version: 1.0.0
   espressif/esp_websocket_client:
-    component_hash: ae561d39222a399ddda5e470913c3d54a3c0f53dce15b8d21a3aaa4226dd74b1
+    component_hash: 8280960def8af4f84bc58d2d76f55357cd1387775cbc2e0a6b3ca229aa7e209e
     source:
       type: service
-    version: 1.2.3
+    version: 1.3.0
   espressif/mdns:
     component_hash: 9ff9c578fc3a5ea3c68e807233e47f2ce6b2492a92d7a9356ae5c29ab45f0fde
     source:

@@ -77,7 +77,7 @@ Face::~Face()
 
 void Face::update()
 {
-#if 0
+#if 1
     // Parse key
     if (this->key->pressed > BUTTON_IDLE)
     {
@@ -200,5 +200,5 @@ static void face_task(Face *self)
 
 void Face::run()
 {
-    xTaskCreatePinnedToCore((TaskFunction_t)face_task, TAG, 5 * 1024, this, 5, NULL, 1);
+    xTaskCreatePinnedToCore((TaskFunction_t)face_task, TAG, 8 * 1024, this, 5, NULL, 1);
 }
