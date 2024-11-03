@@ -92,7 +92,7 @@ static void button_task(Button *self)
         {
             ESP_ERROR_CHECK(mcp23017_write_io(device, ~(col_pins[col]), MCP23017_GPIOB));
             vTaskDelay(pdMS_TO_TICKS(1));
-
+                            
             uint8_t data = mcp23017_read_io(device, MCP23017_GPIOB);
             uint8_t row_state = (data & 0xF0) >> 4;
 

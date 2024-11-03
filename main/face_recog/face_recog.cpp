@@ -120,13 +120,13 @@ static void face_task(Face *self)
             {
                 std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
                 std::list<dl::detect::result_t> &detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
-
+    
                 if (detect_results.size())
                 {
                     // print_detection_result(detect_results);
                     draw_detection_result((uint16_t *)frame->buf, frame->height, frame->width, detect_results);
                 }
-
+                
                 if (self->state)
                 {
                     if (detect_results.size() == 1)
