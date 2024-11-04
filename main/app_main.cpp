@@ -37,7 +37,7 @@ extern "C" void app_main()
     SQLiteDB *sqlite_db = new SQLiteDB(matrix_button);
     
     // AppUSBMSC *usb_msc = new AppUSBMSC();
-    
+
     matrix_button->attach(face);
     matrix_button->attach(lcd);
     matrix_button->attach(gui_handler);

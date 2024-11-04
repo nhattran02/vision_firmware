@@ -19,6 +19,10 @@ public:
              QueueHandle_t queue_o = nullptr,
              void (*callback)(camera_fb_t *) = esp_camera_fb_return);
     ~SQLiteDB();
+    void create_csv_template();
+    void import_csv_to_db(const char* csv_filename);
+    void delete_db();
+    void print_db();
     void update();
     void run();
 };
