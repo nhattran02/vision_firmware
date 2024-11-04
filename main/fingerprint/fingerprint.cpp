@@ -54,7 +54,7 @@ static void fingerprint_enroll_task(Fingerprint *self)
         while (GenImg(default_address) != 0)
         {
             ESP_LOGI(TAG, "No finger detected");
-            vTaskDelay(pdMS_TO_TICKS(500));
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
         ESP_LOGI(TAG, "Finger detected");
 
@@ -110,7 +110,7 @@ static void fingerprint_enroll_task(Fingerprint *self)
             ESP_LOGI(TAG, "Error: Cannot register model | %d", confirmation_code);
         }
 
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

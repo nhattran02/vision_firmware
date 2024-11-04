@@ -200,5 +200,5 @@ static void face_task(Face *self)
 
 void Face::run()
 {
-    xTaskCreatePinnedToCore((TaskFunction_t)face_task, TAG, 8 * 1024, this, 5, NULL, 1);
+    xTaskCreatePinnedToCore((TaskFunction_t)face_task, TAG, 4 * 1024, this, 5, NULL, 1);
 }

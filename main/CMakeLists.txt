@@ -6,6 +6,10 @@ set(src_dirs    network
                 face_recog
                 button
                 fingerprint
+                sdcard
+                usb_msc
+                sqlite_db
+                utils
                 ".")
 
 set(include_dirs    network
@@ -14,6 +18,10 @@ set(include_dirs    network
                     face_recog
                     button
                     fingerprint
+                    sdcard
+                    usb_msc
+                    sqlite_db
+                    utils
                     ".")
 
 
