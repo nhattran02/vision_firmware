@@ -80,16 +80,15 @@ SQLiteDB::SQLiteDB(Button *key,
         return;
 
 
-    // delete_db();
+    delete_db();
     print_db();
 
 
     // create_csv_template();
 
-    import_csv_to_db("/sdcard/template.csv");
+    // import_csv_to_db("/sdcard/template.csv");
 
-
-    print_db();
+    // print_db();
 
 
     sqlite3_close(db);

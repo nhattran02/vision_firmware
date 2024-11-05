@@ -347,7 +347,7 @@ static void lcd_task(LCD *self)
 
 void LCD::run()
 {
-    xTaskCreatePinnedToCore((TaskFunction_t)lcd_task, TAG, 3 * 1024, this, 5, NULL, 1);
+    xTaskCreatePinnedToCore((TaskFunction_t)lcd_task, TAG, 5 * 1024, this, 5, NULL, 1);
 }
 
 

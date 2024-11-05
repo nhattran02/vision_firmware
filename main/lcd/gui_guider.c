@@ -75,9 +75,10 @@ void ui_animation(void * var, int32_t duration, int32_t delay, int32_t start_val
 void init_scr_del_flag(lv_ui *ui)
 {
 
-    ui->main_screen_del = false;
-    ui->menu_screen_del = false;
-    ui->attendance_screen_del = false;
+    ui->main_screen_del = true;
+    ui->menu_screen_del = true;
+    ui->attendance_screen_del = true;
+    ui->data_screen_del = true;
 }
 
 void setup_ui(lv_ui *ui)
@@ -85,7 +86,4 @@ void setup_ui(lv_ui *ui)
     init_scr_del_flag(ui);
     setup_scr_main_screen(ui);
     lv_scr_load(ui->main_screen);
-    // setup_scr_menu_screen(ui);
-    // lv_scr_load(ui->menu_screen);
-
 }

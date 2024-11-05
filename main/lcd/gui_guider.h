@@ -71,6 +71,30 @@ typedef struct
 	lv_obj_t *attendance_screen_cont_check_out;
 	lv_obj_t *attendance_screen_label_checkout_symbol;
 	lv_obj_t *attendance_screen_label_checkout_text;
+	lv_obj_t *data_screen;
+	bool data_screen_del;
+	lv_obj_t *data_screen_label_time4;
+	lv_obj_t *data_screen_label_data_name;
+	lv_obj_t *data_screen_label_WIFI4;
+	lv_obj_t *data_screen_label_BT4;
+	lv_obj_t *data_screen_label_SD4;
+	lv_obj_t *data_screen_label_USB4;
+	lv_obj_t *data_screen_btn_esc4;
+	lv_obj_t *data_screen_btn_esc4_label;
+	lv_obj_t *data_screen_btn_ok4;
+	lv_obj_t *data_screen_btn_ok4_label;
+	lv_obj_t *data_screen_cont_dwntemplate;
+	lv_obj_t *data_screen_label_dwntemplate_symbol;
+	lv_obj_t *data_screen_label_dwntemplate_text;
+	lv_obj_t *data_screen_cont_dwnreport;
+	lv_obj_t *data_screen_label_dwnreport_symbol;
+	lv_obj_t *data_screen_label_dwnreport_text;
+	lv_obj_t *data_screen_cont_uptemplate;
+	lv_obj_t *data_screen_label_uptemplate_symbol;
+	lv_obj_t *data_screen_label_uptemplate_text;
+	lv_obj_t *data_screen_cont_deletedb;
+	lv_obj_t *data_screen_label_deletedb_symbol;
+	lv_obj_t *data_screen_label_deletedb_text;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -96,6 +120,7 @@ extern lv_ui guider_ui;
 void setup_scr_main_screen(lv_ui *ui);
 void setup_scr_menu_screen(lv_ui *ui);
 void setup_scr_attendance_screen(lv_ui *ui);
+void setup_scr_data_screen(lv_ui *ui);
 
 LV_FONT_DECLARE(lv_font_montserrat_16)
 LV_FONT_DECLARE(lv_font_montserrat_48)

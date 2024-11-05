@@ -63,6 +63,10 @@ void update_wifi_status(bool connect_status, ui_state_t current_screen)
         {
             lv_obj_clear_flag(guider_ui.attendance_screen_label_WIFI3, LV_OBJ_FLAG_HIDDEN);
         }
+        else if (current_screen == STATE_DATA_SCREEN)
+        {
+            lv_obj_clear_flag(guider_ui.data_screen_label_WIFI4, LV_OBJ_FLAG_HIDDEN);
+        }
     }
     else
     {
@@ -77,6 +81,10 @@ void update_wifi_status(bool connect_status, ui_state_t current_screen)
         else if (current_screen == STATE_ATTENDANCE_SCREEN)
         {
             lv_obj_add_flag(guider_ui.attendance_screen_label_WIFI3, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (current_screen == STATE_DATA_SCREEN)
+        {
+            lv_obj_add_flag(guider_ui.data_screen_label_WIFI4, LV_OBJ_FLAG_HIDDEN);
         }
     }
 }

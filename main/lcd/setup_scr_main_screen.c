@@ -13,6 +13,7 @@
 #include "events_init.h"
 
 
+
 void setup_scr_main_screen(lv_ui *ui)
 {
     //Write codes main_screen
@@ -20,7 +21,7 @@ void setup_scr_main_screen(lv_ui *ui)
     lv_obj_set_size(ui->main_screen, 320, 240);
     lv_obj_set_scrollbar_mode(ui->main_screen, LV_SCROLLBAR_MODE_OFF);
     lv_obj_add_flag(ui->main_screen, LV_OBJ_FLAG_CLICKABLE);
-    
+
     //Write style for main_screen, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_bg_opa(ui->main_screen, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui->main_screen, lv_color_hex(0xd5d9de), LV_PART_MAIN|LV_STATE_DEFAULT);

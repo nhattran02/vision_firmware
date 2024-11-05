@@ -5,6 +5,7 @@
 #include "dl_image.hpp"
 #include "fb_gfx.h"
 #include "who_ai_utils.hpp"
+#include "lcd.hpp"
 
 static const char TAG[] = "face recognition";
 
@@ -56,7 +57,7 @@ Face::Face(Button *key,
                                               detector(0.3F, 0.3F, 10, 0.3F),
                                               detector2(0.4F, 0.3F, 10),
                                               state(FACE_IDLE), // I changed this from FACE_IDLE to FACE_RECOGNIZE
-                                              switch_on(true)
+                                              switch_on(false)
 {
 #if CONFIG_MFN_V1
 #if CONFIG_S8
@@ -81,27 +82,33 @@ void Face::update()
     // Parse key
     if (this->key->pressed > BUTTON_IDLE)
     {
-        if (this->key->pressed == BUTTON_MENU)
+        if (lcd_switch_on == true)
         {
-            this->state = FACE_IDLE;
-            this->switch_on = (this->key->menu == MENU_FACE_RECOGNITION) ? true : false;
-            ESP_LOGD(TAG, "%s", this->switch_on ? "ON" : "OFF");
+            if (this->key->pressed == BUTTON_MENU)
+            {
+                this->state = FACE_IDLE;
+                if (this->switch_on == true)
+                    this->switch_on = false;
+                else
+                    this->switch_on = true;
+                ESP_LOGD(TAG, "%s", this->switch_on ? "ON" : "OFF");
+            }
+            else if (this->key->pressed == BUTTON_OK)
+            {
+                this->state = FACE_RECOGNIZE;
+            }
+            else if (this->key->pressed == BUTTON_UP)
+            {
+                this->state = FACE_ENROLL;
+            }
+            else if (this->key->pressed == BUTTON_DOWN)
+            {
+                this->state = FACE_DELETE;
+            }
+            ESP_LOGI(TAG, "Human face recognition state = %d", this->state);
         }
-        else if (this->key->pressed == BUTTON_OK)
-        {
-            this->state = FACE_RECOGNIZE;
-        }
-        else if (this->key->pressed == BUTTON_UP)
-        {
-            this->state = FACE_ENROLL;
-        }
-        else if (this->key->pressed == BUTTON_DOWN)
-        {
-            this->state = FACE_DELETE;
-        }
-    }    
-    ESP_LOGI(TAG, "Human face recognition state = %d", this->state);
-#endif    
+    }
+#endif
 }
 
 static void face_task(Face *self)
@@ -179,7 +186,7 @@ static void face_task(Face *self)
                     case FACE_ENROLL:
                         rgb_printf(frame, RGB565_MASK_BLUE, "Enroll: ID %d", self->recognizer->get_enrolled_ids().back().id);
                         break;
-
+                    
                     default:
                         break;
                     }

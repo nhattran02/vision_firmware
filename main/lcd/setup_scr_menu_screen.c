@@ -290,11 +290,6 @@ void setup_scr_menu_screen(lv_ui *ui)
     lv_obj_set_style_pad_left(ui->menu_screen_label_connection_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_shadow_width(ui->menu_screen_label_connection_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
-
-
-// -------------------------------------------------------------------------------------
-
-
     //Write codes menu_screen_cont_attendance
     ui->menu_screen_cont_attendance = lv_obj_create(ui->menu_screen);
     lv_obj_set_pos(ui->menu_screen_cont_attendance, 10, 40);
@@ -367,12 +362,6 @@ void setup_scr_menu_screen(lv_ui *ui)
     lv_obj_set_style_pad_bottom(ui->menu_screen_label_attendance_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_pad_left(ui->menu_screen_label_attendance_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_shadow_width(ui->menu_screen_label_attendance_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-
-
-// -------------------------------------------------------------------------------------
-
-
-
 
     //Write codes menu_screen_cont_data
     ui->menu_screen_cont_data = lv_obj_create(ui->menu_screen);
@@ -521,7 +510,6 @@ void setup_scr_menu_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->menu_screen_label_setting_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //The custom code of menu_screen.
-
 
 
     //Update current screen layout.

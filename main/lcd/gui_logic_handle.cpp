@@ -72,6 +72,33 @@ static void update_attendance_selection(uint8_t _attendance_selected_item)
     }    
 }
 
+static void update_data_selection(uint8_t _data_selected_item)
+{
+    data_screen_dwnreport_default();
+    data_screen_dwntemplate_default();
+    data_screen_uptemplate_default();
+    data_screen_deletedb_default();
+
+    switch (_data_selected_item)
+    {
+    case 0:
+        data_screen_dwnreport_check();
+        break;
+    case 1:
+        data_screen_dwntemplate_check();
+        break;
+    case 2:
+        data_screen_uptemplate_check();
+        break;
+    case 3:
+        data_screen_deletedb_check();
+        break;
+    default:
+        break;
+    }    
+}
+
+
 void GUIHandler::update()
 {
     if (this->key->pressed == BUTTON_MENU || this->key->pressed == BUTTON_ESC || this->key->pressed == BUTTON_UP || this->key->pressed == BUTTON_DOWN || this->key->pressed == BUTTON_OK)
@@ -117,14 +144,17 @@ void GUIHandler::update()
 
                     break;
                 }
-                case 1:
+                case 1: // Load STATE_CONNECTION_SCREEN
                 {
                     
                     break;
                 }                
-                case 2:
+                case 2: // Load STATE_DATA_SCREEN
                 {
-                    
+                    current_state = STATE_DATA_SCREEN;
+                    setup_scr_data_screen(&guider_ui);
+                    lv_scr_load_anim(guider_ui.data_screen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 0, 0, true);
+                    update_data_gui(STATE_DATA_SCREEN);                    
                     break;
                 }
                 case 3:
@@ -144,6 +174,7 @@ void GUIHandler::update()
                 setup_scr_main_screen(&guider_ui);
                 lv_scr_load_anim(guider_ui.main_screen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 0, 0, true);
                 
+
                 update_data_gui(STATE_MAIN_SCREEN);
             }
             break;
@@ -215,6 +246,49 @@ void GUIHandler::update()
         case STATE_CHECK_OUT:
         {
             
+            break;
+        }
+        case STATE_CONNECTION_SCREEN:
+        {
+            
+            break;
+        }
+        case STATE_DATA_SCREEN:
+        {
+            if (this->key->pressed == BUTTON_UP)
+            {
+                data_selected_item = (data_selected_item - 1 + 4) % 4;
+                update_data_selection(data_selected_item);
+            }
+            else if (this->key->pressed == BUTTON_DOWN)
+            {
+                data_selected_item = (data_selected_item + 1) % 4;
+                update_data_selection(data_selected_item);
+            }
+            else if (this->key->pressed == BUTTON_OK)
+            {
+                switch (data_selected_item)
+                {
+                case 0:
+                {
+                    
+                    break;
+                }
+                case 1:
+                {
+                    
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+            else if (this->key->pressed == BUTTON_ESC)
+            {
+
+                
+            }            
+
             break;
         }
         }
