@@ -20,9 +20,6 @@ void events_init(lv_ui *ui);
 
 void events_init_main_screen(lv_ui *ui);
 void events_init_menu_screen(lv_ui *ui);
-void events_init_loader_screen_dwnreport(lv_ui *ui);
-void events_init_loader_screen_dwntemplate(lv_ui *ui);
-void events_init_loader_screen_uptemplate(lv_ui *ui);
 
 #ifdef __cplusplus
 }

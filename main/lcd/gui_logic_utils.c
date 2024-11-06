@@ -18,7 +18,6 @@ uint8_t data_selected_item = 0;
 void update_data_gui(ui_state_t current_screen)
 {
     update_wifi_status(wifi_connected, current_screen);
-
 }
 
 void menu_screen_attendance_check(void)

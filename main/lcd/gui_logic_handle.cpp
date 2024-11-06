@@ -257,26 +257,32 @@ void GUIHandler::update()
                 {
                 case 0: // SAVE REPORT
                 {
-                    current_state = STATE_LOADER_SAVE_REPORT_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.loader_screen_dwnreport, guider_ui.loader_screen_dwnreport_del, &guider_ui.data_screen_del, setup_scr_loader_screen_dwnreport, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
-                    
-                    // setup_scr_loader_screen_dwnreport(&guider_ui);
-                    // lv_scr_load_anim(guider_ui.loader_screen_dwnreport, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 0, 0, true);
+                    // Execute the save report function
+
+                    // After that load the finish screen                        
+
+                    current_state = STATE_FINISH_SCREEN;
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                     break;
                 }
                 case 1: // DOWNLOAD TEMPLATE
                 {
 
+                    current_state = STATE_FINISH_SCREEN;
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                     break;
                 }
                 case 2: // UPLOAD TEMPLATE
                 {
 
+                    current_state = STATE_FINISH_SCREEN;
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                     break;
                 }
                 case 3: // DELETE DATABASE
                 {
-
+                    current_state = STATE_FINISH_SCREEN;
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                     break;
                 }
                 default:
@@ -289,29 +295,15 @@ void GUIHandler::update()
 
             break;
         }
-        case STATE_LOADER_SAVE_REPORT_SCREEN:
-        {
-
-            break;
-        }
-        case STATE_LOADER_DOWNLOAD_TEMPLATE_SCREEN:
-        {
-
-            break;
-        }
-        case STATE_LOADER_UPLOAD_TEMPLATE_SCREEN:
-        {
-
-            break;
-        }
-        case STATE_LOADER_DELETE_DB_SCREEN:
-        {
-
-            break;
-        }
         case STATE_FINISH_SCREEN:
         {
-
+            if (this->key->pressed == BUTTON_OK)            
+            {
+                current_state = STATE_DATA_SCREEN;
+                ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.finish_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                update_data_gui(STATE_DATA_SCREEN);
+                update_data_selection(data_selected_item);    
+            }
             break;
         }
         }

@@ -16,8 +16,6 @@ extern "C" {
 #include "gui_guider.h"
 
 void custom_init(lv_ui *ui);
-void load_finish_screen_cb();
-void anim_label_update(lv_obj_t *obj, uint16_t value);
 
 
 

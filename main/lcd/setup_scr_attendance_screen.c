@@ -366,6 +366,7 @@ void setup_scr_attendance_screen(lv_ui *ui)
 
     //The custom code of attendance_screen.
 
+
     //Update current screen layout.
     lv_obj_update_layout(ui->attendance_screen);
 

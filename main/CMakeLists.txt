@@ -10,6 +10,7 @@ set(src_dirs    network
                 usb_msc
                 sqlite_db
                 utils
+                lcd/asset
                 ".")
 
 set(include_dirs    network
@@ -22,6 +23,7 @@ set(include_dirs    network
                     usb_msc
                     sqlite_db
                     utils
+                    lcd/asset
                     ".")
 
 

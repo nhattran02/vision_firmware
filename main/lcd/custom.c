@@ -52,10 +52,3 @@ void load_finish_screen_cb()
         guider_ui.finish_screen_del = true;
     }
 }
-
-void anim_label_update(lv_obj_t *obj, uint16_t value) 
-{
-    char buf[8];
-    snprintf(buf, sizeof(buf), "%d%%", value);  
-    lv_label_set_text(obj, buf);
-}
