@@ -95,6 +95,31 @@ typedef struct
 	lv_obj_t *data_screen_cont_deletedb;
 	lv_obj_t *data_screen_label_deletedb_symbol;
 	lv_obj_t *data_screen_label_deletedb_text;
+	lv_obj_t *loader_screen_dwnreport;
+	bool loader_screen_dwnreport_del;
+	lv_obj_t *loader_screen_dwnreport_cont_bg1;
+	lv_obj_t *loader_screen_dwnreport_arc_loader1;
+	lv_obj_t *loader_screen_dwnreport_label_prompt1;
+	lv_obj_t *loader_screen_dwnreport_label_loader1;
+	lv_obj_t *loader_screen_dwntemplate;
+	bool loader_screen_dwntemplate_del;
+	lv_obj_t *loader_screen_dwntemplate_cont_bg2;
+	lv_obj_t *loader_screen_dwntemplate_arc_loader2;
+	lv_obj_t *loader_screen_dwntemplate_label_prompt2;
+	lv_obj_t *loader_screen_dwntemplate_label_loader2;
+	lv_obj_t *loader_screen_uptemplate;
+	bool loader_screen_uptemplate_del;
+	lv_obj_t *loader_screen_uptemplate_cont_bg3;
+	lv_obj_t *loader_screen_uptemplate_arc_loader3;
+	lv_obj_t *loader_screen_uptemplate_label_prompt3;
+	lv_obj_t *loader_screen_uptemplate_label_loader3;
+	lv_obj_t *finish_screen;
+	bool finish_screen_del;
+	lv_obj_t *finish_screen_cont_bg4;
+	lv_obj_t *finish_screen_btn_next;
+	lv_obj_t *finish_screen_btn_next_label;
+	lv_obj_t *finish_screen_label_prompt4;
+	lv_obj_t *finish_screen_img_icon_ok;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -121,6 +146,11 @@ void setup_scr_main_screen(lv_ui *ui);
 void setup_scr_menu_screen(lv_ui *ui);
 void setup_scr_attendance_screen(lv_ui *ui);
 void setup_scr_data_screen(lv_ui *ui);
+void setup_scr_loader_screen_dwnreport(lv_ui *ui);
+void setup_scr_loader_screen_dwntemplate(lv_ui *ui);
+void setup_scr_loader_screen_uptemplate(lv_ui *ui);
+void setup_scr_finish_screen(lv_ui *ui);
+LV_IMG_DECLARE(_ready_alpha_80x80);
 
 LV_FONT_DECLARE(lv_font_montserrat_16)
 LV_FONT_DECLARE(lv_font_montserrat_48)

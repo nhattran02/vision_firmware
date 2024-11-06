@@ -242,7 +242,7 @@ LCD::LCD(Button *key,
         lv_disp_set_rotation(disp, LV_DISP_ROT_270);
         setup_ui(&guider_ui);
 
-        xTaskCreate((TaskFunction_t)lvgl_timer_task, "lvgl timer task", 5 * 1024, this, 5, NULL);
+        xTaskCreate((TaskFunction_t)lvgl_timer_task, "lvgl timer task", 6 * 1024, this, 5, NULL);
         
         // Disable LVGL for drawing wallpaper
         
@@ -347,7 +347,7 @@ static void lcd_task(LCD *self)
 
 void LCD::run()
 {
-    xTaskCreatePinnedToCore((TaskFunction_t)lcd_task, TAG, 5 * 1024, this, 5, NULL, 1);
+    xTaskCreatePinnedToCore((TaskFunction_t)lcd_task, TAG, 6 * 1024, this, 5, NULL, 1);
 }
 
 

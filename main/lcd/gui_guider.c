@@ -79,6 +79,10 @@ void init_scr_del_flag(lv_ui *ui)
     ui->menu_screen_del = true;
     ui->attendance_screen_del = true;
     ui->data_screen_del = true;
+    ui->loader_screen_dwnreport_del = true;
+    ui->loader_screen_dwntemplate_del = true;
+    ui->loader_screen_uptemplate_del = true;
+    ui->finish_screen_del = true;
 }
 
 void setup_ui(lv_ui *ui)

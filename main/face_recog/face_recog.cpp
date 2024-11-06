@@ -120,7 +120,7 @@ static void face_task(Face *self)
     {
         if (self->queue_i == nullptr)
             break;
-
+            
         if (xQueueReceive(self->queue_i, &frame, portMAX_DELAY))
         {
             if (self->switch_on)
@@ -186,7 +186,7 @@ static void face_task(Face *self)
                     case FACE_ENROLL:
                         rgb_printf(frame, RGB565_MASK_BLUE, "Enroll: ID %d", self->recognizer->get_enrolled_ids().back().id);
                         break;
-                    
+
                     default:
                         break;
                     }

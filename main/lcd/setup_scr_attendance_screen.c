@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include "gui_guider.h"
 #include "events_init.h"
+#include "widgets_init.h"
+#include "custom.h"
 
 
 
@@ -363,7 +365,6 @@ void setup_scr_attendance_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->attendance_screen_label_checkout_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //The custom code of attendance_screen.
-
 
     //Update current screen layout.
     lv_obj_update_layout(ui->attendance_screen);

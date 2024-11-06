@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include "gui_guider.h"
 #include "events_init.h"
+#include "widgets_init.h"
+#include "custom.h"
 
 
 
