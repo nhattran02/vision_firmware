@@ -92,9 +92,9 @@ typedef struct
 	lv_obj_t *data_screen_cont_uptemplate;
 	lv_obj_t *data_screen_label_uptemplate_symbol;
 	lv_obj_t *data_screen_label_uptemplate_text;
-	lv_obj_t *data_screen_cont_deletedb;
-	lv_obj_t *data_screen_label_deletedb_symbol;
-	lv_obj_t *data_screen_label_deletedb_text;
+	lv_obj_t *data_screen_cont_usrdata;
+	lv_obj_t *data_screen_label_usrdata_symbol;
+	lv_obj_t *data_screen_label_usrdata_text;
 	lv_obj_t *finish_screen;
 	bool finish_screen_del;
 	lv_obj_t *finish_screen_cont_bg4;
@@ -102,6 +102,33 @@ typedef struct
 	lv_obj_t *finish_screen_btn_next_label;
 	lv_obj_t *finish_screen_label_prompt4;
 	lv_obj_t *finish_screen_img_icon_ok;
+	lv_obj_t *usrdata_screen;
+	bool usrdata_screen_del;
+	lv_obj_t *usrdata_screen_list_id;
+	lv_obj_t *usrdata_screen_list_id_item0;
+	lv_obj_t *usrdata_screen_list_id_item1;
+	lv_obj_t *usrdata_screen_list_id_item2;
+	lv_obj_t *usrdata_screen_list_id_item3;
+	lv_obj_t *usrdata_screen_list_id_item4;
+	lv_obj_t *usrdata_screen_list_id_item5;
+	lv_obj_t *usrdata_screen_list_id_item6;
+	lv_obj_t *usrdata_screen_list_id_item7;
+	lv_obj_t *usrdata_screen_list_id_item8;
+	lv_obj_t *usrdata_screen_list_id_item9;
+	lv_obj_t *usrdata_screen_list_id_item10;
+	lv_obj_t *usrdata_screen_list_id_item11;
+	lv_obj_t *usrdata_screen_list_id_item12;
+	lv_obj_t *usrdata_screen_list_name;
+	lv_obj_t *usrdata_screen_list_name_item0;
+	lv_obj_t *usrdata_screen_list_name_item1;
+	lv_obj_t *usrdata_screen_list_name_item2;
+	lv_obj_t *usrdata_screen_list_name_item3;
+	lv_obj_t *usrdata_screen_list_name_item4;
+	lv_obj_t *usrdata_screen_list_name_item5;
+	lv_obj_t *usrdata_screen_list_name_item6;
+	lv_obj_t *usrdata_screen_list_name_item7;
+	lv_obj_t *usrdata_screen_list_role;
+	lv_obj_t *usrdata_screen_list_role_item0;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -129,6 +156,7 @@ void setup_scr_menu_screen(lv_ui *ui);
 void setup_scr_attendance_screen(lv_ui *ui);
 void setup_scr_data_screen(lv_ui *ui);
 void setup_scr_finish_screen(lv_ui *ui);
+void setup_scr_usrdata_screen(lv_ui *ui);
 LV_IMG_DECLARE(_ready_alpha_80x80);
 
 LV_FONT_DECLARE(lv_font_montserrat_16)

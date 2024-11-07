@@ -33,8 +33,8 @@ extern "C" void app_main()
     LCD *lcd = new LCD(matrix_button, xQueueFrame2);
     GUIHandler *gui_handler = new GUIHandler(matrix_button);
     // Fingerprint *fingerprint = new Fingerprint(matrix_button, xQueueFrame3);
-    // AppSDCard *sd_card = new AppSDCard(matrix_button);
-    // SQLiteDB *sqlite_db = new SQLiteDB(matrix_button);
+    AppSDCard *sd_card = new AppSDCard(matrix_button);
+    SQLiteDB *sqlite_db = new SQLiteDB(matrix_button);
     // AppUSBMSC *usb_msc = new AppUSBMSC();
 
     matrix_button->attach(face);

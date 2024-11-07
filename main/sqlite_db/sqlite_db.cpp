@@ -80,7 +80,7 @@ SQLiteDB::SQLiteDB(Button *key,
         return;
 
 
-    delete_db();
+    // delete_db();
     print_db();
 
 
@@ -91,7 +91,7 @@ SQLiteDB::SQLiteDB(Button *key,
     // print_db();
 
 
-    sqlite3_close(db);
+    // sqlite3_close(db);
 }
 
 SQLiteDB::~SQLiteDB()
@@ -223,4 +223,65 @@ void SQLiteDB::print_db()
     }
 
     sqlite3_finalize(stmt); 
+}
+
+void load_data_from_database_to_users(void)
+{
+    const char *sql = "SELECT * FROM employee;";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    n_users = 0;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        if (n_users >= MAX_USERS)
+        {
+            ESP_LOGW(TAG, "Reached max number of employees: %d", MAX_USERS);
+            break;
+        }
+
+        users[n_users].id = sqlite3_column_int(stmt, 0);
+        snprintf(users[n_users].name, sizeof(users[n_users].name), "%s", reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+        snprintf(users[n_users].employeeId, sizeof(users[n_users].employeeId), "%s", reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
+        users[n_users].role = sqlite3_column_int(stmt, 3);
+
+        for (int i = 0; i < 6; i++)
+        {
+            users[n_users].check[i] = sqlite3_column_int(stmt, 4 + i);
+        }
+        
+        n_users++;
+    }
+}
+
+void print_users(void)
+{
+    if (n_users == 0)
+    {
+        printf("No users loaded from the database.\n");
+        return;
+    }
+
+    printf("User Data:\n");
+    for (int i = 0; i < n_users; i++)
+    {
+        printf("User %d:\n", i + 1);
+        printf("  ID: %d\n", users[i].id);
+        printf("  Name: %s\n", users[i].name);
+        printf("  Employee ID: %s\n", users[i].employeeId);
+        printf("  Role: %d\n", users[i].role);
+
+        printf("  Check Values: ");
+        for (int j = 0; j < 6; j++)
+        {
+            printf("%d ", users[i].check[j]);
+        }
+        printf("\n");
+    }
 }

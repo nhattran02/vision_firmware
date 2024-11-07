@@ -39,16 +39,3 @@ void custom_init(lv_ui *ui)
 {
     /* Add your codes here */
 }
-
-void load_finish_screen_cb()
-{
-    lv_obj_t * act_scr = lv_scr_act();
-    lv_disp_t * d = lv_obj_get_disp(act_scr);
-    if (d->prev_scr == NULL && (d->scr_to_load == NULL || d->scr_to_load == act_scr)) {
-        if (guider_ui.finish_screen_del == true) {
-          setup_scr_finish_screen(&guider_ui);
-        }
-        lv_scr_load_anim(guider_ui.finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 400, 100, true);
-        guider_ui.finish_screen_del = true;
-    }
-}

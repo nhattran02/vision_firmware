@@ -166,7 +166,7 @@ LCD::LCD(Button *key,
             .max_transfer_sz = LCD_H_RES * 10 * sizeof(uint16_t),
         };
         ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &bus_conf, SPI_DMA_CH_AUTO));
-
+        
         ESP_LOGI(TAG, "Install panel IO");
         esp_lcd_panel_io_handle_t io_handle = NULL;
         esp_lcd_panel_io_spi_config_t io_config = {

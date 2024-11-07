@@ -221,7 +221,7 @@ void setup_scr_data_screen(lv_ui *ui)
 
     //Write codes data_screen_cont_dwntemplate
     ui->data_screen_cont_dwntemplate = lv_obj_create(ui->data_screen);
-    lv_obj_set_pos(ui->data_screen_cont_dwntemplate, 10, 79);
+    lv_obj_set_pos(ui->data_screen_cont_dwntemplate, 10, 119);
     lv_obj_set_size(ui->data_screen_cont_dwntemplate, 300, 35);
     lv_obj_set_scrollbar_mode(ui->data_screen_cont_dwntemplate, LV_SCROLLBAR_MODE_OFF);
     lv_obj_add_flag(ui->data_screen_cont_dwntemplate, LV_OBJ_FLAG_CHECKABLE);
@@ -367,7 +367,7 @@ void setup_scr_data_screen(lv_ui *ui)
 
     //Write codes data_screen_cont_uptemplate
     ui->data_screen_cont_uptemplate = lv_obj_create(ui->data_screen);
-    lv_obj_set_pos(ui->data_screen_cont_uptemplate, 10, 119);
+    lv_obj_set_pos(ui->data_screen_cont_uptemplate, 10, 159);
     lv_obj_set_size(ui->data_screen_cont_uptemplate, 300, 35);
     lv_obj_set_scrollbar_mode(ui->data_screen_cont_uptemplate, LV_SCROLLBAR_MODE_OFF);
     lv_obj_add_flag(ui->data_screen_cont_uptemplate, LV_OBJ_FLAG_CHECKABLE);
@@ -438,78 +438,78 @@ void setup_scr_data_screen(lv_ui *ui)
     lv_obj_set_style_pad_left(ui->data_screen_label_uptemplate_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_shadow_width(ui->data_screen_label_uptemplate_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
-    //Write codes data_screen_cont_deletedb
-    ui->data_screen_cont_deletedb = lv_obj_create(ui->data_screen);
-    lv_obj_set_pos(ui->data_screen_cont_deletedb, 10, 159);
-    lv_obj_set_size(ui->data_screen_cont_deletedb, 300, 35);
-    lv_obj_set_scrollbar_mode(ui->data_screen_cont_deletedb, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_add_flag(ui->data_screen_cont_deletedb, LV_OBJ_FLAG_CHECKABLE);
+    //Write codes data_screen_cont_usrdata
+    ui->data_screen_cont_usrdata = lv_obj_create(ui->data_screen);
+    lv_obj_set_pos(ui->data_screen_cont_usrdata, 10, 79);
+    lv_obj_set_size(ui->data_screen_cont_usrdata, 300, 35);
+    lv_obj_set_scrollbar_mode(ui->data_screen_cont_usrdata, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_add_flag(ui->data_screen_cont_usrdata, LV_OBJ_FLAG_CHECKABLE);
 
-    //Write style for data_screen_cont_deletedb, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
-    lv_obj_set_style_border_width(ui->data_screen_cont_deletedb, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui->data_screen_cont_deletedb, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui->data_screen_cont_deletedb, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui->data_screen_cont_deletedb, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(ui->data_screen_cont_deletedb, 10, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui->data_screen_cont_deletedb, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui->data_screen_cont_deletedb, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(ui->data_screen_cont_deletedb, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui->data_screen_cont_deletedb, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui->data_screen_cont_deletedb, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(ui->data_screen_cont_deletedb, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui->data_screen_cont_deletedb, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_width(ui->data_screen_cont_deletedb, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_color(ui->data_screen_cont_deletedb, lv_color_hex(0x686464), LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(ui->data_screen_cont_deletedb, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_spread(ui->data_screen_cont_deletedb, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_ofs_x(ui->data_screen_cont_deletedb, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_ofs_y(ui->data_screen_cont_deletedb, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    //Write style for data_screen_cont_usrdata, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->data_screen_cont_usrdata, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui->data_screen_cont_usrdata, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui->data_screen_cont_usrdata, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui->data_screen_cont_usrdata, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->data_screen_cont_usrdata, 10, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->data_screen_cont_usrdata, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->data_screen_cont_usrdata, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->data_screen_cont_usrdata, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->data_screen_cont_usrdata, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->data_screen_cont_usrdata, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->data_screen_cont_usrdata, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->data_screen_cont_usrdata, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->data_screen_cont_usrdata, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_color(ui->data_screen_cont_usrdata, lv_color_hex(0x686464), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(ui->data_screen_cont_usrdata, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui->data_screen_cont_usrdata, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui->data_screen_cont_usrdata, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui->data_screen_cont_usrdata, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
 
-    //Write codes data_screen_label_deletedb_symbol
-    ui->data_screen_label_deletedb_symbol = lv_label_create(ui->data_screen_cont_deletedb);
-    lv_label_set_text(ui->data_screen_label_deletedb_symbol, "" LV_SYMBOL_TRASH "");
-    lv_label_set_long_mode(ui->data_screen_label_deletedb_symbol, LV_LABEL_LONG_WRAP);
-    lv_obj_set_pos(ui->data_screen_label_deletedb_symbol, 66, 7);
-    lv_obj_set_size(ui->data_screen_label_deletedb_symbol, 20, 20);
+    //Write codes data_screen_label_usrdata_symbol
+    ui->data_screen_label_usrdata_symbol = lv_label_create(ui->data_screen_cont_usrdata);
+    lv_label_set_text(ui->data_screen_label_usrdata_symbol, "" LV_SYMBOL_LIST "");
+    lv_label_set_long_mode(ui->data_screen_label_usrdata_symbol, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->data_screen_label_usrdata_symbol, 66, 7);
+    lv_obj_set_size(ui->data_screen_label_usrdata_symbol, 20, 20);
 
-    //Write style for data_screen_label_deletedb_symbol, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
-    lv_obj_set_style_border_width(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui->data_screen_label_deletedb_symbol, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui->data_screen_label_deletedb_symbol, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui->data_screen_label_deletedb_symbol, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_letter_space(ui->data_screen_label_deletedb_symbol, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui->data_screen_label_deletedb_symbol, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_width(ui->data_screen_label_deletedb_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    //Write style for data_screen_label_usrdata_symbol, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->data_screen_label_usrdata_symbol, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->data_screen_label_usrdata_symbol, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->data_screen_label_usrdata_symbol, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->data_screen_label_usrdata_symbol, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->data_screen_label_usrdata_symbol, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->data_screen_label_usrdata_symbol, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
-    //Write codes data_screen_label_deletedb_text
-    ui->data_screen_label_deletedb_text = lv_label_create(ui->data_screen_cont_deletedb);
-    lv_label_set_text(ui->data_screen_label_deletedb_text, "Delete All Data");
-    lv_label_set_long_mode(ui->data_screen_label_deletedb_text, LV_LABEL_LONG_WRAP);
-    lv_obj_set_pos(ui->data_screen_label_deletedb_text, 89, 7);
-    lv_obj_set_size(ui->data_screen_label_deletedb_text, 152, 19);
+    //Write codes data_screen_label_usrdata_text
+    ui->data_screen_label_usrdata_text = lv_label_create(ui->data_screen_cont_usrdata);
+    lv_label_set_text(ui->data_screen_label_usrdata_text, "User Data");
+    lv_label_set_long_mode(ui->data_screen_label_usrdata_text, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->data_screen_label_usrdata_text, 89, 7);
+    lv_obj_set_size(ui->data_screen_label_usrdata_text, 152, 19);
 
-    //Write style for data_screen_label_deletedb_text, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
-    lv_obj_set_style_border_width(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui->data_screen_label_deletedb_text, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui->data_screen_label_deletedb_text, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui->data_screen_label_deletedb_text, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_letter_space(ui->data_screen_label_deletedb_text, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui->data_screen_label_deletedb_text, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_width(ui->data_screen_label_deletedb_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    //Write style for data_screen_label_usrdata_text, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->data_screen_label_usrdata_text, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->data_screen_label_usrdata_text, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->data_screen_label_usrdata_text, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->data_screen_label_usrdata_text, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->data_screen_label_usrdata_text, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->data_screen_label_usrdata_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //The custom code of data_screen.
 

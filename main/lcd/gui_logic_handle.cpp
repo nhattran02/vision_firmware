@@ -10,6 +10,7 @@ extern "C"
 }
 #include "lcd.hpp"
 #include "camera.hpp"
+#include "sqlite_db.hpp"
 
 static const char TAG[] = "gui_logic_handle";
 
@@ -73,7 +74,7 @@ static void update_data_selection(uint8_t _data_selected_item)
     data_screen_dwnreport_default();
     data_screen_dwntemplate_default();
     data_screen_uptemplate_default();
-    data_screen_deletedb_default();
+    data_screen_usrdata_default();
 
     switch (_data_selected_item)
     {
@@ -81,13 +82,13 @@ static void update_data_selection(uint8_t _data_selected_item)
         data_screen_dwnreport_check();
         break;
     case 1:
-        data_screen_dwntemplate_check();
+        data_screen_usrdata_check();
         break;
     case 2:
-        data_screen_uptemplate_check();
+        data_screen_dwntemplate_check();
         break;
     case 3:
-        data_screen_deletedb_check();
+        data_screen_uptemplate_check();
         break;
     default:
         break;
@@ -265,24 +266,24 @@ void GUIHandler::update()
                     ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                     break;
                 }
-                case 1: // DOWNLOAD TEMPLATE
+                case 1: // Scan user data
                 {
-
+                    load_data_from_database_to_users();
+                    current_state = STATE_FINISH_SCREEN;
+                    ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.data_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    
+                    break;
+                }
+                case 2: // DOWNLOAD TEMPLATE
+                {
                     current_state = STATE_FINISH_SCREEN;
                     ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                     break;
                 }
-                case 2: // UPLOAD TEMPLATE
-                {
-
-                    current_state = STATE_FINISH_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
-                    break;
-                }
-                case 3: // DELETE DATABASE
+                case 3: // UPLOAD TEMPLATE
                 {
                     current_state = STATE_FINISH_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);                    
                     break;
                 }
                 default:

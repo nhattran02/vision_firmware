@@ -7,6 +7,13 @@
 #include "driver/sdmmc_host.h"
 #include "camera.hpp"
 #include "sqlite3.h"
+extern "C"
+{
+    #include "gui_logic_utils.h"
+}
+
+void load_data_from_database_to_users(void);
+void print_users(void);
 
 
 class SQLiteDB : public Observer, public Frame

@@ -13,6 +13,7 @@
 #if LV_USE_GUIDER_SIMULATOR && LV_USE_FREEMASTER
 #include "gg_external_data.h"
 #endif
+
 lv_ui guider_ui;
 
 void ui_init_style(lv_style_t * style)
@@ -79,6 +80,7 @@ void init_scr_del_flag(lv_ui *ui)
     ui->attendance_screen_del = true;
     ui->data_screen_del = true;
     ui->finish_screen_del = true;
+    ui->usrdata_screen_del = true;
 }
 
 void setup_ui(lv_ui *ui)
