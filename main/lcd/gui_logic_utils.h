@@ -42,12 +42,20 @@ typedef enum
 
     STATE_FINISH_SCREEN,
 
+    STATE_USER_DATA_SCREEN, 
+
 } ui_state_t;
 
 
 extern uint8_t menu_selected_item;
 extern uint8_t attendance_selected_item;
 extern uint8_t data_selected_item;
+extern uint16_t usr_data_selected_item;
+
+extern lv_obj_t **list_id_items;
+extern lv_obj_t **list_name_items;
+extern lv_obj_t **list_role_items;
+
 
 extern ui_state_t current_state;
 

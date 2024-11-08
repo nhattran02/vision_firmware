@@ -95,6 +95,26 @@ static void update_data_selection(uint8_t _data_selected_item)
     }
 }
 
+static void update_usr_data_selection(uint16_t _usr_data_selected_item)
+{
+    printf("n_users: %d, _usr_data_selected_item: %d\n", n_users, _usr_data_selected_item);
+
+    for (int i = 0; i < n_users; i++)
+    {
+        lv_obj_clear_state(list_id_items[i], LV_STATE_CHECKED);
+        lv_obj_clear_state(list_name_items[i], LV_STATE_CHECKED);
+        lv_obj_clear_state(list_role_items[i], LV_STATE_CHECKED);
+    }
+
+    lv_obj_add_state(list_id_items[_usr_data_selected_item], LV_STATE_CHECKED);
+    lv_obj_add_state(list_name_items[_usr_data_selected_item], LV_STATE_CHECKED);
+    lv_obj_add_state(list_role_items[_usr_data_selected_item], LV_STATE_CHECKED);
+
+    lv_obj_scroll_to_view(list_id_items[_usr_data_selected_item], LV_ANIM_OFF);
+    lv_obj_scroll_to_view(list_name_items[_usr_data_selected_item], LV_ANIM_OFF);
+    lv_obj_scroll_to_view(list_role_items[_usr_data_selected_item], LV_ANIM_OFF);
+}
+
 void GUIHandler::update()
 {
     if (this->key->pressed == BUTTON_MENU || this->key->pressed == BUTTON_ESC || this->key->pressed == BUTTON_UP || this->key->pressed == BUTTON_DOWN || this->key->pressed == BUTTON_OK)
@@ -269,9 +289,9 @@ void GUIHandler::update()
                 case 1: // Scan user data
                 {
                     load_data_from_database_to_users();
-                    current_state = STATE_FINISH_SCREEN;
+                    current_state = STATE_USER_DATA_SCREEN;
                     ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.data_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
-                    
+                    update_usr_data_selection(usr_data_selected_item);
                     break;
                 }
                 case 2: // DOWNLOAD TEMPLATE
@@ -304,6 +324,20 @@ void GUIHandler::update()
                 ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.finish_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                 update_data_gui(STATE_DATA_SCREEN);
                 update_data_selection(data_selected_item);    
+            }
+            break;
+        }
+        case STATE_USER_DATA_SCREEN:
+        {
+            if (this->key->pressed == BUTTON_UP)
+            {
+                usr_data_selected_item = (usr_data_selected_item - 1 + n_users) % n_users;
+                update_usr_data_selection(usr_data_selected_item);
+            }
+            else if (this->key->pressed == BUTTON_DOWN)
+            {
+                usr_data_selected_item = (usr_data_selected_item + 1) % n_users;
+                update_usr_data_selection(usr_data_selected_item);
             }
             break;
         }
