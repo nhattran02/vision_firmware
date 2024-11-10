@@ -46,6 +46,8 @@ typedef enum
 
     STATE_USER_DATA_SCREEN, 
 
+    STATE_USER_INFO_SCREEN, 
+
 } ui_state_t;
 
 
@@ -53,6 +55,8 @@ extern uint8_t menu_selected_item;
 extern uint8_t attendance_selected_item;
 extern uint8_t data_selected_item;
 extern uint16_t usr_data_selected_item;
+extern uint8_t usr_info_selected_item;
+
 
 extern lv_obj_t **list_id_items;
 extern lv_obj_t **list_name_items;
@@ -62,6 +66,8 @@ extern lv_obj_t **list_role_items;
 extern ui_state_t current_state;
 
 void _setup_scr_usrdata_screen(lv_ui *ui);
+void _setup_scr_usrinfo_screen(lv_ui *ui);
+
 void update_data_gui(ui_state_t current_screen);
 
 void menu_screen_setting_default(void);
@@ -87,6 +93,12 @@ void data_screen_dwntemplate_check(void);
 void data_screen_uptemplate_check(void);
 void data_screen_usrdata_check(void);
 
-
-
+void usrinfo_screen_finger_check(void);
+void usrinfo_screen_password_check(void);
+void usrinfo_screen_faceid_check(void);
+void usrinfo_screen_role_check(void);
+void usrinfo_screen_finger_default(void);
+void usrinfo_screen_password_default(void);
+void usrinfo_screen_faceid_default(void);
+void usrinfo_screen_role_default(void);
 

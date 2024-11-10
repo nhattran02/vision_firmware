@@ -113,6 +113,32 @@ static void update_usr_data_selection(uint16_t _usr_data_selected_item)
     lv_obj_scroll_to_view(list_role_items[_usr_data_selected_item], LV_ANIM_OFF);
 }
 
+static void update_usrinfo_selection(uint16_t _usrinfo_selected_item)
+{
+    usrinfo_screen_finger_default();
+    usrinfo_screen_password_default();
+    usrinfo_screen_faceid_default();
+    usrinfo_screen_role_default();
+
+    switch (_usrinfo_selected_item)
+    {
+    case 0:
+        usrinfo_screen_finger_check();
+        break;
+    case 1:
+        usrinfo_screen_password_check();
+        break;
+    case 2:
+        usrinfo_screen_faceid_check();
+        break;
+    case 3:
+        usrinfo_screen_role_check();
+        break;
+    default:
+        break;
+    }
+}
+
 void GUIHandler::update()
 {
     if (this->key->pressed == BUTTON_MENU || this->key->pressed == BUTTON_ESC || this->key->pressed == BUTTON_UP || this->key->pressed == BUTTON_DOWN || this->key->pressed == BUTTON_OK)
@@ -363,12 +389,64 @@ void GUIHandler::update()
                 usr_data_selected_item = (usr_data_selected_item + 1) % n_users;
                 update_usr_data_selection(usr_data_selected_item);
             }
+            else if (this->key->pressed == BUTTON_OK)
+            {
+                current_state = STATE_USER_INFO_SCREEN;
+                ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.usrdata_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                update_usrinfo_selection(usr_info_selected_item);
+            }
             else if (this->key->pressed == BUTTON_ESC)
             {
                 current_state = STATE_DATA_SCREEN;
                 ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.usrdata_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                 update_data_selection(data_selected_item);
                 update_data_gui(STATE_DATA_SCREEN);
+            }
+            break;
+        }
+        case STATE_USER_INFO_SCREEN:
+        {
+            if (this->key->pressed == BUTTON_UP)
+            {
+                usr_info_selected_item = (usr_info_selected_item - 1 + 4) % 4;
+                update_usrinfo_selection(usr_info_selected_item);
+            }
+            else if (this->key->pressed == BUTTON_DOWN)
+            {
+                usr_info_selected_item = (usr_info_selected_item + 1) % 4;
+                update_usrinfo_selection(usr_info_selected_item);
+            }
+            else if (this->key->pressed == BUTTON_OK)
+            {
+                switch (usr_info_selected_item)
+                {
+                case 0: // Finger
+                {
+                    
+                    break;
+                }
+                case 1: // Password
+                {
+                    
+                    break;
+                }
+                case 2: // FaceID
+                {
+
+                    break;
+                }
+                case 3: // Role
+                {
+
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+            else if (this->key->pressed == BUTTON_ESC)
+            {
+
             }
             break;
         }
