@@ -240,6 +240,7 @@ void GUIHandler::update()
                 }
                 disable_lvgl();
                 lcd_switch_on = true;
+                current_state = STATE_CAMERA_SCREEN;
             }
             else if (this->key->pressed == BUTTON_ESC)
             {
@@ -258,6 +259,18 @@ void GUIHandler::update()
         case STATE_CHECK_OUT:
         {
 
+            break;
+        }
+        case STATE_CAMERA_SCREEN:
+        {
+            if (this->key->pressed == BUTTON_ESC)
+            {
+                enable_lvgl();
+                lcd_switch_on = false;
+                current_state = STATE_ATTENDANCE_SCREEN;
+                ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.attendance_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                update_data_gui(STATE_ATTENDANCE_SCREEN);
+            }
             break;
         }
         case STATE_CONNECTION_SCREEN:
@@ -301,12 +314,14 @@ void GUIHandler::update()
                 }
                 case 2: // DOWNLOAD TEMPLATE
                 {
+                    create_csv_template((const char *)TEMPLATE_CSV);
                     current_state = STATE_FINISH_SCREEN;
                     ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                     break;
                 }
                 case 3: // UPLOAD TEMPLATE
                 {
+                    import_csv_to_db((const char *)TEMPLATE_CSV);
                     current_state = STATE_FINISH_SCREEN;
                     ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
                     break;

@@ -12,9 +12,12 @@ extern "C"
     #include "gui_logic_utils.h"
 }
 
+#define TEMPLATE_CSV "/sdcard/template.csv"
+
 void load_data_from_database_to_users(void);
 void print_users(void);
-
+void create_csv_template(const char *csv_filename);
+void import_csv_to_db(const char* csv_filename);
 
 class SQLiteDB : public Observer, public Frame
 {
@@ -26,8 +29,7 @@ public:
              QueueHandle_t queue_o = nullptr,
              void (*callback)(camera_fb_t *) = esp_camera_fb_return);
     ~SQLiteDB();
-    void create_csv_template();
-    void import_csv_to_db(const char* csv_filename);
+    
     void delete_db();
     void print_db();
     void update();

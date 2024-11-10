@@ -107,14 +107,12 @@ void SQLiteDB::run()
 {
 }
 
-void SQLiteDB::create_csv_template()
+void create_csv_template(const char *csv_filename)
 {
-    const char *filename = "/sdcard/template.csv";
-
-    FILE *file = fopen(filename, "wb");
+    FILE *file = fopen(csv_filename, "wb");
     if (file == NULL)
     {
-        ESP_LOGE(TAG, "Can not open file %s", filename);
+        ESP_LOGE(TAG, "Can not open file %s", csv_filename);
         return;
     }
 
@@ -123,11 +121,20 @@ void SQLiteDB::create_csv_template()
     fprintf(file, "2,Tran Thi B,654321,0,,,,,,\n");
 
     fclose(file);
-    ESP_LOGI(TAG, "Created csv template %s", filename);
+    ESP_LOGI(TAG, "Created csv template %s", csv_filename);
 }
 
-void SQLiteDB::import_csv_to_db(const char *csv_filename)
+void import_csv_to_db(const char *csv_filename)
 {  
+    int rc = db_exec(db, "DELETE FROM employee;");
+    if (rc != SQLITE_OK) 
+    {
+        ESP_LOGE(TAG, "Failed to clear existing data in the employee table");
+        sqlite3_close(db);
+        return;
+    }
+    ESP_LOGI(TAG, "Old data cleared from the employee table");
+
     FILE *file = fopen(csv_filename, "r");
     if (file == NULL)
     {
@@ -170,10 +177,11 @@ void SQLiteDB::import_csv_to_db(const char *csv_filename)
             "INSERT INTO employee (ID, NAME, EMPLOYEEID, ROLE, CHECK1, CHECK2, CHECK3, CHECK4, CHECK5, CHECK6) VALUES (%s, '%s', '%s', '%s', %d, %d, %d, %d, %d, %d);",
             id, name, employeeId, role, check[0], check[1], check[2], check[3], check[4], check[5]);
 
-        // printf("SQL string: %s\n", sql);
         int rc = db_exec(db, sql);
         if (rc != SQLITE_OK)
         {
+            ESP_LOGE(TAG, "Failed to insert data: ");
+            fclose(file);
             sqlite3_close(db);
             return;
         }        

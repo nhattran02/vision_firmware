@@ -35,6 +35,8 @@ typedef enum
     STATE_ATTENDANCE_SCREEN, //parent
     STATE_CHECK_IN, //child of parent
     STATE_CHECK_OUT, 
+    
+    STATE_CAMERA_SCREEN, 
 
     STATE_CONNECTION_SCREEN,
 
