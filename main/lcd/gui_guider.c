@@ -81,6 +81,7 @@ void init_scr_del_flag(lv_ui *ui)
     ui->data_screen_del = true;
     ui->finish_screen_del = true;
     ui->usrdata_screen_del = true;
+    ui->usrinfo_screen_del = true;
 }
 
 void setup_ui(lv_ui *ui)

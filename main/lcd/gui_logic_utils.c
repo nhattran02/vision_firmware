@@ -354,7 +354,7 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
 	lv_style_set_text_font(&style_usrdata_screen_list_checked, lv_obj_get_style_text_font(ui->usrdata_screen_list_id_item0, LV_PART_MAIN|LV_STATE_DEFAULT));
 	lv_style_set_radius(&style_usrdata_screen_list_checked, 0);
 	lv_style_set_bg_opa(&style_usrdata_screen_list_checked, 255);
-	lv_style_set_bg_color(&style_usrdata_screen_list_checked, lv_color_hex(0x969696));    
+	lv_style_set_bg_color(&style_usrdata_screen_list_checked, lv_color_hex(/*0x969696*/0x000000));
 
     for (int i = 0; i < n_users; i++) {
         lv_obj_add_style(ui->usrdata_screen_list_id_item0, &style_usrdata_screen_list_checked, LV_PART_MAIN|LV_STATE_CHECKED);
@@ -364,7 +364,7 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
         lv_obj_add_style(ui->usrdata_screen_list_role_item0, &style_usrdata_screen_list_checked, LV_PART_MAIN|LV_STATE_CHECKED);
         lv_obj_add_style(list_role_items[i], &style_usrdata_screen_list_checked, LV_PART_MAIN|LV_STATE_CHECKED);
     }
-
+    
     // lv_obj_add_state(list_id_items[4], LV_STATE_CHECKED);
 
     //Update current screen layout.
