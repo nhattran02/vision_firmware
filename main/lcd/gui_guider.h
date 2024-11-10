@@ -129,6 +129,9 @@ typedef struct
 	lv_obj_t *usrdata_screen_list_name_item7;
 	lv_obj_t *usrdata_screen_list_role;
 	lv_obj_t *usrdata_screen_list_role_item0;
+	lv_obj_t *usrdata_screen_label_id;
+	lv_obj_t *usrdata_screen_label_name;
+	lv_obj_t *usrdata_screen_label_role;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);

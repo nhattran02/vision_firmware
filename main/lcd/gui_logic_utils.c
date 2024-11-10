@@ -49,9 +49,14 @@ lv_obj_t **list_role_items = NULL;
 
 void _setup_scr_usrdata_screen(lv_ui *ui)
 {
-
     //Write codes usrdata_screen
+
+    // if (ui->usrdata_screen != NULL) {
+    //     lv_obj_clean(ui->usrdata_screen);
+    // }
+
     ui->usrdata_screen = lv_obj_create(NULL);
+
     lv_obj_set_size(ui->usrdata_screen, 320, 240);
     lv_obj_set_scrollbar_mode(ui->usrdata_screen, LV_SCROLLBAR_MODE_OFF);
     lv_obj_add_flag(ui->usrdata_screen, LV_OBJ_FLAG_CLICKABLE);
@@ -103,6 +108,8 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
     static lv_style_t style_usrdata_screen_list_id_main_scrollbar_default;
     ui_init_style(&style_usrdata_screen_list_id_main_scrollbar_default);
 
+    lv_style_set_pad_top(&style_usrdata_screen_list_id_main_main_default, 5);
+    lv_style_set_pad_bottom(&style_usrdata_screen_list_id_main_main_default, 5);
     lv_style_set_radius(&style_usrdata_screen_list_id_main_scrollbar_default, 3);
     lv_style_set_bg_opa(&style_usrdata_screen_list_id_main_scrollbar_default, 255);
     lv_style_set_bg_color(&style_usrdata_screen_list_id_main_scrollbar_default, lv_color_hex(0xffffff));
@@ -112,7 +119,7 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
     //Write style state: LV_STATE_DEFAULT for &style_usrdata_screen_list_id_extra_btns_main_default
     static lv_style_t style_usrdata_screen_list_id_extra_btns_main_default;
     ui_init_style(&style_usrdata_screen_list_id_extra_btns_main_default);
-
+    
     lv_style_set_pad_top(&style_usrdata_screen_list_id_extra_btns_main_default, 5);
     lv_style_set_pad_left(&style_usrdata_screen_list_id_extra_btns_main_default, 0);
     lv_style_set_pad_right(&style_usrdata_screen_list_id_extra_btns_main_default, 0);
@@ -191,6 +198,8 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
     static lv_style_t style_usrdata_screen_list_name_main_scrollbar_default;
     ui_init_style(&style_usrdata_screen_list_name_main_scrollbar_default);
 
+    lv_style_set_pad_top(&style_usrdata_screen_list_id_main_main_default, 5);
+    lv_style_set_pad_bottom(&style_usrdata_screen_list_id_main_main_default, 5);
     lv_style_set_radius(&style_usrdata_screen_list_name_main_scrollbar_default, 3);
     lv_style_set_bg_opa(&style_usrdata_screen_list_name_main_scrollbar_default, 255);
     lv_style_set_bg_color(&style_usrdata_screen_list_name_main_scrollbar_default, lv_color_hex(0xffffff));
@@ -282,6 +291,8 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
     static lv_style_t style_usrdata_screen_list_role_main_scrollbar_default;
     ui_init_style(&style_usrdata_screen_list_role_main_scrollbar_default);
 
+    lv_style_set_pad_top(&style_usrdata_screen_list_id_main_main_default, 5);
+    lv_style_set_pad_bottom(&style_usrdata_screen_list_id_main_main_default, 5);
     lv_style_set_radius(&style_usrdata_screen_list_role_main_scrollbar_default, 3);
     lv_style_set_bg_opa(&style_usrdata_screen_list_role_main_scrollbar_default, 255);
     lv_style_set_bg_color(&style_usrdata_screen_list_role_main_scrollbar_default, lv_color_hex(0xffffff));

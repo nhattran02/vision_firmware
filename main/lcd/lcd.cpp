@@ -163,7 +163,7 @@ LCD::LCD(Button *key,
             .sclk_io_num = LCD_NUM_SCLK,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
-            .max_transfer_sz = LCD_H_RES * 10 * sizeof(uint16_t),
+            .max_transfer_sz = LCD_H_RES * 5 * sizeof(uint16_t),
         };
         ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &bus_conf, SPI_DMA_CH_AUTO));
         
