@@ -98,7 +98,7 @@ static void fingerprint_enroll_task(Fingerprint *self)
             if (confirmation_code == 0)
             {
                 ESP_LOGI(TAG, "Enroll success! Stored template with ID: %d", user_id);
-                user_id++;
+                break;
             }
             else
             {
@@ -110,16 +110,24 @@ static void fingerprint_enroll_task(Fingerprint *self)
             ESP_LOGI(TAG, "Error: Cannot register model | %d", confirmation_code);
         }
 
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
+
+
+
+    while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+    
 }
 
 
 static void fingerprint_detect_task(Fingerprint *self)
 {
     uint8_t confirmation_code;
-    char start_page[2] = {0x00, 0x01};      // Specify the start page for the search
-    char page_number[2] = {0x00, 0x00};     // Specify the page range for the search
+    char start_page[2] = {0x00, 0x00};      // Specify the start page for the search
+    char page_number[2] = {0x00, 0x09};     // Specify the page range for the search
     
     while (1)
     {
@@ -129,7 +137,7 @@ static void fingerprint_detect_task(Fingerprint *self)
         while (GenImg(default_address) != 0)
         {
             ESP_LOGI(TAG, "No finger detected.");
-            vTaskDelay(pdMS_TO_TICKS(10));
+            vTaskDelay(pdMS_TO_TICKS(50));
         }
         ESP_LOGI(TAG, "Finger detected");
 
@@ -143,11 +151,10 @@ static void fingerprint_detect_task(Fingerprint *self)
         ESP_LOGI(TAG, "Feature created from image");
 
         // Search the feature against stored templates using the correct parameters
-        confirmation_code = Search(default_address, enroll_buffer_id_2, start_page, page_id);
+        confirmation_code = Search(default_address, enroll_buffer_id_1, start_page, page_number);
         if (confirmation_code == 0)
         {
             ESP_LOGI(TAG, "Fingerprint match found!");
-            // Here, add any additional actions on successful match
         }
         else
         {
@@ -155,7 +162,7 @@ static void fingerprint_detect_task(Fingerprint *self)
         }
 
         // Delay a bit before allowing another detection
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 
