@@ -32,7 +32,7 @@ extern "C" void app_main()
     Face *face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
     LCD *lcd = new LCD(matrix_button, xQueueFrame2);
     GUIHandler *gui_handler = new GUIHandler(matrix_button);
-    // Fingerprint *fingerprint = new Fingerprint(matrix_button, xQueueFrame3);
+    Fingerprint *fingerprint = new Fingerprint(matrix_button, xQueueFrame3);
     AppSDCard *sd_card = new AppSDCard(matrix_button);
     SQLiteDB *sqlite_db = new SQLiteDB(matrix_button);
     // AppUSBMSC *usb_msc = new AppUSBMSC();
@@ -40,7 +40,7 @@ extern "C" void app_main()
     matrix_button->attach(face);
     matrix_button->attach(lcd);
     matrix_button->attach(gui_handler);
-    // matrix_button->attach(fingerprint);
+    matrix_button->attach(fingerprint);
     // matrix_button->attach(sd_card);
     
     lcd->run();
@@ -48,6 +48,8 @@ extern "C" void app_main()
     camera->run();
     matrix_button->run();
     // fingerprint->fingerprint_enroll_run();
+    fingerprint->fingerprint_detect_run();
+
     // sd_card->run();
     
 }

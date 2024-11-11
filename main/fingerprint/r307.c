@@ -87,7 +87,7 @@ uint16_t check_sum(char tx_cmd_data[], char r307_data[])
 }
 
 
-uint16_t check_sum_fixed(char tx_cmd_data[], char r307_data[])
+uint16_t check_sum_store(char tx_cmd_data[], char r307_data[])
 {
     uint16_t result = 0;
 
@@ -106,6 +106,29 @@ uint16_t check_sum_fixed(char tx_cmd_data[], char r307_data[])
     }
 
     return result;
+}
+
+uint16_t check_sum_search(char tx_cmd_data[], char r307_data[])
+{
+    uint16_t result = 0;
+
+    for (int i = 0; i < 4; i++)
+    {
+        result = result + tx_cmd_data[i + 6];
+    }
+
+
+    for (int i = 0; i < 5; i++)
+    {
+        result = result + r307_data[i];
+    }
+
+    if (result <= 256)
+    {
+        result = result % 256;
+    }
+
+    return result;    
 }
 
 uint8_t VfyPwd(char r307_address[], char vfy_password[])
@@ -654,7 +677,7 @@ uint8_t Store(char r307_address[], char buffer_id[], char page_id[])
     memcpy(combined_data + 1, page_id, 2);
 
     // uint16_t checksum_value = check_sum(tx_cmd_data, combined_data);
-    uint16_t checksum_value = check_sum_fixed(tx_cmd_data, combined_data);
+    uint16_t checksum_value = check_sum_store(tx_cmd_data, combined_data);
     ESP_LOGI("Store | checksum_value", "checksum: %d", checksum_value);
     check_sum_data[0] = (checksum_value >> 8) & (0xFF);
     check_sum_data[1] = checksum_value & (0xFF);
@@ -856,7 +879,9 @@ uint8_t Search(char r307_address[], char buffer_id[], char start_page[], char pa
         combined_data[i + 3] = page_number[i];
     }
 
-    uint16_t checksum_value = check_sum(tx_cmd_data, combined_data);
+    // uint16_t checksum_value = check_sum(tx_cmd_data, combined_data);
+    uint16_t checksum_value = check_sum_search(tx_cmd_data, combined_data);
+
     check_sum_data[0] = (checksum_value >> 8) & (0xFF);
     check_sum_data[1] = checksum_value & (0xFF);
 

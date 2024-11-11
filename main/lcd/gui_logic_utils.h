@@ -13,9 +13,12 @@
 typedef struct 
 {
     int id;
-    char name[40];
+    char name[50];
     char employeeId[20];
     int role;
+    int fingerprint;
+    int faceid;
+    char password_hash[65];
     int check[6];  // CHECK1 to CHECK6
 } user_data_t;
 

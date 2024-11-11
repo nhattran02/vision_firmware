@@ -114,48 +114,52 @@ static void fingerprint_enroll_task(Fingerprint *self)
     }
 }
 
-static void fingerprint_enroll_task_(Fingerprint *self)
-{
-    uint8_t user_id = 1;
-    uint8_t confirmation_code = 0;
 
+static void fingerprint_detect_task(Fingerprint *self)
+{
+    uint8_t confirmation_code;
+    char start_page[2] = {0x00, 0x01};      // Specify the start page for the search
+    char page_number[2] = {0x00, 0x00};     // Specify the page range for the search
+    
     while (1)
     {
-        ESP_LOGI(TAG, "Enrolling user %d...", user_id);
-        if (GenImg(default_address) == 0)
-        {
-            ESP_LOGI(TAG, "Finger detected");
-            if ((confirmation_code = Img2Tz(default_address, enroll_buffer_id_1)) == 0)
-            {
-                ESP_LOGI(TAG, "Created feature from image");
+        ESP_LOGI(TAG, "Place your finger on the sensor for verification.");
 
-                if ((confirmation_code = Store(default_address, enroll_buffer_id_1, page_id)) == 0)
-                {
-                    ESP_LOGI(TAG, "Enroll success! Stored template with ID: %d", user_id);
-                    user_id++;
-                }
-                else
-                {
-                    ESP_LOGI(TAG, "Error: Cannot store template | %d", confirmation_code);
-                }
-            }
-            else
-            {
-                ESP_LOGI(TAG, "Error: Cannot create feature from image %d", confirmation_code);
-            }
+        // Wait until a finger is detected
+        while (GenImg(default_address) != 0)
+        {
+            ESP_LOGI(TAG, "No finger detected.");
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+        ESP_LOGI(TAG, "Finger detected");
+
+        // Convert the image to a feature template
+        confirmation_code = Img2Tz(default_address, enroll_buffer_id_1);
+        if (confirmation_code != 0)
+        {
+            ESP_LOGI(TAG, "Error: Failed to create feature from image | Code: %d", confirmation_code);
+            continue;
+        }
+        ESP_LOGI(TAG, "Feature created from image");
+
+        // Search the feature against stored templates using the correct parameters
+        confirmation_code = Search(default_address, enroll_buffer_id_2, start_page, page_id);
+        if (confirmation_code == 0)
+        {
+            ESP_LOGI(TAG, "Fingerprint match found!");
+            // Here, add any additional actions on successful match
         }
         else
         {
-            ESP_LOGI(TAG, "No finger detected");
+            ESP_LOGI(TAG, "No match found for the fingerprint. Code: %d", confirmation_code);
         }
-        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        // Delay a bit before allowing another detection
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
 
-static void fingerprint_detect_task(Fingerprint *self)
-{
-}
 
 void Fingerprint::fingerprint_enroll_run()
 {

@@ -28,7 +28,7 @@ void update_usrdata_screen(lv_ui *ui)
         lv_obj_clean(ui->usrdata_screen_list_role);
     }
 
-    char buf[40] = {0};
+    char buf[50] = {0};
 
     for (int i = 0; i < n_users; i++) {
         snprintf(buf, sizeof(buf), "%d", users[i].id);
@@ -167,7 +167,7 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
         return;
     }  
 
-    char name_buf[40] = {0};
+    char name_buf[50] = {0};
     for (int i = 0; i < n_users; i++) {
         snprintf(name_buf, sizeof(name_buf), "%s", users[i].name);
         list_name_items[i] = lv_list_add_text(ui->usrdata_screen_list_name, name_buf);
@@ -623,8 +623,19 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->usrinfo_screen_label_pw_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //Write codes usrinfo_screen_label_pw_value
+
+    // strcpy(users[usr_data_selected_item].password_hash, "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92");
     ui->usrinfo_screen_label_pw_value = lv_label_create(ui->usrinfo_screen_cont_password);
-    lv_label_set_text(ui->usrinfo_screen_label_pw_value, "Not Set");
+    if (users[usr_data_selected_item].password_hash[0] != '\0')
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_pw_value, "Set");
+    }
+    else
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_pw_value, "Not Set");
+    }
+
+    // lv_label_set_text(ui->usrinfo_screen_label_pw_value, "Not Set");
     lv_label_set_long_mode(ui->usrinfo_screen_label_pw_value, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->usrinfo_screen_label_pw_value, 228, 7);
     lv_obj_set_size(ui->usrinfo_screen_label_pw_value, 90, 19);
@@ -691,8 +702,19 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->usrinfo_screen_label_faceid_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //Write codes usrinfo_screen_label_faceid_value
+
+
     ui->usrinfo_screen_label_faceid_value = lv_label_create(ui->usrinfo_screen_cont_faceid);
-    lv_label_set_text(ui->usrinfo_screen_label_faceid_value, "Not Set");
+    
+    if (users[usr_data_selected_item].faceid == 0)
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_faceid_value, "Not Set");
+    }
+    else
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_faceid_value, "Set");
+    }
+    // lv_label_set_text(ui->usrinfo_screen_label_faceid_value, "Not Set");
     lv_label_set_long_mode(ui->usrinfo_screen_label_faceid_value, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->usrinfo_screen_label_faceid_value, 228, 7);
     lv_obj_set_size(ui->usrinfo_screen_label_faceid_value, 90, 19);
@@ -759,8 +781,17 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->usrinfo_screen_label_finger_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //Write codes usrinfo_screen_label_finger_value
+
     ui->usrinfo_screen_label_finger_value = lv_label_create(ui->usrinfo_screen_cont_finger);
-    lv_label_set_text(ui->usrinfo_screen_label_finger_value, "0/1");
+    if (users[usr_data_selected_item].fingerprint == 0)
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_finger_value, "0/1");
+    }
+    else
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_finger_value, "1/1");
+    }
+    // lv_label_set_text(ui->usrinfo_screen_label_finger_value, "0/1");
     lv_label_set_long_mode(ui->usrinfo_screen_label_finger_value, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->usrinfo_screen_label_finger_value, 288, 7);
     lv_obj_set_size(ui->usrinfo_screen_label_finger_value, 32, 19);
@@ -782,8 +813,10 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->usrinfo_screen_label_finger_value, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //Write codes usrinfo_screen_label_usrid
+    char id_text[10] = {0};
+    snprintf(id_text, sizeof(id_text), "ID: %d", users[usr_data_selected_item].id);
     ui->usrinfo_screen_label_usrid = lv_label_create(ui->usrinfo_screen);
-    lv_label_set_text(ui->usrinfo_screen_label_usrid, "ID: 5");
+    lv_label_set_text(ui->usrinfo_screen_label_usrid, id_text);
     lv_label_set_long_mode(ui->usrinfo_screen_label_usrid, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->usrinfo_screen_label_usrid, 3, 39);
     lv_obj_set_size(ui->usrinfo_screen_label_usrid, 87, 19);
@@ -805,8 +838,10 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->usrinfo_screen_label_usrid, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //Write codes usrinfo_screen_label_usrname
+    char name_text[50] = {0};
+    snprintf(name_text, sizeof(name_text), "%s", users[usr_data_selected_item].name);
     ui->usrinfo_screen_label_usrname = lv_label_create(ui->usrinfo_screen);
-    lv_label_set_text(ui->usrinfo_screen_label_usrname, "Tran Minh Nhat");
+    lv_label_set_text(ui->usrinfo_screen_label_usrname, name_text);
     lv_label_set_long_mode(ui->usrinfo_screen_label_usrname, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->usrinfo_screen_label_usrname, 60, 39);
     lv_obj_set_size(ui->usrinfo_screen_label_usrname, 255, 19);
@@ -874,11 +909,19 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
 
     //Write codes usrinfo_screen_label_role_value
     ui->usrinfo_screen_label_role_value = lv_label_create(ui->usrinfo_screen_cont_role);
-    lv_label_set_text(ui->usrinfo_screen_label_role_value, "User");
+    if (users[usr_data_selected_item].role == 0)
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_role_value, "User");
+    }
+    else
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_role_value, "Admin");
+    }
+    // lv_label_set_text(ui->usrinfo_screen_label_role_value, "User");
     lv_label_set_long_mode(ui->usrinfo_screen_label_role_value, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->usrinfo_screen_label_role_value, 228, 7);
     lv_obj_set_size(ui->usrinfo_screen_label_role_value, 90, 19);
-
+                
     //Write style for usrinfo_screen_label_role_value, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->usrinfo_screen_label_role_value, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui->usrinfo_screen_label_role_value, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -896,7 +939,7 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->usrinfo_screen_label_role_value, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //The custom code of usrinfo_screen.
-
+    
 
     //Update current screen layout.
     lv_obj_update_layout(ui->usrinfo_screen);
