@@ -42,7 +42,7 @@ uint8_t r307_reponse(char instruction_code[])
     {
         received_package[rxBytes] = 0;
         // ESP_LOGI("R307_RX", "Read %d bytes: '%s'", rxBytes, received_package);
-        ESP_LOG_BUFFER_HEXDUMP("R307_RX", received_package, rxBytes, ESP_LOG_INFO); //++ Dumps the response in HEX format
+        // ESP_LOG_BUFFER_HEXDUMP("R307_RX", received_package, rxBytes, ESP_LOG_INFO); //++ Dumps the response in HEX format
 
         r307_response_parser(instruction_code, received_package); //++ Pass the received response to the parser function
         received_confirmation_code = received_package[9];         //++ Get the Confirmation Code from received from the response
@@ -442,10 +442,10 @@ uint8_t GenImg(char r307_address[])
 
     const int package_length = sizeof(tx_cmd_data);
     const int txBytes = uart_write_bytes(UART_NUM_1, tx_cmd_data, package_length);
-    ESP_LOGI(R307_TX, "Wrote %d bytes", txBytes);
-    ESP_LOG_BUFFER_HEXDUMP("R307_TX", tx_cmd_data, package_length, ESP_LOG_INFO);
+    // ESP_LOGI(R307_TX, "Wrote %d bytes", txBytes);
+    // ESP_LOG_BUFFER_HEXDUMP("R307_TX", tx_cmd_data, package_length, ESP_LOG_INFO);
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
 
     confirmation_code = r307_reponse(instruction_code);
 
@@ -548,10 +548,10 @@ uint8_t Img2Tz(char r307_address[], char buffer_id[])
 
     const int package_length = sizeof(tx_cmd_data);
     const int txBytes = uart_write_bytes(UART_NUM_1, tx_cmd_data, package_length);
-    ESP_LOGI(R307_TX, "Wrote %d bytes", txBytes);
-    ESP_LOG_BUFFER_HEXDUMP("R307_TX", tx_cmd_data, package_length, ESP_LOG_INFO);
+    // ESP_LOGI(R307_TX, "Wrote %d bytes", txBytes);
+    // ESP_LOG_BUFFER_HEXDUMP("R307_TX", tx_cmd_data, package_length, ESP_LOG_INFO);
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
 
     confirmation_code = r307_reponse(instruction_code);
 
@@ -903,10 +903,10 @@ uint8_t Search(char r307_address[], char buffer_id[], char start_page[], char pa
 
     const int package_length = sizeof(tx_cmd_data);
     const int txBytes = uart_write_bytes(UART_NUM_1, tx_cmd_data, package_length);
-    ESP_LOGI(R307_TX, "Wrote %d bytes", txBytes);
-    ESP_LOG_BUFFER_HEXDUMP("R307_TX", tx_cmd_data, package_length, ESP_LOG_INFO);
+    // ESP_LOGI(R307_TX, "Wrote %d bytes", txBytes);
+    // ESP_LOG_BUFFER_HEXDUMP("R307_TX", tx_cmd_data, package_length, ESP_LOG_INFO);
 
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
 
     confirmation_code = r307_reponse(instruction_code);
 
@@ -1085,7 +1085,7 @@ void r307_response_parser(char instruction_code[], uint8_t received_package[])
         }
         else if (confirmation_code == 0x02)
         {
-            ESP_LOGE("GenImg", "(0x02H) NO FINGER DETECED");
+            // ESP_LOGE("GenImg", "(0x02H) NO FINGER DETECED");
         }
         else if (confirmation_code == 0x03)
         {

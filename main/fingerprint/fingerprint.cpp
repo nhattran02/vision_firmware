@@ -16,7 +16,6 @@ char default_address[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 char default_password[4] = {0x00, 0x00, 0x00, 0x00};
 char enroll_buffer_id_1[1] = {0x01};
 char enroll_buffer_id_2[1] = {0x02};
-char page_id[2] = {0x00, 0x01};
 
 Fingerprint::Fingerprint(Button *key,
                          QueueHandle_t queue_i,
@@ -45,52 +44,45 @@ void Fingerprint::update()
 
 static void fingerprint_enroll_task(Fingerprint *self)
 {
-    uint8_t user_id = 1;
+    uint8_t user_id = 2;
     uint8_t confirmation_code = 0;
+    char page_id[2] = {0};
+    page_id[0] = (char)((user_id >> 8) & 0xFF);
+    page_id[1] = (char)(user_id & 0xFF);
 
     while (1)
     {
         ESP_LOGI(TAG, "Please place your finger");
         while (GenImg(default_address) != 0)
         {
-            ESP_LOGI(TAG, "No finger detected");
-            vTaskDelay(pdMS_TO_TICKS(10));
+
         }
-        ESP_LOGI(TAG, "Finger detected");
 
         confirmation_code = Img2Tz(default_address, enroll_buffer_id_1);
         if (confirmation_code != 0)
         {
-            ESP_LOGI(TAG, "Error: Cannot create feature from image | %d", confirmation_code);
             continue;
         }
-        ESP_LOGI(TAG, "Created feature from image");
 
-        ESP_LOGI(TAG, "Please remove your finger and place it again when prompted.");
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        ESP_LOGI(TAG, "Please remove your finger");
 
         while (GenImg(default_address) == 0)
         {
-            ESP_LOGI(TAG, "Waiting for finger to be removed...");
-            vTaskDelay(pdMS_TO_TICKS(500));
+
         }
         ESP_LOGI(TAG, "Please place the same finger on the sensor again.");
 
         while (GenImg(default_address) != 0)
         {
-            ESP_LOGI(TAG, "No finger detected. Please place your finger again");
-            vTaskDelay(pdMS_TO_TICKS(500));
+
         }
-        ESP_LOGI(TAG, "Finger detected (second time)");
 
         confirmation_code = Img2Tz(default_address, enroll_buffer_id_2);
         if (confirmation_code != 0)
         {
-            ESP_LOGI(TAG, "Error: Cannot create feature from image | %d", confirmation_code);
             continue;
         }
-        ESP_LOGI(TAG, "Created feature from image (second time)");
-
+        
         confirmation_code = RegModel(default_address);
         if (confirmation_code == 0)
         {
@@ -105,15 +97,7 @@ static void fingerprint_enroll_task(Fingerprint *self)
                 ESP_LOGI(TAG, "Error: Cannot store template | %d", confirmation_code);
             }
         }
-        else
-        {
-            ESP_LOGI(TAG, "Error: Cannot register model | %d", confirmation_code);
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(500));
     }
-
-
 
     while (1)
     {
@@ -131,38 +115,18 @@ static void fingerprint_detect_task(Fingerprint *self)
     
     while (1)
     {
-        ESP_LOGI(TAG, "Place your finger on the sensor for verification.");
-
-        // Wait until a finger is detected
         while (GenImg(default_address) != 0)
         {
-            ESP_LOGI(TAG, "No finger detected.");
-            vTaskDelay(pdMS_TO_TICKS(50));
+            
         }
-        ESP_LOGI(TAG, "Finger detected");
 
-        // Convert the image to a feature template
         confirmation_code = Img2Tz(default_address, enroll_buffer_id_1);
         if (confirmation_code != 0)
         {
-            ESP_LOGI(TAG, "Error: Failed to create feature from image | Code: %d", confirmation_code);
             continue;
         }
-        ESP_LOGI(TAG, "Feature created from image");
 
-        // Search the feature against stored templates using the correct parameters
         confirmation_code = Search(default_address, enroll_buffer_id_1, start_page, page_number);
-        if (confirmation_code == 0)
-        {
-            ESP_LOGI(TAG, "Fingerprint match found!");
-        }
-        else
-        {
-            ESP_LOGI(TAG, "No match found for the fingerprint. Code: %d", confirmation_code);
-        }
-
-        // Delay a bit before allowing another detection
-        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 
