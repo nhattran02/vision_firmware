@@ -6,7 +6,8 @@
 #include "events_init.h"
 #include "widgets_init.h"
 #include "custom.h"
-
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #define MAX_USERS 500
 
@@ -24,6 +25,7 @@ typedef struct
 
 extern user_data_t users[MAX_USERS];
 extern uint16_t n_users;
+extern TaskHandle_t FingerprintDetectTaskHandle;
 
 typedef enum
 {
@@ -51,6 +53,8 @@ typedef enum
 
     STATE_USER_INFO_SCREEN, 
 
+    STATE_FINGERPRINT_ENROLL_SCREEN,
+
 } ui_state_t;
 
 
@@ -70,6 +74,7 @@ extern ui_state_t current_state;
 
 void _setup_scr_usrdata_screen(lv_ui *ui);
 void _setup_scr_usrinfo_screen(lv_ui *ui);
+void _setup_scr_finger_enroll_screen(lv_ui *ui);
 
 void update_data_gui(ui_state_t current_screen);
 

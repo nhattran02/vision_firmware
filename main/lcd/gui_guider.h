@@ -121,10 +121,10 @@ typedef struct
 	lv_obj_t *usrdata_screen_list_name_item5;
 	lv_obj_t *usrdata_screen_list_name_item6;
 	lv_obj_t *usrdata_screen_list_role;
+	lv_obj_t *usrdata_screen_list_role_item0;
 	lv_obj_t *usrdata_screen_label_id;
 	lv_obj_t *usrdata_screen_label_name;
 	lv_obj_t *usrdata_screen_label_role;
-	lv_obj_t *usrdata_screen_list_role_item0;
 	lv_obj_t *usrinfo_screen;
 	bool usrinfo_screen_del;
 	lv_obj_t *usrinfo_screen_label_time5;
@@ -151,6 +151,22 @@ typedef struct
 	lv_obj_t *usrinfo_screen_cont_role;
 	lv_obj_t *usrinfo_screen_label_role_text;
 	lv_obj_t *usrinfo_screen_label_role_value;
+	lv_obj_t *finger_enroll_screen;
+	bool finger_enroll_screen_del;
+	lv_obj_t *finger_enroll_screen_label_time6;
+	lv_obj_t *finger_enroll_screen_label_fpenroll_name;
+	lv_obj_t *finger_enroll_screen_label_WIFI6;
+	lv_obj_t *finger_enroll_screen_label_BT6;
+	lv_obj_t *finger_enroll_screen_label_SD6;
+	lv_obj_t *finger_enroll_screen_label_USB6;
+	lv_obj_t *finger_enroll_screen_btn_esc6;
+	lv_obj_t *finger_enroll_screen_btn_esc6_label;
+	lv_obj_t *finger_enroll_screen_btn_ok6;
+	lv_obj_t *finger_enroll_screen_btn_ok6_label;
+	lv_obj_t *finger_enroll_screen_label_id_fp;
+	lv_obj_t *finger_enroll_screen_label_info_fp;
+	lv_obj_t *finger_enroll_screen_led_1;
+	lv_obj_t *finger_enroll_screen_led_2;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -180,6 +196,7 @@ void setup_scr_data_screen(lv_ui *ui);
 void setup_scr_finish_screen(lv_ui *ui);
 void setup_scr_usrdata_screen(lv_ui *ui);
 void setup_scr_usrinfo_screen(lv_ui *ui);
+void setup_scr_finger_enroll_screen(lv_ui *ui);
 LV_IMG_DECLARE(_ready_alpha_80x80);
 
 LV_FONT_DECLARE(lv_font_montserrat_16)

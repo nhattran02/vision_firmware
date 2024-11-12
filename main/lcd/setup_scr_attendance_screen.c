@@ -347,7 +347,7 @@ void setup_scr_attendance_screen(lv_ui *ui)
     lv_label_set_long_mode(ui->attendance_screen_label_checkout_text, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->attendance_screen_label_checkout_text, 98, 7);
     lv_obj_set_size(ui->attendance_screen_label_checkout_text, 134, 19);
-    
+
     //Write style for attendance_screen_label_checkout_text, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->attendance_screen_label_checkout_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui->attendance_screen_label_checkout_text, 0, LV_PART_MAIN|LV_STATE_DEFAULT);

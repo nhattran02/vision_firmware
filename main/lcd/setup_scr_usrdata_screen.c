@@ -193,6 +193,7 @@ void setup_scr_usrdata_screen(lv_ui *ui)
 
     //Write codes usrdata_screen_list_role
     ui->usrdata_screen_list_role = lv_list_create(ui->usrdata_screen);
+    ui->usrdata_screen_list_role_item0 =lv_list_add_text(ui->usrdata_screen_list_role, "save");
     lv_obj_set_pos(ui->usrdata_screen_list_role, 260, 24);
     lv_obj_set_size(ui->usrdata_screen_list_role, 60, 216);
     lv_obj_set_scrollbar_mode(ui->usrdata_screen_list_role, LV_SCROLLBAR_MODE_OFF);
@@ -257,6 +258,7 @@ void setup_scr_usrdata_screen(lv_ui *ui)
     lv_style_set_bg_opa(&style_usrdata_screen_list_role_extra_texts_main_default, 255);
     lv_style_set_bg_color(&style_usrdata_screen_list_role_extra_texts_main_default, lv_color_hex(0xffffff));
     lv_style_set_bg_grad_dir(&style_usrdata_screen_list_role_extra_texts_main_default, LV_GRAD_DIR_NONE);
+    lv_obj_add_style(ui->usrdata_screen_list_role_item0, &style_usrdata_screen_list_role_extra_texts_main_default, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //Write codes usrdata_screen_label_id
     ui->usrdata_screen_label_id = lv_label_create(ui->usrdata_screen);

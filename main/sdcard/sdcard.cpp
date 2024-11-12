@@ -237,6 +237,36 @@ static void take_photo_to_sdcard(camera_fb_t *frame)
     }
 }
 
+void save_fingerprint_to_sdcard(uint8_t *image_buf)
+{
+    char path[64];
+    sprintf(path, MOUNT_POINT "/fin1.bmp");    
+    FILE *file = fopen(path, "wb");
+    if (file == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return;
+    }
+    write_bmp_header(file, 256, 288);
+    for (int row = 0; row < 288; row++)
+    {
+        for (int col = 0; col < 128; col++)
+        {
+            uint8_t byte = image_buf[row * 128 + col];
+            uint8_t pixel1 = (byte >> 4) * 17; 
+            uint8_t pixel2 = (byte & 0x0F) * 17;
+
+            fwrite(&pixel1, 1, 1, file);
+            fwrite(&pixel2, 1, 1, file);
+        }
+
+        uint8_t padding[3] = {0, 0, 0};
+        fwrite(padding, 1, (4 - (256 % 4)) % 4, file);
+    }    
+    fclose(file);
+    ESP_LOGI(TAG, "Fingerprint image saved to %s", path);    
+}
+
 static void task(AppSDCard *self)
 {
     ESP_LOGI(TAG, "Start");

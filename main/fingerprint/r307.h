@@ -15,6 +15,8 @@ extern "C"
      */
     void r307_init(void);
 
+    void r307_deinit(void);
+
     /**
      * @brief FUNCITON TO GET RESPONSES FROM R307 FINGERPRINT MODULE
      *
@@ -75,6 +77,8 @@ extern "C"
      * @return RETURNS RECEIVED CONFIRMATION CODE FROM MODULE
      */
     uint8_t ReadSysPara(char r307_address[]);
+
+    uint8_t SetBaudrate115200(char r307_address[]);
 
     /**
      * @brief FUNCTION TO READ CURRENT VALID TEMPLATE NUMBER

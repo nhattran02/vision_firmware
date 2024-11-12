@@ -4,6 +4,11 @@
 #include "__base__.hpp"
 #include "button.hpp"
 
+void r307_stop();
+void r307_run();
+void fingerprint_detect_task_run();
+
+
 class Fingerprint : public Observer, public Frame
 {
 private:

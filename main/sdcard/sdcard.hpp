@@ -17,6 +17,9 @@ typedef enum
     SDCARD_STOP_RECORD = 3,
 } sdcard_action_t;
 
+void save_fingerprint_to_sdcard(uint8_t *image_buf);
+
+
 class AppSDCard : public Observer, public Frame
 {
 private:

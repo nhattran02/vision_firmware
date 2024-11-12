@@ -20,7 +20,7 @@ void r307_init(void)
 {
     const uart_config_t uart_config =
         {
-            .baud_rate = 57600,
+            .baud_rate = 115200,
             .data_bits = UART_DATA_8_BITS,
             .parity = UART_PARITY_DISABLE,
             .stop_bits = UART_STOP_BITS_1,
@@ -28,9 +28,14 @@ void r307_init(void)
             .source_clk = UART_SCLK_APB,
         };
     // We won't use a buffer for sending data.
-    uart_driver_install(UART_NUM_1, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
+    uart_driver_install(UART_NUM_1, RX_BUF_SIZE * 10, 0, 0, NULL, 0);
     uart_param_config(UART_NUM_1, &uart_config);
     uart_set_pin(UART_NUM_1, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+}
+
+void r307_deinit(void)
+{
+    uart_driver_delete(UART_NUM_1);
 }
 
 uint8_t r307_reponse(char instruction_code[])
@@ -312,6 +317,21 @@ uint8_t ReadSysPara(char r307_address[])
     return confirmation_code;
 }
 
+uint8_t SetBaudrate115200(char r307_address[])
+{
+    char tx_cmd_data[14] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x05, 0x0E, 0x04, 0x0C, 0x00, 0x24};
+    uint8_t confirmation_code = 0;    
+    const int package_length = sizeof(tx_cmd_data);    
+    const int txBytes = uart_write_bytes(UART_NUM_1, tx_cmd_data, package_length);    
+    ESP_LOGI(R307_TX, "Wrote %d bytes", txBytes);
+    ESP_LOG_BUFFER_HEXDUMP("R307_TX", tx_cmd_data, package_length, ESP_LOG_INFO);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    confirmation_code = r307_reponse(tx_cmd_data[9]);
+    return confirmation_code;
+
+}
+
+
 uint8_t TempleteNum(char r307_address[])
 {
     char tx_cmd_data[12] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x03, 0x1D, 0x00, 0x21};
@@ -470,7 +490,7 @@ uint8_t UpImage(char r307_address[])
             tx_cmd_data[i + 10] = check_sum_data[i];
         }
     }
-
+    
     char instruction_code;
 
     instruction_code = tx_cmd_data[9];
@@ -480,9 +500,9 @@ uint8_t UpImage(char r307_address[])
     ESP_LOGI(R307_TX, "Wrote %d bytes", txBytes);
     ESP_LOG_BUFFER_HEXDUMP("R307_TX", tx_cmd_data, package_length, ESP_LOG_INFO);
 
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
 
-    confirmation_code = r307_reponse(instruction_code);
+    // confirmation_code = r307_reponse(instruction_code);
 
     return confirmation_code;
 }
@@ -1014,11 +1034,13 @@ void r307_response_parser(char instruction_code[], uint8_t received_package[])
         {
             ESP_LOGI("ReadSysPara", "(0x00H) SYSTEM READ COMPLETE");
 
-            ESP_LOGW("SYSTEM PARAMETER", "Library Size - %x:%x", received_package[14], received_package[15]);
+            ESP_LOGW("SYSTEM PARAMETER", "Library Size - %d", (received_package[14] << 8) | received_package[15]);
             ESP_LOGW("SYSTEM PARAMETER", "Security Level - %x", received_package[17]);
             ESP_LOGW("SYSTEM PARAMETER", "32bit Address - %x:%x:%x:%x", received_package[18], received_package[19], received_package[20], received_package[21]);
             ESP_LOGW("SYSTEM PARAMETER", "Size Code - %x", received_package[23]);
             ESP_LOGW("SYSTEM PARAMETER", "N - %x", received_package[25]);
+            ESP_LOGW("SYSTEM PARAMETER", "BAUD - %d", ((received_package[24] << 8) | received_package[25]) * 9600);
+
         }
         else if (confirmation_code == 0x01)
         {

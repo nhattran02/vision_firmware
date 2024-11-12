@@ -2,15 +2,26 @@
 #include "fingerprint.hpp"
 #include "esp_log.h"
 #include "esp_mac.h"
+#include "driver/uart.h"
+#include "driver/gpio.h"
+#include "esp_timer.h" 
+#include "sdcard.hpp"
 extern "C"
 {
 #include "r307.h"
 }
+#include "gui_logic_utils.h"
+
+#define TOTAL_DATA_LENGTH   40044
+#define ACK_PACKET_SIZE     12      
+#define DATA_PACKET_SIZE    127    
+#define BUFFER_SIZE         4096
 
 static const char TAG[] = "fingerprint";
 
 uint8_t esp_chip_id[6];
 char mac_address[20];
+
 
 char default_address[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 char default_password[4] = {0x00, 0x00, 0x00, 0x00};
@@ -36,10 +47,92 @@ Fingerprint::Fingerprint(Button *key,
     {
         ESP_LOGI(TAG, "Detected R307 Fingerprint Module");
     }
+    // SetBaudrate115200(default_address);
+    // ReadSysPara(default_address);
+}
+
+void r307_stop()
+{
+    r307_deinit();
+}
+
+void r307_run()
+{
+    r307_init();
 }
 
 void Fingerprint::update()
 {
+}
+
+static void get_fingerprint_image()
+{
+    int64_t start_time = esp_timer_get_time();
+    uint8_t confirmation_code = UpImage(default_address);
+    if (confirmation_code != 0x00) 
+    {
+        ESP_LOGE(TAG, "Failed to get fingerprint image. Confirmation code: %d", confirmation_code);
+        return;
+    }
+
+    uint8_t *received_package = (uint8_t *)malloc(BUFFER_SIZE + 1);
+    uint8_t *image_data = (uint8_t *)malloc(TOTAL_DATA_LENGTH);
+    uint8_t *image_buf = (uint8_t *)malloc(TOTAL_DATA_LENGTH);
+    if (received_package == NULL || image_data == NULL || image_buf == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to allocate memory");
+        free(received_package);
+        free(image_data);
+        free(image_buf);
+        received_package = NULL;
+        image_data = NULL;
+        image_buf = NULL;
+        return;
+    }
+
+    int total_bytes_received = 0;
+    while(total_bytes_received < TOTAL_DATA_LENGTH)
+    {
+        int rxBytes = uart_read_bytes(UART_NUM_1, received_package, BUFFER_SIZE, pdMS_TO_TICKS(50));
+        if (rxBytes > 0)
+        {
+            memcpy(image_data + total_bytes_received, received_package, rxBytes);
+            total_bytes_received += rxBytes;
+        }
+    }
+
+    int total_data_copied = 0;
+    int i = 0;
+
+    while (i < total_bytes_received)
+    {
+        if (image_data[i] == 0xef && image_data[i + 1] == 0x01 &&
+            image_data[i + 2] == 0xff && image_data[i + 3] == 0xff &&
+            image_data[i + 4] == 0xff && image_data[i + 5] == 0xff)
+        {
+            i += 12; 
+            continue;
+        }
+
+        image_buf[total_data_copied++] = image_data[i++];
+    }
+
+    // save_fingerprint_to_sdcard(image_buf);
+
+    int64_t end_time = esp_timer_get_time();
+    int64_t total_time_ms = (end_time - start_time) / 1000;
+    ESP_LOGI(TAG, "Total time to read fingerprint image: %lld ms", total_time_ms);
+
+    // ESP_LOGE(TAG, "Image Data");
+    // ESP_LOG_BUFFER_HEXDUMP(TAG, image_data, TOTAL_DATA_LENGTH, ESP_LOG_INFO);    
+    ESP_LOGE(TAG, "Image Buf | Size = %d", total_data_copied);
+    ESP_LOG_BUFFER_HEXDUMP(TAG, image_buf, total_data_copied, ESP_LOG_INFO);     
+    free(received_package);
+    free(image_data);
+    free(image_buf);
+    received_package = NULL;
+    image_data = NULL;
+    image_buf = NULL;
 }
 
 static void fingerprint_enroll_task(Fingerprint *self)
@@ -82,7 +175,7 @@ static void fingerprint_enroll_task(Fingerprint *self)
         {
             continue;
         }
-        
+
         confirmation_code = RegModel(default_address);
         if (confirmation_code == 0)
         {
@@ -127,9 +220,12 @@ static void fingerprint_detect_task(Fingerprint *self)
         }
 
         confirmation_code = Search(default_address, enroll_buffer_id_1, start_page, page_number);
-    }
+        if (confirmation_code == 0)
+        {
+            vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+    }  
 }
-
 
 
 void Fingerprint::fingerprint_enroll_run()
@@ -139,5 +235,10 @@ void Fingerprint::fingerprint_enroll_run()
 
 void Fingerprint::fingerprint_detect_run()
 {
-    xTaskCreate((TaskFunction_t)fingerprint_detect_task, "fingerprint_enroll_task", 5 * 1024, this, 5, NULL);
+    xTaskCreate((TaskFunction_t)fingerprint_detect_task, "fingerprint_enroll_task", 5 * 1024, this, 5, &FingerprintDetectTaskHandle);
+}
+
+void fingerprint_detect_task_run()
+{
+    xTaskCreate((TaskFunction_t)fingerprint_detect_task, "fingerprint_enroll_task", 5 * 1024, NULL, 5, &FingerprintDetectTaskHandle);
 }
