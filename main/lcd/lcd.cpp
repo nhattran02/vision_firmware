@@ -163,7 +163,7 @@ LCD::LCD(Button *key,
             .sclk_io_num = LCD_NUM_SCLK,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
-            .max_transfer_sz = LCD_H_RES * 5 * sizeof(uint16_t),
+            .max_transfer_sz = LCD_H_RES * 1 * sizeof(uint16_t),
         };
         ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &bus_conf, SPI_DMA_CH_AUTO));
         
@@ -174,7 +174,7 @@ LCD::LCD(Button *key,
             .dc_gpio_num = LCD_NUM_DC,
             .spi_mode = 0,
             .pclk_hz = LCD_PIXEL_CLOCK_HZ,
-            .trans_queue_depth = 10,       
+            .trans_queue_depth = 5,
 #if USE_LVGL
             .on_color_trans_done = notify_lvgl_flush_ready,
             .user_ctx = &disp_drv,            
@@ -210,13 +210,13 @@ LCD::LCD(Button *key,
         lv_init();
         // alloc draw buffers used by LVGL
         // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
-        lv_color_t *buf1 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+        lv_color_t *buf1 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 10 * sizeof(lv_color_t), MALLOC_CAP_DMA);
         assert(buf1);
-        lv_color_t *buf2 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+        lv_color_t *buf2 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 10 * sizeof(lv_color_t), MALLOC_CAP_DMA);
         assert(buf2);
         // initialize LVGL draw buffers
-        lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 20);
-
+        lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 10);
+        
         ESP_LOGI(TAG, "Register display driver to LVGL");
         lv_disp_drv_init(&disp_drv);
         disp_drv.hor_res = LCD_H_RES;

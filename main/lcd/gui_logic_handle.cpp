@@ -431,17 +431,18 @@ void GUIHandler::update()
                 {
                 case 0: // Finger
                 {
+                    // Deactivate the fingerprint detection task
                     if (FingerprintDetectTaskHandle != NULL)
                     {
                         vTaskDelete(FingerprintDetectTaskHandle);
-                    }                       
+                    }
                     r307_stop();                 
                     vTaskDelay(pdMS_TO_TICKS(100));
                     r307_run();
+
                     current_state = STATE_FINGERPRINT_ENROLL_SCREEN;
                     ui_load_scr_animation(&guider_ui, &guider_ui.finger_enroll_screen, guider_ui.finger_enroll_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_finger_enroll_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
-                    // update_attendance_selection(attendance_selected_item);
-                    // update_data_gui(STATE_ATTENDANCE_SCREEN);
+                    update_data_gui(STATE_FINGERPRINT_ENROLL_SCREEN);
 
                     while (1)
                     {
@@ -489,8 +490,8 @@ void GUIHandler::update()
                             confirmation_code = Store(_default_address, _enroll_buffer_id_1, _page_id);
                             if (confirmation_code == 0)
                             {
-
                                 lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Enroll success");
+                                vTaskDelay(pdMS_TO_TICKS(1000));
                                 break;
                             }
                             else
@@ -511,10 +512,18 @@ void GUIHandler::update()
                             vTaskDelay(pdMS_TO_TICKS(2000));
                         }
                     }
+
+                    // Reactivate the fingerprint detection task
                     r307_stop();                 
                     vTaskDelay(pdMS_TO_TICKS(100));
                     r307_run();                    
                     fingerprint_detect_task_run();
+
+                    // Go back to user info screen
+                    current_state = STATE_USER_INFO_SCREEN;
+                    ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.finger_enroll_screen_del, setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    update_usrinfo_selection(usr_info_selected_item);
+                    update_data_gui(STATE_USER_INFO_SCREEN);
 
                     break;
                 }
@@ -539,7 +548,10 @@ void GUIHandler::update()
             }
             else if (this->key->pressed == BUTTON_ESC)
             {
-
+                current_state = STATE_USER_DATA_SCREEN;
+                ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                update_usr_data_selection(usr_data_selected_item);
+                update_data_gui(STATE_USER_DATA_SCREEN);
             }
             break;
         }

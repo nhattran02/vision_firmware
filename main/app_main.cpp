@@ -42,7 +42,7 @@ extern "C" void app_main()
     matrix_button->attach(gui_handler);
     matrix_button->attach(fingerprint);
     // matrix_button->attach(sd_card);
-
+    
     lcd->run();
     face->run();
     camera->run();
@@ -51,5 +51,5 @@ extern "C" void app_main()
     fingerprint->fingerprint_detect_run();
 
     // sd_card->run();
-    
+
 }
