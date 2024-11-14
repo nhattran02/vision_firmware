@@ -366,7 +366,7 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
         lv_obj_add_style(ui->usrdata_screen_list_role_item0, &style_usrdata_screen_list_checked, LV_PART_MAIN|LV_STATE_CHECKED);
         lv_obj_add_style(list_role_items[i], &style_usrdata_screen_list_checked, LV_PART_MAIN|LV_STATE_CHECKED);
     }
-
+    
     // lv_obj_add_state(list_id_items[4], LV_STATE_CHECKED);
 
     //Update current screen layout.

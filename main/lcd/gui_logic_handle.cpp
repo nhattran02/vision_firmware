@@ -162,7 +162,7 @@ void GUIHandler::update()
             {
                 menu_selected_item = 0;
                 current_state = STATE_MENU_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.main_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.main_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_menu_selection(menu_selected_item);
                 update_data_gui(STATE_MENU_SCREEN);
             }
@@ -188,7 +188,7 @@ void GUIHandler::update()
                 case 0: // Load STATE_ATTENDANCE_SCREEN
                 {
                     current_state = STATE_ATTENDANCE_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.menu_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.menu_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     update_attendance_selection(attendance_selected_item);
                     update_data_gui(STATE_ATTENDANCE_SCREEN);
 
@@ -202,7 +202,7 @@ void GUIHandler::update()
                 case 2: // Load STATE_DATA_SCREEN
                 {
                     current_state = STATE_DATA_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.menu_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.menu_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     update_data_selection(data_selected_item);
                     update_data_gui(STATE_DATA_SCREEN);
                     break;
@@ -219,7 +219,7 @@ void GUIHandler::update()
             else if (this->key->pressed == BUTTON_ESC)
             {
                 current_state = STATE_MAIN_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.menu_screen_del, setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.menu_screen_del, setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_data_gui(STATE_MAIN_SCREEN);
             }
             break;
@@ -280,7 +280,7 @@ void GUIHandler::update()
             else if (this->key->pressed == BUTTON_ESC)
             {
                 current_state = STATE_MENU_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.attendance_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.attendance_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_menu_selection(menu_selected_item);
                 update_data_gui(STATE_MENU_SCREEN);
             }
@@ -303,7 +303,7 @@ void GUIHandler::update()
                 enable_lvgl();
                 lcd_switch_on = false;
                 current_state = STATE_ATTENDANCE_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.attendance_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.attendance_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_data_gui(STATE_ATTENDANCE_SCREEN);
             }
             break;
@@ -336,14 +336,14 @@ void GUIHandler::update()
                     // After that load the finish screen
 
                     current_state = STATE_FINISH_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     break;
                 }
                 case 1: // Scan user data
                 {
                     load_data_from_database_to_users();
                     current_state = STATE_USER_DATA_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.data_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.data_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     update_usr_data_selection(usr_data_selected_item);
                     break;
                 }
@@ -351,14 +351,14 @@ void GUIHandler::update()
                 {
                     create_csv_template((const char *)TEMPLATE_CSV);
                     current_state = STATE_FINISH_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     break;
                 }
                 case 3: // UPLOAD TEMPLATE
                 {
                     import_csv_to_db((const char *)TEMPLATE_CSV);
                     current_state = STATE_FINISH_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     break;
                 }
                 default:
@@ -368,7 +368,7 @@ void GUIHandler::update()
             else if (this->key->pressed == BUTTON_ESC)
             {
                 current_state = STATE_MENU_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.data_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.data_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_menu_selection(menu_selected_item);
                 update_data_gui(STATE_MENU_SCREEN);
             }
@@ -380,7 +380,7 @@ void GUIHandler::update()
             if (this->key->pressed == BUTTON_OK)
             {
                 current_state = STATE_DATA_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.finish_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.finish_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_data_gui(STATE_DATA_SCREEN);
                 update_data_selection(data_selected_item);
             }
@@ -401,13 +401,13 @@ void GUIHandler::update()
             else if (this->key->pressed == BUTTON_OK)
             {
                 current_state = STATE_USER_INFO_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.usrdata_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.usrdata_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_usrinfo_selection(usr_info_selected_item);
             }
             else if (this->key->pressed == BUTTON_ESC)
             {
                 current_state = STATE_DATA_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.usrdata_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.usrdata_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_data_selection(data_selected_item);
                 update_data_gui(STATE_DATA_SCREEN);
             }
@@ -441,7 +441,7 @@ void GUIHandler::update()
                     r307_run();
 
                     current_state = STATE_FINGERPRINT_ENROLL_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.finger_enroll_screen, guider_ui.finger_enroll_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_finger_enroll_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.finger_enroll_screen, guider_ui.finger_enroll_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_finger_enroll_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     update_data_gui(STATE_FINGERPRINT_ENROLL_SCREEN);
 
                     while (1)
@@ -521,7 +521,7 @@ void GUIHandler::update()
 
                     // Go back to user info screen
                     current_state = STATE_USER_INFO_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.finger_enroll_screen_del, setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.finger_enroll_screen_del, setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     update_usrinfo_selection(usr_info_selected_item);
                     update_data_gui(STATE_USER_INFO_SCREEN);
 
@@ -549,8 +549,7 @@ void GUIHandler::update()
             else if (this->key->pressed == BUTTON_ESC)
             {
                 current_state = STATE_USER_DATA_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0, false, true);
-                update_usr_data_selection(usr_data_selected_item);
+                ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);                update_usr_data_selection(usr_data_selected_item);
                 update_data_gui(STATE_USER_DATA_SCREEN);
             }
             break;
