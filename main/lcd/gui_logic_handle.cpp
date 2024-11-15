@@ -458,7 +458,7 @@ void GUIHandler::update()
                             lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
                             lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
                             lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
-                            vTaskDelay(pdMS_TO_TICKS(2000));
+                            vTaskDelay(pdMS_TO_TICKS(1000));
                             continue;
                         }
                         lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x00239e));
@@ -477,7 +477,7 @@ void GUIHandler::update()
                             lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
                             lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
                             lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
-                            vTaskDelay(pdMS_TO_TICKS(2000));
+                            vTaskDelay(pdMS_TO_TICKS(1000));
                             continue;
                         }
                         lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x00239e));
@@ -490,8 +490,11 @@ void GUIHandler::update()
                             confirmation_code = Store(_default_address, _enroll_buffer_id_1, _page_id);
                             if (confirmation_code == 0)
                             {
+                                lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0x00ff00), LV_PART_MAIN | LV_STATE_DEFAULT);
                                 lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Enroll success");
-                                vTaskDelay(pdMS_TO_TICKS(1000));
+                                update_finger_print_to_db(users[usr_data_selected_item].id, 1);
+                                vTaskDelay(pdMS_TO_TICKS(400));
+                                load_data_from_database_to_users();
                                 break;
                             }
                             else
@@ -500,7 +503,7 @@ void GUIHandler::update()
                                 lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
                                 lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
                                 lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
-                                vTaskDelay(pdMS_TO_TICKS(2000));
+                                vTaskDelay(pdMS_TO_TICKS(1000));
                             }
                         }
                         else
@@ -509,7 +512,7 @@ void GUIHandler::update()
                             lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
                             lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
                             lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
-                            vTaskDelay(pdMS_TO_TICKS(2000));
+                            vTaskDelay(pdMS_TO_TICKS(1000));
                         }
                     }
 
@@ -521,7 +524,7 @@ void GUIHandler::update()
 
                     // Go back to user info screen
                     current_state = STATE_USER_INFO_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.finger_enroll_screen_del, setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+                    ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.finger_enroll_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     update_usrinfo_selection(usr_info_selected_item);
                     update_data_gui(STATE_USER_INFO_SCREEN);
 
@@ -556,7 +559,7 @@ void GUIHandler::update()
         }
         case STATE_FINGERPRINT_ENROLL_SCREEN:
         {
-
+            
             break;
         }
         }

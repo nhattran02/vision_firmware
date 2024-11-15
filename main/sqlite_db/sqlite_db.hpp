@@ -15,6 +15,7 @@ extern "C"
 #define TEMPLATE_CSV "/sdcard/template.csv"
 
 void load_data_from_database_to_users(void);
+void update_finger_print_to_db(int id, int value);
 void print_users(void);
 void create_csv_template(const char *csv_filename);
 void import_csv_to_db(const char* csv_filename);

@@ -255,9 +255,15 @@ void load_data_from_database_to_users(void)
         }
 
         users[n_users].id = sqlite3_column_int(stmt, 0);
-        snprintf(users[n_users].name, sizeof(users[n_users].name), "%s", reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
-        snprintf(users[n_users].employeeId, sizeof(users[n_users].employeeId), "%s", reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
+        const unsigned char *name_text = sqlite3_column_text(stmt, 1);
+        snprintf(users[n_users].name, sizeof(users[n_users].name), "%s", name_text ? reinterpret_cast<const char *>(name_text) : "");        
+        const unsigned char *employeeId_text = sqlite3_column_text(stmt, 2);
+        snprintf(users[n_users].employeeId, sizeof(users[n_users].employeeId), "%s", employeeId_text ? reinterpret_cast<const char *>(employeeId_text) : "");
         users[n_users].role = sqlite3_column_int(stmt, 3);
+        users[n_users].fingerprint = sqlite3_column_int(stmt, 4);
+        users[n_users].faceid = sqlite3_column_int(stmt, 5);
+        const unsigned char *password_hash_text = sqlite3_column_text(stmt, 6);
+        snprintf(users[n_users].password_hash, sizeof(users[n_users].password_hash), "%s", password_hash_text ? reinterpret_cast<const char *>(password_hash_text) : "");
 
         for (int i = 0; i < 6; i++)
         {
@@ -267,6 +273,37 @@ void load_data_from_database_to_users(void)
         n_users++;
     }
 }
+
+void update_finger_print_to_db(int id, int value)
+{
+    const char *sql = "UPDATE employee SET FINGER = ? WHERE id = ?;";
+    sqlite3_stmt *stmt;
+
+    // Prepare the SQL statement
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    // Bind the value and id to the SQL statement
+    sqlite3_bind_int(stmt, 1, value); 
+    sqlite3_bind_int(stmt, 2, id);
+
+    // Execute the statement
+    if (sqlite3_step(stmt) != SQLITE_DONE)
+    {
+        printf("Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+    else
+    {
+        printf("Fingerprint data updated successfully for ID: %d\n", id);
+    }
+
+    // Finalize the statement to release resources
+    sqlite3_finalize(stmt);
+}
+
 
 void print_users(void)
 {
