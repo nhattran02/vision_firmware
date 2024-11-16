@@ -17,6 +17,34 @@ uint16_t n_users = 0;
 
 TaskHandle_t FingerprintDetectTaskHandle = NULL;
 
+bool compare_passwords(const char *pw1, const char *pw2, size_t length)
+{
+    for (size_t i = 0; i < length; i++)
+    {
+        if (pw1[i] != pw2[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void generate_pwchar_string(char *str, int number_of_pwchar) 
+{
+    // Set the first 'number_of_pwchar' characters to 'X'
+    for (int i = 0; i < number_of_pwchar && i < 8; i++) {
+        str[i] = 'X';
+    }
+    
+    // Fill the rest with '-'
+    for (int i = number_of_pwchar; i < 8; i++) {
+        str[i] = '-';
+    }
+    
+    // Null-terminate the string
+    str[8] = '\0';
+}
+
 
 void update_usrdata_screen(lv_ui *ui)
 {
@@ -373,7 +401,6 @@ void _setup_scr_usrdata_screen(lv_ui *ui)
     lv_obj_update_layout(ui->usrdata_screen);
 
 }
-
 
 
 void _setup_scr_usrinfo_screen(lv_ui *ui)
@@ -1429,8 +1456,8 @@ void _setup_scr_pw_enter_screen(lv_ui *ui)
     ui->pw_enter_screen_label_nofi = lv_label_create(ui->pw_enter_screen);
     lv_label_set_text(ui->pw_enter_screen_label_nofi, "Please enter your password");
     lv_label_set_long_mode(ui->pw_enter_screen_label_nofi, LV_LABEL_LONG_WRAP);
-    lv_obj_set_pos(ui->pw_enter_screen_label_nofi, 10, 162);
-    lv_obj_set_size(ui->pw_enter_screen_label_nofi, 300, 18);
+    lv_obj_set_pos(ui->pw_enter_screen_label_nofi, 0, 162);
+    lv_obj_set_size(ui->pw_enter_screen_label_nofi, 320, 18);
 
     //Write style for pw_enter_screen_label_nofi, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->pw_enter_screen_label_nofi, 0, LV_PART_MAIN|LV_STATE_DEFAULT);

@@ -79,6 +79,8 @@ void _setup_scr_usrinfo_screen(lv_ui *ui);
 void _setup_scr_finger_enroll_screen(lv_ui *ui);
 void _setup_scr_pw_enter_screen(lv_ui *ui);
 
+bool compare_passwords(const char *pw1, const char *pw2, size_t length);
+void generate_pwchar_string(char *str, int number_of_pwchar);
 void update_data_gui(ui_state_t current_screen);
 
 void menu_screen_setting_default(void);
