@@ -468,7 +468,7 @@ void setup_scr_usrinfo_screen(lv_ui *ui)
     lv_obj_set_style_pad_bottom(ui->usrinfo_screen_label_usrname, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_pad_left(ui->usrinfo_screen_label_usrname, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_shadow_width(ui->usrinfo_screen_label_usrname, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    
+
     //Write codes usrinfo_screen_cont_role
     ui->usrinfo_screen_cont_role = lv_obj_create(ui->usrinfo_screen);
     lv_obj_set_pos(ui->usrinfo_screen_cont_role, -2, 166);
@@ -543,4 +543,6 @@ void setup_scr_usrinfo_screen(lv_ui *ui)
     //Update current screen layout.
     lv_obj_update_layout(ui->usrinfo_screen);
 
+    //Init events for screen.
+    events_init_usrinfo_screen(ui);
 }

@@ -22,7 +22,7 @@ static void main_screen_event_handler (lv_event_t *e)
     switch (code) {
     case LV_EVENT_CLICKED:
     {
-        ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.main_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, true, true);
+        ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.main_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 200, 200, false, true);
         break;
     }
     default:
@@ -52,6 +52,63 @@ static void menu_screen_event_handler (lv_event_t *e)
 void events_init_menu_screen (lv_ui *ui)
 {
     lv_obj_add_event_cb(ui->menu_screen, menu_screen_event_handler, LV_EVENT_ALL, ui);
+}
+
+static void data_screen_event_handler (lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    switch (code) {
+    case LV_EVENT_CLICKED:
+    {
+        ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.data_screen_del, setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_NONE, 0, 0, false, true);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void events_init_data_screen (lv_ui *ui)
+{
+    lv_obj_add_event_cb(ui->data_screen, data_screen_event_handler, LV_EVENT_ALL, ui);
+}
+
+static void usrdata_screen_event_handler (lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    switch (code) {
+    case LV_EVENT_CLICKED:
+    {
+        ui_load_scr_animation(&guider_ui, &guider_ui.data_screen, guider_ui.data_screen_del, &guider_ui.usrdata_screen_del, setup_scr_data_screen, LV_SCR_LOAD_ANIM_NONE, 0, 0, false, true);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void events_init_usrdata_screen (lv_ui *ui)
+{
+    lv_obj_add_event_cb(ui->usrdata_screen, usrdata_screen_event_handler, LV_EVENT_ALL, ui);
+}
+
+static void usrinfo_screen_event_handler (lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    switch (code) {
+    case LV_EVENT_CLICKED:
+    {
+        ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.usrinfo_screen_del, setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_NONE, 0, 0, false, true);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void events_init_usrinfo_screen (lv_ui *ui)
+{
+    lv_obj_add_event_cb(ui->usrinfo_screen, usrinfo_screen_event_handler, LV_EVENT_ALL, ui);
 }
 
 

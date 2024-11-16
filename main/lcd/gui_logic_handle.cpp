@@ -431,108 +431,27 @@ void GUIHandler::update()
                 {
                 case 0: // Finger
                 {
-                    // Deactivate the fingerprint detection task
                     if (FingerprintDetectTaskHandle != NULL)
                     {
                         vTaskDelete(FingerprintDetectTaskHandle);
                     }
-                    r307_stop();                 
+                    r307_stop();
                     vTaskDelay(pdMS_TO_TICKS(100));
                     r307_run();
 
                     current_state = STATE_FINGERPRINT_ENROLL_SCREEN;
                     ui_load_scr_animation(&guider_ui, &guider_ui.finger_enroll_screen, guider_ui.finger_enroll_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_finger_enroll_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                     update_data_gui(STATE_FINGERPRINT_ENROLL_SCREEN);
-
-                    while (1)
-                    {
-                        lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-                        lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Please place your finger");
-                        while (GenImg(_default_address) != 0)
-                        {
-                        }                        
-                        uint8_t confirmation_code = Img2Tz(_default_address, _enroll_buffer_id_1);
-                        if (confirmation_code != 0)
-                        {
-                            lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
-                            lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
-                            lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
-                            vTaskDelay(pdMS_TO_TICKS(1000));
-                            continue;
-                        }
-                        lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x00239e));
-                        lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Please remove your finger");
-                        while (GenImg(_default_address) == 0)
-                        {
-                        }
-                        lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Please place your finger again");
-                        while (GenImg(_default_address) != 0)
-                        {
-                        }
-                        confirmation_code = Img2Tz(_default_address, _enroll_buffer_id_2);
-                        if (confirmation_code != 0)
-                        {
-                            lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
-                            lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
-                            lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
-                            vTaskDelay(pdMS_TO_TICKS(1000));
-                            continue;
-                        }
-                        lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x00239e));
-                        confirmation_code = RegModel(_default_address);
-                        if (confirmation_code == 0)
-                        {
-                            char _page_id[2] = {0};
-                            _page_id[0] = (char)((users[usr_data_selected_item].id >> 8) & 0xFF);
-                            _page_id[1] = (char)(users[usr_data_selected_item].id & 0xFF);
-                            confirmation_code = Store(_default_address, _enroll_buffer_id_1, _page_id);
-                            if (confirmation_code == 0)
-                            {
-                                lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0x00ff00), LV_PART_MAIN | LV_STATE_DEFAULT);
-                                lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Enroll success");
-                                update_finger_print_to_db(users[usr_data_selected_item].id, 1);
-                                vTaskDelay(pdMS_TO_TICKS(400));
-                                load_data_from_database_to_users();
-                                break;
-                            }
-                            else
-                            {
-                                lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
-                                lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
-                                lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
-                                lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
-                                vTaskDelay(pdMS_TO_TICKS(1000));
-                            }
-                        }
-                        else
-                        {
-                            lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
-                            lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
-                            lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
-                            vTaskDelay(pdMS_TO_TICKS(1000));
-                        }
-                    }
-
-                    // Reactivate the fingerprint detection task
-                    r307_stop();                 
-                    vTaskDelay(pdMS_TO_TICKS(100));
-                    r307_run();                    
-                    fingerprint_detect_task_run();
-
-                    // Go back to user info screen
-                    current_state = STATE_USER_INFO_SCREEN;
-                    ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.finger_enroll_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
-                    update_usrinfo_selection(usr_info_selected_item);
-                    update_data_gui(STATE_USER_INFO_SCREEN);
+                    goto FINGERPRINT_ENROLL_STATE;
 
                     break;
                 }
                 case 1: // Password
                 {
-                    
+                    current_state = STATE_PW_ENTER_SCREEN;
+                    ui_load_scr_animation(&guider_ui, &guider_ui.pw_enter_screen, guider_ui.pw_enter_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_pw_enter_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+                    update_data_gui(STATE_PW_ENTER_SCREEN);
+                    goto PW_ENTER_STATE;
                     break;
                 }
                 case 2: // FaceID
@@ -552,13 +471,103 @@ void GUIHandler::update()
             else if (this->key->pressed == BUTTON_ESC)
             {
                 current_state = STATE_USER_DATA_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);                update_usr_data_selection(usr_data_selected_item);
+                ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+                update_usr_data_selection(usr_data_selected_item);
                 update_data_gui(STATE_USER_DATA_SCREEN);
             }
             break;
         }
         case STATE_FINGERPRINT_ENROLL_SCREEN:
         {
+        FINGERPRINT_ENROLL_STATE:
+            ESP_LOGE(TAG, "Fingerprint enroll screen");
+            while (1)
+            {
+                lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Please place your finger");
+                while (GenImg(_default_address) != 0)
+                {
+                }
+                uint8_t confirmation_code = Img2Tz(_default_address, _enroll_buffer_id_1);
+                if (confirmation_code != 0)
+                {
+                    lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
+                    lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
+                    lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    continue;
+                }
+                lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x00239e));
+                lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Please remove your finger");
+                while (GenImg(_default_address) == 0)
+                {
+                }
+                lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Please place your finger again");
+                while (GenImg(_default_address) != 0)
+                {
+                }
+                confirmation_code = Img2Tz(_default_address, _enroll_buffer_id_2);
+                if (confirmation_code != 0)
+                {
+                    lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
+                    lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
+                    lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    continue;
+                }
+                lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x00239e));
+                confirmation_code = RegModel(_default_address);
+                if (confirmation_code == 0)
+                {
+                    char _page_id[2] = {0};
+                    _page_id[0] = (char)((users[usr_data_selected_item].id >> 8) & 0xFF);
+                    _page_id[1] = (char)(users[usr_data_selected_item].id & 0xFF);
+                    confirmation_code = Store(_default_address, _enroll_buffer_id_1, _page_id);
+                    if (confirmation_code == 0)
+                    {
+                        lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Enroll success");
+                        update_finger_print_to_db(users[usr_data_selected_item].id, 1);
+                        vTaskDelay(pdMS_TO_TICKS(400));
+                        load_data_from_database_to_users();
+                        break;
+                    }
+                    else
+                    {
+                        lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                        lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
+                        lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
+                        lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
+                        vTaskDelay(pdMS_TO_TICKS(1000));
+                    }
+                }
+                else
+                {
+                    lv_obj_set_style_text_color(guider_ui.finger_enroll_screen_label_info_fp, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Failed! Please try again");
+                    lv_led_set_color(guider_ui.finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
+                    lv_led_set_color(guider_ui.finger_enroll_screen_led_2, lv_color_hex(0x6b6c6b));
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                }
+            }
+
+            // Reactivate the fingerprint detection task
+            r307_stop();
+            vTaskDelay(pdMS_TO_TICKS(100));
+            r307_run();
+            fingerprint_detect_task_run();
+
+            // Go back to user info screen
+            current_state = STATE_USER_INFO_SCREEN;
+            ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.finger_enroll_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            update_usrinfo_selection(usr_info_selected_item);
+            update_data_gui(STATE_USER_INFO_SCREEN);
+            break;
+        }
+        case STATE_PW_ENTER_SCREEN:
+        {
+        PW_ENTER_STATE:
             
             break;
         }

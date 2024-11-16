@@ -15,7 +15,6 @@
 #endif
 
 lv_ui guider_ui;
-
 void ui_init_style(lv_style_t * style)
 {
     if (style->prop_cnt > 1)
@@ -83,6 +82,7 @@ void init_scr_del_flag(lv_ui *ui)
     ui->usrdata_screen_del = true;
     ui->usrinfo_screen_del = true;
     ui->finger_enroll_screen_del = true;
+    ui->pw_enter_screen_del = true;
 }
 
 void setup_ui(lv_ui *ui)

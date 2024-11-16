@@ -295,10 +295,6 @@ void update_finger_print_to_db(int id, int value)
     {
         printf("Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
-    else
-    {
-        printf("Fingerprint data updated successfully for ID: %d\n", id);
-    }
 
     // Finalize the statement to release resources
     sqlite3_finalize(stmt);

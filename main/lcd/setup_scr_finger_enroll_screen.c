@@ -223,7 +223,7 @@ void setup_scr_finger_enroll_screen(lv_ui *ui)
     ui->finger_enroll_screen_label_id_fp = lv_label_create(ui->finger_enroll_screen);
     lv_label_set_text(ui->finger_enroll_screen_label_id_fp, "ID-1  FP-2");
     lv_label_set_long_mode(ui->finger_enroll_screen_label_id_fp, LV_LABEL_LONG_WRAP);
-    lv_obj_set_pos(ui->finger_enroll_screen_label_id_fp, 87, 60);
+    lv_obj_set_pos(ui->finger_enroll_screen_label_id_fp, 87, 69);
     lv_obj_set_size(ui->finger_enroll_screen_label_id_fp, 146, 19);
 
     //Write style for finger_enroll_screen_label_id_fp, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
@@ -246,13 +246,13 @@ void setup_scr_finger_enroll_screen(lv_ui *ui)
     ui->finger_enroll_screen_label_info_fp = lv_label_create(ui->finger_enroll_screen);
     lv_label_set_text(ui->finger_enroll_screen_label_info_fp, "Please place your finger");
     lv_label_set_long_mode(ui->finger_enroll_screen_label_info_fp, LV_LABEL_LONG_WRAP);
-    lv_obj_set_pos(ui->finger_enroll_screen_label_info_fp, 10, 89);
+    lv_obj_set_pos(ui->finger_enroll_screen_label_info_fp, 9, 98);
     lv_obj_set_size(ui->finger_enroll_screen_label_info_fp, 300, 19);
 
     //Write style for finger_enroll_screen_label_info_fp, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->finger_enroll_screen_label_info_fp, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui->finger_enroll_screen_label_info_fp, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui->finger_enroll_screen_label_info_fp, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->finger_enroll_screen_label_info_fp, lv_color_hex(0x28b620), LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui->finger_enroll_screen_label_info_fp, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui->finger_enroll_screen_label_info_fp, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_letter_space(ui->finger_enroll_screen_label_info_fp, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -268,15 +268,15 @@ void setup_scr_finger_enroll_screen(lv_ui *ui)
     //Write codes finger_enroll_screen_led_1
     ui->finger_enroll_screen_led_1 = lv_led_create(ui->finger_enroll_screen);
     lv_led_set_brightness(ui->finger_enroll_screen_led_1, 255);
-    lv_led_set_color(ui->finger_enroll_screen_led_1, lv_color_hex(0x006313));
-    lv_obj_set_pos(ui->finger_enroll_screen_led_1, 120, 128);
+    lv_led_set_color(ui->finger_enroll_screen_led_1, lv_color_hex(0x6b6c6b));
+    lv_obj_set_pos(ui->finger_enroll_screen_led_1, 120, 137);
     lv_obj_set_size(ui->finger_enroll_screen_led_1, 20, 20);
 
     //Write codes finger_enroll_screen_led_2
     ui->finger_enroll_screen_led_2 = lv_led_create(ui->finger_enroll_screen);
     lv_led_set_brightness(ui->finger_enroll_screen_led_2, 255);
-    lv_led_set_color(ui->finger_enroll_screen_led_2, lv_color_hex(0x006313));
-    lv_obj_set_pos(ui->finger_enroll_screen_led_2, 179, 128);
+    lv_led_set_color(ui->finger_enroll_screen_led_2, lv_color_hex(0xb70000));
+    lv_obj_set_pos(ui->finger_enroll_screen_led_2, 179, 137);
     lv_obj_set_size(ui->finger_enroll_screen_led_2, 20, 20);
 
     //The custom code of finger_enroll_screen.

@@ -20,6 +20,9 @@ void events_init(lv_ui *ui);
 
 void events_init_main_screen(lv_ui *ui);
 void events_init_menu_screen(lv_ui *ui);
+void events_init_data_screen(lv_ui *ui);
+void events_init_usrdata_screen(lv_ui *ui);
+void events_init_usrinfo_screen(lv_ui *ui);
 
 #ifdef __cplusplus
 }
