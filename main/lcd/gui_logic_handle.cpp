@@ -566,14 +566,14 @@ void GUIHandler::update()
     {
     PW_ENTER_STATE:
 
-        static char password1st[9] = {0};
-        static char password2nd[9] = {0};
+        static char password1st[5] = {0};
+        static char password2nd[5] = {0};
         static int current_pw_length = 0;
         static bool is_first_pw_complete = false;
 
         if (this->key->pressed >= BUTTON_0 && this->key->pressed <= BUTTON_9)
         {
-            if (current_pw_length < 8)
+            if (current_pw_length < 4)
             {
                 if (!is_first_pw_complete)
                 {
@@ -587,7 +587,7 @@ void GUIHandler::update()
                 }
 
                 current_pw_length++;
-                char pwchar_string[9] = {0};
+                char pwchar_string[5] = {0};
                 generate_pwchar_string(pwchar_string, current_pw_length);
                 if (!is_first_pw_complete)
                     lv_label_set_text(guider_ui.pw_enter_screen_label_pw_first, pwchar_string);
@@ -597,46 +597,73 @@ void GUIHandler::update()
         }
         else if (this->key->pressed == BUTTON_OK)
         {
-            if (current_pw_length < 8)
+            if (current_pw_length < 4)
             {
-                current_pw_length = 0;
-                if (!is_first_pw_complete)
-                    memset(password1st, 0, sizeof(password1st));
-                else
-                    memset(password2nd, 0, sizeof(password2nd));
-                lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Password must be 8 characters");
+                lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0xff0000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Password must be 4 characters");
                 vTaskDelay(pdMS_TO_TICKS(500));
+                lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
                 lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Please enter your password");
-                if (!is_first_pw_complete)
-                    lv_label_set_text(guider_ui.pw_enter_screen_label_pw_first, "--------");
-                else
-                    lv_label_set_text(guider_ui.pw_enter_screen_label_pw_second, "--------");
             }
-            else if (current_pw_length == 8)
+            else if (current_pw_length == 4)
             {
                 if (!is_first_pw_complete)
                 {
                     is_first_pw_complete = true;
                     current_pw_length = 0;
                     lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Please re-enter your password");
+                    lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+                    lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                    lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                    lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
                 }
                 else
                 {
-                    if (compare_passwords(password1st, password2nd, 8))
+                    if (compare_passwords(password1st, password2nd, 4))
                     {
                         ESP_LOGI(TAG, "Password matched");
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0x00ff00), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Password matched! Enroll success");
+                        vTaskDelay(pdMS_TO_TICKS(500));
+                        // Update password to database
+                        goto ESC_PW_ENTER_STATE;
                     }
                     else
                     {
                         ESP_LOGI(TAG, "Password not matched");
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0xff0000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Not matched! Please try again");
+                        current_pw_length = 0;                        
+                        memset(password1st, 0, sizeof(password1st));
+                        memset(password2nd, 0, sizeof(password2nd));
+                        vTaskDelay(pdMS_TO_TICKS(500));
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_label_set_text(guider_ui.pw_enter_screen_label_pw_first, "----");
+                        lv_label_set_text(guider_ui.pw_enter_screen_label_pw_second, "----");                        
+                        lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Please enter your password");
+                        lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        is_first_pw_complete = false;
+
                     }
                 }
             }
         }
         else if (this->key->pressed == BUTTON_ESC)
         {
+            ESC_PW_ENTER_STATE:
             current_pw_length = 0;
-            lv_label_set_text(guider_ui.pw_enter_screen_label_pw_first, "");
+            is_first_pw_complete = false;
+            memset(password1st, 0, sizeof(password1st));
+            memset(password2nd, 0, sizeof(password2nd));            
+
+            // Go back to user info screen
+            current_state = STATE_USER_INFO_SCREEN;
+            ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.pw_enter_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            update_usrinfo_selection(usr_info_selected_item);
+            update_data_gui(STATE_USER_INFO_SCREEN);
         }
         break;
     }

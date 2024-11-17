@@ -32,17 +32,17 @@ bool compare_passwords(const char *pw1, const char *pw2, size_t length)
 void generate_pwchar_string(char *str, int number_of_pwchar) 
 {
     // Set the first 'number_of_pwchar' characters to 'X'
-    for (int i = 0; i < number_of_pwchar && i < 8; i++) {
+    for (int i = 0; i < number_of_pwchar && i < 4; i++) {
         str[i] = 'X';
     }
     
     // Fill the rest with '-'
-    for (int i = number_of_pwchar; i < 8; i++) {
+    for (int i = number_of_pwchar; i < 4; i++) {
         str[i] = '-';
     }
     
     // Null-terminate the string
-    str[8] = '\0';
+    str[4] = '\0';
 }
 
 
@@ -1502,7 +1502,7 @@ void _setup_scr_pw_enter_screen(lv_ui *ui)
 
     //Write codes pw_enter_screen_label_pw_first
     ui->pw_enter_screen_label_pw_first = lv_label_create(ui->pw_enter_screen);
-    lv_label_set_text(ui->pw_enter_screen_label_pw_first, "--------");
+    lv_label_set_text(ui->pw_enter_screen_label_pw_first, "----");
     lv_label_set_long_mode(ui->pw_enter_screen_label_pw_first, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->pw_enter_screen_label_pw_first, 70, 84);
     lv_obj_set_size(ui->pw_enter_screen_label_pw_first, 180, 30);
@@ -1527,7 +1527,7 @@ void _setup_scr_pw_enter_screen(lv_ui *ui)
 
     //Write codes pw_enter_screen_label_pw_second
     ui->pw_enter_screen_label_pw_second = lv_label_create(ui->pw_enter_screen);
-    lv_label_set_text(ui->pw_enter_screen_label_pw_second, "--------");
+    lv_label_set_text(ui->pw_enter_screen_label_pw_second, "----");
     lv_label_set_long_mode(ui->pw_enter_screen_label_pw_second, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->pw_enter_screen_label_pw_second, 70, 122);
     lv_obj_set_size(ui->pw_enter_screen_label_pw_second, 180, 30);
