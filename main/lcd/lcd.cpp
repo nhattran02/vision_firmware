@@ -8,6 +8,7 @@
 #include "esp_timer.h"
 #include "lvgl.h"
 #include "gui_guider.h"
+#include "utils.hpp"
 
 static const char TAG[] = "lcd";
 
@@ -21,7 +22,7 @@ static lv_disp_drv_t disp_drv;
 static lv_indev_t * indev_keypad;
 static lv_group_t *g_key_op_group = NULL;
 volatile bool lvgl_enable = true;
-volatile bool lcd_switch_on = false;
+volatile bool lcd_on = false;
 
 static void lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
@@ -332,7 +333,7 @@ static void lcd_task(LCD *self)
 
         if (xQueueReceive(self->queue_i, &frame, portMAX_DELAY))
         {
-            if (lcd_switch_on)
+            if (lcd_on)
                 esp_lcd_panel_draw_bitmap(self->panel_handle, 0, 0, frame->width, frame->height, (uint16_t *)frame->buf);
             if (self->queue_o)
                 xQueueSend(self->queue_o, &frame, portMAX_DELAY);

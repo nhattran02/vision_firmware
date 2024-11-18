@@ -82,7 +82,7 @@ void Face::update()
     // Parse key
     if (this->key->pressed > BUTTON_IDLE)
     {
-        if (lcd_switch_on == true)
+        if (lcd_on == true)
         {
             if (this->key->pressed == BUTTON_MENU)
             {

@@ -29,7 +29,7 @@
 
 void disable_lvgl();
 void enable_lvgl();
-extern volatile bool lcd_switch_on;
+extern volatile bool lcd_on;
 
 
 class LCD : public Observer, public Frame

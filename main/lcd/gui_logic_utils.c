@@ -29,6 +29,29 @@ bool compare_passwords(const char *pw1, const char *pw2, size_t length)
     return true;
 }
 
+void hash_to_hex(const uint8_t *hash, size_t hash_length, char *hex_output)
+{
+    for (size_t i = 0; i < hash_length; i++)
+    {
+        sprintf(hex_output + (i * 2), "%02x", hash[i]);
+    }
+    hex_output[hash_length * 2] = '\0';
+}
+
+
+void hash_password(const char *password, size_t length, char *output_hash_hex)
+{
+    uint8_t output_hash[32] = {0};
+    mbedtls_sha256_context sha256_ctx;
+    mbedtls_sha256_init(&sha256_ctx);
+    mbedtls_sha256_starts(&sha256_ctx, false); 
+    mbedtls_sha256_update(&sha256_ctx, (const unsigned char *)password, length);
+    mbedtls_sha256_finish(&sha256_ctx, output_hash);
+    mbedtls_sha256_free(&sha256_ctx);
+
+    hash_to_hex(output_hash, 32, output_hash_hex);
+}
+
 void generate_pwchar_string(char *str, int number_of_pwchar) 
 {
     // Set the first 'number_of_pwchar' characters to 'X'

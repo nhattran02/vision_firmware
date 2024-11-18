@@ -13,7 +13,7 @@ extern "C"
 #include "sqlite_db.hpp"
 #include "r307.h"
 #include "fingerprint.hpp"
-
+#include "utils.hpp"
 
 static const char TAG[] = "gui_logic_handle";
 
@@ -269,8 +269,10 @@ void GUIHandler::update()
             default:
                 break;
             }
+            print_mem_info("Pressed OK to enter Camera");
             disable_lvgl();
-            lcd_switch_on = true;
+            print_mem_info("After disable_lvgl");
+            lcd_on = true;
             current_state = STATE_CAMERA_SCREEN;
         }
         else if (this->key->pressed == BUTTON_ESC)
@@ -296,8 +298,10 @@ void GUIHandler::update()
     {
         if (this->key->pressed == BUTTON_ESC)
         {
+            print_mem_info("Before enable_lvgl");
             enable_lvgl();
-            lcd_switch_on = false;
+            print_mem_info("After enable_lvgl");
+            lcd_on = false;
             current_state = STATE_ATTENDANCE_SCREEN;
             ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.attendance_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
             update_data_gui(STATE_ATTENDANCE_SCREEN);
@@ -527,7 +531,7 @@ void GUIHandler::update()
                     lv_label_set_text(guider_ui.finger_enroll_screen_label_info_fp, "Enroll success");
                     update_finger_print_to_db(users[usr_data_selected_item].id, 1);
                     vTaskDelay(pdMS_TO_TICKS(400));
-                    load_data_from_database_to_users();
+                    users[usr_data_selected_item].fingerprint = 1;
                     break;
                 }
                 else
@@ -568,8 +572,10 @@ void GUIHandler::update()
 
         static char password1st[5] = {0};
         static char password2nd[5] = {0};
+        static char password1st_hash_hex[65] = {0};
+        static char password2nd_hash_hex[65] = {0};
         static int current_pw_length = 0;
-        static bool is_first_pw_complete = false;
+        static bool is_first_pw_complete = false;        
 
         if (this->key->pressed >= BUTTON_0 && this->key->pressed <= BUTTON_9)
         {
@@ -597,6 +603,7 @@ void GUIHandler::update()
         }
         else if (this->key->pressed == BUTTON_OK)
         {
+
             if (current_pw_length < 4)
             {
                 lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0xff0000), LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -609,6 +616,12 @@ void GUIHandler::update()
             {
                 if (!is_first_pw_complete)
                 {
+                    print_mem_info("Before hash1");
+                    hash_password(password1st, 4, password1st_hash_hex);
+                    print_mem_info("After hash1");
+
+                    memset(password1st, 0, sizeof(password1st));     
+
                     is_first_pw_complete = true;
                     current_pw_length = 0;
                     lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Please re-enter your password");
@@ -619,18 +632,28 @@ void GUIHandler::update()
                 }
                 else
                 {
-                    if (compare_passwords(password1st, password2nd, 4))
+                    print_mem_info("Before hash2");
+                    hash_password(password2nd, 4, password2nd_hash_hex);        
+                    print_mem_info("After hash2");
+
+
+                    memset(password2nd, 0, sizeof(password2nd));
+
+                    if (strcmp(password1st_hash_hex, password2nd_hash_hex) == 0)
                     {
-                        ESP_LOGI(TAG, "Password matched");
-                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0x00ff00), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        ESP_LOGI(TAG, "password1st_hash_hex: %s", password1st_hash_hex);
+                        ESP_LOGI(TAG, "password2nd_hash_hex: %s", password2nd_hash_hex);
+
                         lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Password matched! Enroll success");
-                        vTaskDelay(pdMS_TO_TICKS(500));
-                        // Update password to database
+                        update_password_to_db(users[usr_data_selected_item].id, password1st_hash_hex);
+                        strcpy(users[usr_data_selected_item].password_hash, password1st_hash_hex);
+                        memset(password1st_hash_hex, 0, sizeof(password1st_hash_hex));
+                        memset(password2nd_hash_hex, 0, sizeof(password2nd_hash_hex));                        
+                        vTaskDelay(pdMS_TO_TICKS(500));                    
                         goto ESC_PW_ENTER_STATE;
                     }
                     else
                     {
-                        ESP_LOGI(TAG, "Password not matched");
                         lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0xff0000), LV_PART_MAIN|LV_STATE_DEFAULT);
                         lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Not matched! Please try again");
                         current_pw_length = 0;                        
@@ -650,6 +673,10 @@ void GUIHandler::update()
                     }
                 }
             }
+
+
+
+
         }
         else if (this->key->pressed == BUTTON_ESC)
         {

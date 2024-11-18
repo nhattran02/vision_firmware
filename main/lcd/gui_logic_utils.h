@@ -8,6 +8,9 @@
 #include "custom.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <mbedtls/sha256.h>
+#include "esp_system.h"
+#include "esp_sleep.h"
 
 #define MAX_USERS 500
 
@@ -80,6 +83,7 @@ void _setup_scr_finger_enroll_screen(lv_ui *ui);
 void _setup_scr_pw_enter_screen(lv_ui *ui);
 
 bool compare_passwords(const char *pw1, const char *pw2, size_t length);
+void hash_password(const char *password, size_t length, char *output_hash_hex);
 void generate_pwchar_string(char *str, int number_of_pwchar);
 void update_data_gui(ui_state_t current_screen);
 
