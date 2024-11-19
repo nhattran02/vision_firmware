@@ -25,14 +25,13 @@ extern "C" void app_main()
 
     QueueHandle_t xQueueFrame1 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame2 = xQueueCreate(2, sizeof(camera_fb_t *));
-    QueueHandle_t xQueueFrame3 = xQueueCreate(2, sizeof(camera_fb_t *));
 
     Button *matrix_button = new Button();
     Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
     Face *face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
     LCD *lcd = new LCD(matrix_button, xQueueFrame2);
     GUIHandler *gui_handler = new GUIHandler(matrix_button);
-    Fingerprint *fingerprint = new Fingerprint(matrix_button, xQueueFrame3);
+    Fingerprint *fingerprint = new Fingerprint(matrix_button);
     AppSDCard *sd_card = new AppSDCard(matrix_button);
     SQLiteDB *sqlite_db = new SQLiteDB(matrix_button);
     // AppUSBMSC *usb_msc = new AppUSBMSC();

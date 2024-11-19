@@ -269,9 +269,9 @@ void GUIHandler::update()
             default:
                 break;
             }
-            print_mem_info("Pressed OK to enter Camera");
+            // print_mem_info("Pressed OK to enter Camera");
             disable_lvgl();
-            print_mem_info("After disable_lvgl");
+            // print_mem_info("After disable_lvgl");
             lcd_on = true;
             current_state = STATE_CAMERA_SCREEN;
         }
@@ -457,6 +457,10 @@ void GUIHandler::update()
             }
             case 2: // FaceID
             {
+                disable_lvgl();
+                faceid_enroll_on = true;
+                lcd_on = true;
+                current_state = STATE_FACEID_ENROLL_SCREEN;
 
                 break;
             }
@@ -616,9 +620,7 @@ void GUIHandler::update()
             {
                 if (!is_first_pw_complete)
                 {
-                    print_mem_info("Before hash1");
                     hash_password(password1st, 4, password1st_hash_hex);
-                    print_mem_info("After hash1");
 
                     memset(password1st, 0, sizeof(password1st));     
 
@@ -632,10 +634,7 @@ void GUIHandler::update()
                 }
                 else
                 {
-                    print_mem_info("Before hash2");
-                    hash_password(password2nd, 4, password2nd_hash_hex);        
-                    print_mem_info("After hash2");
-
+                    hash_password(password2nd, 4, password2nd_hash_hex);
 
                     memset(password2nd, 0, sizeof(password2nd));
 
@@ -676,7 +675,6 @@ void GUIHandler::update()
 
 
 
-
         }
         else if (this->key->pressed == BUTTON_ESC)
         {
@@ -692,6 +690,11 @@ void GUIHandler::update()
             update_usrinfo_selection(usr_info_selected_item);
             update_data_gui(STATE_USER_INFO_SCREEN);
         }
+        break;
+    }
+    case STATE_FACEID_ENROLL_SCREEN:
+    {
+
         break;
     }
     }

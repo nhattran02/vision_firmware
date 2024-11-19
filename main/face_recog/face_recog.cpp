@@ -91,7 +91,7 @@ void Face::update()
                     this->switch_on = false;
                 else
                     this->switch_on = true;
-                ESP_LOGD(TAG, "%s", this->switch_on ? "ON" : "OFF");
+                ESP_LOGI(TAG, "%s", this->switch_on ? "ON" : "OFF");
             }
             else if (this->key->pressed == BUTTON_OK)
             {
@@ -125,6 +125,7 @@ static void face_task(Face *self)
         {
             if (self->switch_on)
             {
+                /*
                 std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
                 std::list<dl::detect::result_t> &detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
     
@@ -193,6 +194,16 @@ static void face_task(Face *self)
 
                     self->frame_count--;
                 }
+                */
+            }
+            else if(faceid_enroll_on == true)
+            {
+                std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
+                std::list<dl::detect::result_t> &detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
+                if (detect_results.size())
+                {
+                    draw_detection_result((uint16_t *)frame->buf, frame->height, frame->width, detect_results);
+                }                
             }
 
             if (self->queue_o)

@@ -10,7 +10,7 @@
 #include "button.hpp"
 
 
-#define LCD_PIXEL_CLOCK_HZ     (20 * 1000 * 1000)
+#define LCD_PIXEL_CLOCK_HZ     (25 * 1000 * 1000)
 #define LCD_BK_LIGHT_ON_LEVEL  1
 #define LCD_BK_LIGHT_OFF_LEVEL !LCD_BK_LIGHT_ON_LEVEL
 #define LCD_NUM_SCLK           GPIO_NUM_21
@@ -30,6 +30,7 @@
 void disable_lvgl();
 void enable_lvgl();
 extern volatile bool lcd_on;
+extern volatile bool faceid_enroll_on;
 
 
 class LCD : public Observer, public Frame

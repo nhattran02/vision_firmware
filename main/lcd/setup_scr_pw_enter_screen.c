@@ -270,7 +270,7 @@ void setup_scr_pw_enter_screen(lv_ui *ui)
     lv_label_set_text(ui->pw_enter_screen_label_pw_first, "xxxxxxxx");
     lv_label_set_long_mode(ui->pw_enter_screen_label_pw_first, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->pw_enter_screen_label_pw_first, 70, 84);
-    lv_obj_set_size(ui->pw_enter_screen_label_pw_first, 180, 30);
+    lv_obj_set_size(ui->pw_enter_screen_label_pw_first, 180, 28);
 
     //Write style for pw_enter_screen_label_pw_first, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->pw_enter_screen_label_pw_first, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -295,7 +295,7 @@ void setup_scr_pw_enter_screen(lv_ui *ui)
     lv_label_set_text(ui->pw_enter_screen_label_pw_second, "xxxxxxxx");
     lv_label_set_long_mode(ui->pw_enter_screen_label_pw_second, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->pw_enter_screen_label_pw_second, 70, 122);
-    lv_obj_set_size(ui->pw_enter_screen_label_pw_second, 180, 30);
+    lv_obj_set_size(ui->pw_enter_screen_label_pw_second, 180, 28);
 
     //Write style for pw_enter_screen_label_pw_second, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->pw_enter_screen_label_pw_second, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -316,6 +316,7 @@ void setup_scr_pw_enter_screen(lv_ui *ui)
     lv_obj_set_style_shadow_width(ui->pw_enter_screen_label_pw_second, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
     //The custom code of pw_enter_screen.
+
 
     //Update current screen layout.
     lv_obj_update_layout(ui->pw_enter_screen);

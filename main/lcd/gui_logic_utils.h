@@ -60,6 +60,8 @@ typedef enum
     
     STATE_PW_ENTER_SCREEN,
 
+    STATE_FACEID_ENROLL_SCREEN, 
+
 } ui_state_t;
 
 

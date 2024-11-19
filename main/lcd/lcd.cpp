@@ -23,6 +23,7 @@ static lv_indev_t * indev_keypad;
 static lv_group_t *g_key_op_group = NULL;
 volatile bool lvgl_enable = true;
 volatile bool lcd_on = false;
+volatile bool faceid_enroll_on = false;
 
 static void lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
@@ -88,7 +89,7 @@ static void lvgl_port_update_callback(lv_disp_drv_t *drv)
 void disable_lvgl()
 {
     lvgl_enable = false;
-    // lv_disp_draw_buf_t *disp_buf = lv_disp_get_draw_buf(lv_disp_get_default());
+
     heap_caps_free(disp_buf.buf1);
     heap_caps_free(disp_buf.buf2);
     disp_buf.buf1 = nullptr;
@@ -102,9 +103,9 @@ void enable_lvgl()
 {
     lvgl_enable = true; 
     
-    lv_color_t *buf1 = (lv_color_t *)heap_caps_malloc(LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
-    lv_color_t *buf2 = (lv_color_t *)heap_caps_malloc(LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
-    lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 20);
+    lv_color_t *buf1 = (lv_color_t *)heap_caps_malloc(LCD_H_RES * 30 * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
+    lv_color_t *buf2 = (lv_color_t *)heap_caps_malloc(LCD_H_RES * 30 * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
+    lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 30);
     
     disp_drv.flush_cb = lvgl_flush_cb;
     disp_drv.drv_update_cb = lvgl_port_update_callback;
@@ -211,12 +212,12 @@ LCD::LCD(Button *key,
         lv_init();
         // alloc draw buffers used by LVGL
         // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
-        lv_color_t *buf1 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 10 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+        lv_color_t *buf1 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 30 * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
         assert(buf1);
-        lv_color_t *buf2 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 10 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+        lv_color_t *buf2 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 30 * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
         assert(buf2);
         // initialize LVGL draw buffers
-        lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 10);
+        lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 30);
         
         ESP_LOGI(TAG, "Register display driver to LVGL");
         lv_disp_drv_init(&disp_drv);
@@ -333,8 +334,9 @@ static void lcd_task(LCD *self)
 
         if (xQueueReceive(self->queue_i, &frame, portMAX_DELAY))
         {
-            if (lcd_on)
+            if (lcd_on) {
                 esp_lcd_panel_draw_bitmap(self->panel_handle, 0, 0, frame->width, frame->height, (uint16_t *)frame->buf);
+            }
             if (self->queue_o)
                 xQueueSend(self->queue_o, &frame, portMAX_DELAY);
             else
