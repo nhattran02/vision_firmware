@@ -165,7 +165,7 @@ LCD::LCD(Button *key,
             .sclk_io_num = LCD_NUM_SCLK,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
-            .max_transfer_sz = LCD_H_RES * 1 * sizeof(uint16_t),
+            .max_transfer_sz = LCD_H_RES * 8 * sizeof(uint16_t),
         };
         ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &bus_conf, SPI_DMA_CH_AUTO));
         
@@ -184,7 +184,7 @@ LCD::LCD(Button *key,
             .lcd_cmd_bits = LCD_CMD_BITS,
             .lcd_param_bits = LCD_PARAM_BITS,
         };
-
+        
         // Attach the LCD to the SPI bus
         ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_HOST, &io_config, &io_handle));
         
@@ -216,6 +216,7 @@ LCD::LCD(Button *key,
         assert(buf1);
         lv_color_t *buf2 = (lv_color_t *) heap_caps_malloc(LCD_H_RES * 30 * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
         assert(buf2);
+
         // initialize LVGL draw buffers
         lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LCD_H_RES * 30);
         

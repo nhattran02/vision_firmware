@@ -123,9 +123,10 @@ static void face_task(Face *self)
             
         if (xQueueReceive(self->queue_i, &frame, portMAX_DELAY))
         {
+            /*
             if (self->switch_on)
             {
-                /*
+                
                 std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
                 std::list<dl::detect::result_t> &detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
     
@@ -194,9 +195,10 @@ static void face_task(Face *self)
 
                     self->frame_count--;
                 }
-                */
-            }
-            else if(faceid_enroll_on == true)
+                
+            }*/ 
+                
+            if(faceid_enroll_on == true)
             {
                 std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
                 std::list<dl::detect::result_t> &detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
