@@ -6,6 +6,7 @@
 #include "button.hpp"
 #include "lcd.hpp"
 
+void esc_faceid_enroll(void);
 
 class GUIHandler : public Observer, public Frame
 {

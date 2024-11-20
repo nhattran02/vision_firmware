@@ -758,14 +758,15 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
 
     ui->usrinfo_screen_label_faceid_value = lv_label_create(ui->usrinfo_screen_cont_faceid);
     
-    if (users[usr_data_selected_item].faceid == 0)
-    {
-        lv_label_set_text(ui->usrinfo_screen_label_faceid_value, "Not Set");
-    }
-    else
+    if (users[usr_data_selected_item].faceid == 1)
     {
         lv_label_set_text(ui->usrinfo_screen_label_faceid_value, "Set");
     }
+    else
+    {
+        lv_label_set_text(ui->usrinfo_screen_label_faceid_value, "Not Set");
+    }
+    
     // lv_label_set_text(ui->usrinfo_screen_label_faceid_value, "Not Set");
     lv_label_set_long_mode(ui->usrinfo_screen_label_faceid_value, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->usrinfo_screen_label_faceid_value, 228, 7);

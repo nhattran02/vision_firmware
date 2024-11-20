@@ -34,6 +34,7 @@ GUIHandler::GUIHandler(Button *key,
 {
 }
 
+
 static void update_menu_selection(uint8_t _menu_selected_item)
 {
     menu_screen_setting_default();
@@ -148,6 +149,22 @@ static void update_usrinfo_selection(uint16_t _usrinfo_selected_item)
     }
 }
 
+void esc_faceid_enroll(void)
+{
+    update_faceid_to_db(users[usr_data_selected_item].id, 1);
+    users[usr_data_selected_item].faceid = 1;
+    lcd_on = false;
+    faceid_enroll_on = false;
+    vTaskDelay(pdMS_TO_TICKS(200));
+    enable_lvgl();
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    current_state = STATE_USER_INFO_SCREEN;
+    ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.pw_enter_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+    update_usrinfo_selection(usr_info_selected_item);
+    update_data_gui(STATE_USER_INFO_SCREEN);
+}
+
 void GUIHandler::update()
 {
     switch (current_state)
@@ -193,7 +210,7 @@ void GUIHandler::update()
             }
             case 1: // Load STATE_CONNECTION_SCREEN
             {
-
+                
                 break;
             }
             case 2: // Load STATE_DATA_SCREEN
@@ -460,7 +477,6 @@ void GUIHandler::update()
             }
             case 2: // FaceID
             {
-                print_mem_info("Before enroll faceid");
                 disable_lvgl();
                 faceid_enroll_on = true;
                 lcd_on = true;
@@ -584,7 +600,7 @@ void GUIHandler::update()
         static char password1st_hash_hex[65] = {0};
         static char password2nd_hash_hex[65] = {0};
         static int current_pw_length = 0;
-        static bool is_first_pw_complete = false;        
+        static bool is_first_pw_complete = false;
 
         if (this->key->pressed >= BUTTON_0 && this->key->pressed <= BUTTON_9)
         {
@@ -701,17 +717,7 @@ void GUIHandler::update()
     {
         if (this->key->pressed == BUTTON_ESC)
         {
-            lcd_on = false;
-            faceid_enroll_on = false;
-            vTaskDelay(pdMS_TO_TICKS(200));
-            enable_lvgl();
-            vTaskDelay(pdMS_TO_TICKS(500));
-            print_mem_info("After enroll faceid");
-
-            current_state = STATE_USER_INFO_SCREEN;
-            ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.pw_enter_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
-            update_usrinfo_selection(usr_info_selected_item);
-            update_data_gui(STATE_USER_INFO_SCREEN);
+            esc_faceid_enroll();
         }        
         break;
     }

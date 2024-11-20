@@ -300,6 +300,32 @@ void update_finger_print_to_db(int id, int value)
     sqlite3_finalize(stmt);
 }
 
+void update_faceid_to_db(int id, int value)
+{
+    const char *sql = "UPDATE employee SET FACEID = ? WHERE id = ?;";
+    sqlite3_stmt *stmt;
+
+    // Prepare the SQL statement
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    // Bind the value and id to the SQL statement
+    sqlite3_bind_int(stmt, 1, value); 
+    sqlite3_bind_int(stmt, 2, id);
+
+    // Execute the statement
+    if (sqlite3_step(stmt) != SQLITE_DONE)
+    {
+        printf("Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    // Finalize the statement to release resources
+    sqlite3_finalize(stmt);
+}
+
 void update_password_to_db(int id, const char *password_hash)
 {
     const char *sql = "UPDATE employee SET PASSWORD = ? WHERE id = ?;";

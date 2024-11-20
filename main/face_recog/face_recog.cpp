@@ -8,6 +8,7 @@
 #include "lcd.hpp"
 #include "gui_logic_utils.h"
 #include "utils.hpp"
+#include "gui_logic_handle.hpp"
 
 static const char TAG[] = "face recognition";
 
@@ -28,7 +29,7 @@ volatile bool is_face_enrolled = false;
 
 static void draw_fixed_eye_box(uint16_t *image_ptr, int image_height, int image_width)
 {
-    dl::image::draw_hollow_rectangle(image_ptr, image_height, image_width, 110, 80, 210, 110, 0x0000FF);
+    dl::image::draw_hollow_rectangle(image_ptr, image_height, image_width, 110, 80, 210, 120, 0x0000FF);
 }
 
 void draw_line(uint16_t *image_ptr, int image_height, int image_width, int x0, int y0, int x1, int y1, uint16_t color, int thickness = 1) 
@@ -120,7 +121,7 @@ void draw_detection2(uint16_t *image_ptr, int image_height, int image_width, std
 
         draw_line(image_ptr, image_height, image_width, x_min, y_max, x_min + corner_length, y_max, 0x0000FF, 1);
         draw_line(image_ptr, image_height, image_width, x_min, y_max, x_min, y_max - corner_length, 0x0000FF, 1); 
-
+    
         draw_line(image_ptr, image_height, image_width, x_max, y_max, x_max - corner_length, y_max, 0x0000FF, 1);
         draw_line(image_ptr, image_height, image_width, x_max, y_max, x_max, y_max - corner_length, 0x0000FF, 1);
     }
@@ -258,6 +259,8 @@ void Face::update()
                 this->state = FACE_DELETE;
             }
             ESP_LOGI(TAG, "Human face recognition state = %d", this->state);
+        }else{
+            this->switch_on = false;
         }
     }
 #endif
@@ -277,11 +280,10 @@ static void face_task(Face *self)
         {
             
             if (self->switch_on)
-            {
-                
+            {                
                 std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
                 std::list<dl::detect::result_t> &detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
-    
+
                 if (detect_results.size())
                 {
                     draw_detection2((uint16_t *)frame->buf, frame->height, frame->width, detect_results);
@@ -311,7 +313,7 @@ static void face_task(Face *self)
                                 ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
                         }
                     }
-
+                
                     if (self->state == FACE_DELETE)
                     {
                         vTaskDelay(10);
@@ -350,7 +352,6 @@ static void face_task(Face *self)
 
                     self->frame_count--;
                 }
-                
             }
             
             if (faceid_enroll_on == true)
@@ -371,12 +372,12 @@ static void face_task(Face *self)
 
 
                     post_enroll_frame_count++;
-                    if (post_enroll_frame_count >= 20)
+                    if (post_enroll_frame_count >= 10)
                     {
-                        faceid_enroll_on = false;
                         post_enroll_frame_count = 0;
                         stable_face_count = 0;
-                        ESP_LOGI(TAG, "Enroll completed.");                   
+                        ESP_LOGI(TAG, "Enroll completed.");
+                        esc_faceid_enroll();
                     }
                 }
                 else
@@ -391,7 +392,7 @@ static void face_task(Face *self)
                     if (detect_results.size())
                     {
                         draw_detection((uint16_t *)frame->buf, frame->height, frame->width, detect_results, left_eye_x, left_eye_y, right_eye_x, right_eye_y);
-                        if (check_eyes_in_box(left_eye_x, left_eye_y, right_eye_x, right_eye_y, 110, 80, 210, 110))
+                        if (check_eyes_in_box(left_eye_x, left_eye_y, right_eye_x, right_eye_y, 110, 80, 210, 120))
                         {
                             stable_face_count++;
                             ESP_LOGI(TAG, "stable_face_count: %d", stable_face_count);
