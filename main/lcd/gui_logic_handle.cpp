@@ -34,7 +34,6 @@ GUIHandler::GUIHandler(Button *key,
 {
 }
 
-
 static void update_menu_selection(uint8_t _menu_selected_item)
 {
     menu_screen_setting_default();
@@ -171,14 +170,31 @@ void GUIHandler::update()
     {
     case STATE_MAIN_SCREEN:
     {
-
         if (this->key->pressed == BUTTON_MENU)
         {
-            menu_selected_item = 0;
-            current_state = STATE_MENU_SCREEN;
-            ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.main_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
-            update_menu_selection(menu_selected_item);
-            update_data_gui(STATE_MENU_SCREEN);
+            if (check_admin_exist() == false)
+            {
+                menu_selected_item = 0;
+                current_state = STATE_MENU_SCREEN;
+                ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.main_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+                update_menu_selection(menu_selected_item);
+                update_data_gui(STATE_MENU_SCREEN);
+            }
+            else  
+            {
+                disable_lvgl();
+                lcd_on = true;
+                faceid_enroll_on = false;
+                authen_on = true;
+                current_state = STATE_CAMERA_SCREEN;                
+            }
+        }
+        else if (this->key->pressed == BUTTON_OK)
+        {
+            disable_lvgl();
+            lcd_on = true;
+            faceid_enroll_on = false;
+            current_state = STATE_CAMERA_SCREEN;
         }
         break;
     }
@@ -201,16 +217,16 @@ void GUIHandler::update()
             {
             case 0: // Load STATE_ATTENDANCE_SCREEN
             {
-                current_state = STATE_ATTENDANCE_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.menu_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
-                update_attendance_selection(attendance_selected_item);
-                update_data_gui(STATE_ATTENDANCE_SCREEN);
+                disable_lvgl();
+                lcd_on = true;
+                faceid_enroll_on = false;
+                current_state = STATE_CAMERA_SCREEN;
 
                 break;
             }
             case 1: // Load STATE_CONNECTION_SCREEN
             {
-                
+
                 break;
             }
             case 2: // Load STATE_DATA_SCREEN
@@ -238,77 +254,7 @@ void GUIHandler::update()
         }
         break;
     }
-    case STATE_ATTENDANCE:
-    {
-
-        break;
-    }
-    case STATE_WIRELESS_CONNECTION:
-    {
-
-        break;
-    }
-    case STATE_DATA_MANAGEMENT:
-    {
-
-        break;
-    }
-    case STATE_SETTINGS:
-    {
-
-        break;
-    }
     case STATE_ATTENDANCE_SCREEN:
-    {
-        if (this->key->pressed == BUTTON_UP)
-        {
-            attendance_selected_item = (attendance_selected_item - 1 + 2) % 2;
-            update_attendance_selection(attendance_selected_item);
-        }
-        else if (this->key->pressed == BUTTON_DOWN)
-        {
-            attendance_selected_item = (attendance_selected_item + 1) % 2;
-            update_attendance_selection(attendance_selected_item);
-        }
-        else if (this->key->pressed == BUTTON_OK)
-        {
-            switch (attendance_selected_item)
-            {
-            case 0:
-            {
-                is_attendance_check_in = true;
-                break;
-            }
-            case 1:
-            {
-                is_attendance_check_in = false;
-                break;
-            }
-            default:
-                break;
-            }
-            // print_mem_info("Pressed OK to enter Camera");
-            disable_lvgl();
-            // print_mem_info("After disable_lvgl");
-            lcd_on = true;
-            faceid_enroll_on = false;
-            current_state = STATE_CAMERA_SCREEN;
-        }
-        else if (this->key->pressed == BUTTON_ESC)
-        {
-            current_state = STATE_MENU_SCREEN;
-            ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.attendance_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
-            update_menu_selection(menu_selected_item);
-            update_data_gui(STATE_MENU_SCREEN);
-        }
-        break;
-    }
-    case STATE_CHECK_IN:
-    {
-
-        break;
-    }
-    case STATE_CHECK_OUT:
     {
 
         break;
@@ -322,9 +268,14 @@ void GUIHandler::update()
             vTaskDelay(pdMS_TO_TICKS(200));
             enable_lvgl();
             vTaskDelay(pdMS_TO_TICKS(200));
-            current_state = STATE_ATTENDANCE_SCREEN;
-            ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.attendance_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
-            update_data_gui(STATE_ATTENDANCE_SCREEN);
+
+            current_state = STATE_MAIN_SCREEN;
+            ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.main_screen_del, setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            update_data_gui(STATE_MAIN_SCREEN);
+
+            //current_state = STATE_ATTENDANCE_SCREEN;
+            //ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.attendance_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            //update_data_gui(STATE_ATTENDANCE_SCREEN);
         }
         break;
     }
@@ -631,10 +582,10 @@ void GUIHandler::update()
 
             if (current_pw_length < 4)
             {
-                lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0xff0000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
                 lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Password must be 4 characters");
                 vTaskDelay(pdMS_TO_TICKS(500));
-                lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
                 lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Please enter your password");
             }
             else if (current_pw_length == 4)
@@ -643,15 +594,15 @@ void GUIHandler::update()
                 {
                     hash_password(password1st, 4, password1st_hash_hex);
 
-                    memset(password1st, 0, sizeof(password1st));     
+                    memset(password1st, 0, sizeof(password1st));
 
                     is_first_pw_complete = true;
                     current_pw_length = 0;
                     lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Please re-enter your password");
-                    lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
-                    lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
-                    lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
-                    lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+                    lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
                 else
                 {
@@ -668,42 +619,38 @@ void GUIHandler::update()
                         update_password_to_db(users[usr_data_selected_item].id, password1st_hash_hex);
                         strcpy(users[usr_data_selected_item].password_hash, password1st_hash_hex);
                         memset(password1st_hash_hex, 0, sizeof(password1st_hash_hex));
-                        memset(password2nd_hash_hex, 0, sizeof(password2nd_hash_hex));                        
-                        vTaskDelay(pdMS_TO_TICKS(500));                    
+                        memset(password2nd_hash_hex, 0, sizeof(password2nd_hash_hex));
+                        vTaskDelay(pdMS_TO_TICKS(500));
                         goto ESC_PW_ENTER_STATE;
                     }
                     else
                     {
-                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0xff0000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0xff0000), LV_PART_MAIN | LV_STATE_DEFAULT);
                         lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Not matched! Please try again");
-                        current_pw_length = 0;                        
+                        current_pw_length = 0;
                         memset(password1st, 0, sizeof(password1st));
                         memset(password2nd, 0, sizeof(password2nd));
                         vTaskDelay(pdMS_TO_TICKS(500));
-                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_nofi, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
                         lv_label_set_text(guider_ui.pw_enter_screen_label_pw_first, "----");
-                        lv_label_set_text(guider_ui.pw_enter_screen_label_pw_second, "----");                        
+                        lv_label_set_text(guider_ui.pw_enter_screen_label_pw_second, "----");
                         lv_label_set_text(guider_ui.pw_enter_screen_label_nofi, "Please enter your password");
-                        lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
-                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
-                        lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
-                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+                        lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_first, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                        lv_obj_set_style_bg_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                        lv_obj_set_style_text_color(guider_ui.pw_enter_screen_label_pw_second, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
                         is_first_pw_complete = false;
-
                     }
                 }
             }
-
-
-
         }
         else if (this->key->pressed == BUTTON_ESC)
         {
-            ESC_PW_ENTER_STATE:
+        ESC_PW_ENTER_STATE:
             current_pw_length = 0;
             is_first_pw_complete = false;
             memset(password1st, 0, sizeof(password1st));
-            memset(password2nd, 0, sizeof(password2nd));            
+            memset(password2nd, 0, sizeof(password2nd));
 
             // Go back to user info screen
             current_state = STATE_USER_INFO_SCREEN;
@@ -718,7 +665,7 @@ void GUIHandler::update()
         if (this->key->pressed == BUTTON_ESC)
         {
             esc_faceid_enroll();
-        }        
+        }
         break;
     }
     }

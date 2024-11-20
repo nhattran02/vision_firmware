@@ -34,15 +34,9 @@ typedef enum
 {
     STATE_MAIN_SCREEN,
 
-    STATE_MENU_SCREEN,  //parent
-    STATE_ATTENDANCE,  // child of parent
-    STATE_WIRELESS_CONNECTION,
-    STATE_DATA_MANAGEMENT,
-    STATE_SETTINGS,
+    STATE_MENU_SCREEN,
 
-    STATE_ATTENDANCE_SCREEN, //parent
-    STATE_CHECK_IN, //child of parent
-    STATE_CHECK_OUT, 
+    STATE_ATTENDANCE_SCREEN, 
     
     STATE_CAMERA_SCREEN, 
 

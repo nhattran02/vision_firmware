@@ -22,6 +22,7 @@ static const char TAG[] = "face recognition";
 #define FRAME_DELAY_NUM 16
 
 int stable_face_count = 0;
+int stable_face_count_authen = 0;
 int post_enroll_frame_count = 0;
 uint16_t *original_frame_buf = nullptr;
 std::list<dl::detect::result_t> detect_results;
@@ -30,6 +31,11 @@ volatile bool is_face_enrolled = false;
 static void draw_fixed_eye_box(uint16_t *image_ptr, int image_height, int image_width)
 {
     dl::image::draw_hollow_rectangle(image_ptr, image_height, image_width, 110, 80, 210, 120, 0x0000FF);
+}
+
+static void draw_fixed_face_box(uint16_t *image_ptr, int image_height, int image_width)
+{
+    dl::image::draw_hollow_rectangle(image_ptr, image_height, image_width, 100, 20, 230, 200, 0x0000FF);
 }
 
 void draw_line(uint16_t *image_ptr, int image_height, int image_width, int x0, int y0, int x1, int y1, uint16_t color, int thickness = 1) 
@@ -62,7 +68,7 @@ void draw_line(uint16_t *image_ptr, int image_height, int image_width, int x0, i
 }
 
 
-void draw_detection(uint16_t *image_ptr, int image_height, int image_width, std::list<dl::detect::result_t> &results, int &left_eye_x, int &left_eye_y, int &right_eye_x, int &right_eye_y)
+void draw_detection(uint16_t *image_ptr, int image_height, int image_width, std::list<dl::detect::result_t> &results, int &left_eye_x, int &left_eye_y, int &right_eye_x, int &right_eye_y, int &left_mouth_x, int &left_mouth_y, int &right_mouth_x, int &right_mouth_y, int &nose_x, int &nose_y)
 {
     int i = 0;
     for (std::list<dl::detect::result_t>::iterator prediction = results.begin(); prediction != results.end(); prediction++, i++)
@@ -91,13 +97,21 @@ void draw_detection(uint16_t *image_ptr, int image_height, int image_width, std:
             left_eye_y = DL_MAX(prediction->keypoint[1], 0);
             dl::image::draw_point(image_ptr, image_height, image_width, left_eye_x, left_eye_y, 4, 0b0000000011111000); // left eye
 
-            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[2], 0), DL_MAX(prediction->keypoint[3], 0), 4, 0b0000000011111000); // mouth left corner
-            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[4], 0), DL_MAX(prediction->keypoint[5], 0), 4, 0b0000000011111000); // nose
+            left_mouth_x = DL_MAX(prediction->keypoint[2], 0);
+            left_mouth_y = DL_MAX(prediction->keypoint[3], 0);
+            dl::image::draw_point(image_ptr, image_height, image_width, left_mouth_x, left_mouth_y, 4, 0b0000000011111000); // mouth left corner
+
+            nose_x = DL_MAX(prediction->keypoint[4], 0);
+            nose_y = DL_MAX(prediction->keypoint[5], 0);
+            dl::image::draw_point(image_ptr, image_height, image_width, nose_x, nose_y, 4, 0b0000000011111000); // nose
 
             right_eye_x = DL_MAX(prediction->keypoint[6], 0);
             right_eye_y = DL_MAX(prediction->keypoint[7], 0);
             dl::image::draw_point(image_ptr, image_height, image_width, right_eye_x, right_eye_y, 4, 0b0000000011111000); // right eye
-            dl::image::draw_point(image_ptr, image_height, image_width, DL_MAX(prediction->keypoint[8], 0), DL_MAX(prediction->keypoint[9], 0), 4, 0b0000000011111000); // mouth right corner
+
+            right_mouth_x = DL_MAX(prediction->keypoint[8], 0);
+            right_mouth_y = DL_MAX(prediction->keypoint[9], 0);
+            dl::image::draw_point(image_ptr, image_height, image_width, right_mouth_x, right_mouth_y, 4, 0b0000000011111000); // mouth right corner
         }
     }
 }
@@ -136,6 +150,25 @@ bool check_eyes_in_box(int left_eye_x, int left_eye_y, int right_eye_x, int righ
     }
     return false;
 }
+
+bool check_face_in_box(int left_eye_x, int left_eye_y, 
+                       int right_eye_x, int right_eye_y, 
+                       int nose_x, int nose_y, 
+                       int mouth_left_x, int mouth_left_y, 
+                       int mouth_right_x, int mouth_right_y, 
+                       int x_min, int y_min, int x_max, int y_max)
+{
+    if (left_eye_x > x_min && left_eye_x < x_max && left_eye_y > y_min && left_eye_y < y_max &&
+        right_eye_x > x_min && right_eye_x < x_max && right_eye_y > y_min && right_eye_y < y_max &&
+        nose_x > x_min && nose_x < x_max && nose_y > y_min && nose_y < y_max &&
+        mouth_left_x > x_min && mouth_left_x < x_max && mouth_left_y > y_min && mouth_left_y < y_max &&
+        mouth_right_x > x_min && mouth_right_x < x_max && mouth_right_y > y_min && mouth_right_y < y_max)
+    {
+        return true;
+    }
+    return false;
+}
+
 
 static void rgb_print(camera_fb_t *fb, int32_t x, int32_t y, uint32_t color, const char *str)
 {
@@ -357,7 +390,7 @@ static void face_task(Face *self)
             if (faceid_enroll_on == true)
             {
 
-                int left_eye_x, left_eye_y, right_eye_x, right_eye_y;
+                int left_eye_x, left_eye_y, right_eye_x, right_eye_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, nose_x, nose_y;
                 if (stable_face_count > 7)
                 {
                     dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 220, 340, 240, RGB565_MASK_WHITE);
@@ -391,7 +424,7 @@ static void face_task(Face *self)
 
                     if (detect_results.size())
                     {
-                        draw_detection((uint16_t *)frame->buf, frame->height, frame->width, detect_results, left_eye_x, left_eye_y, right_eye_x, right_eye_y);
+                        draw_detection((uint16_t *)frame->buf, frame->height, frame->width, detect_results, left_eye_x, left_eye_y, right_eye_x, right_eye_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, nose_x, nose_y);
                         if (check_eyes_in_box(left_eye_x, left_eye_y, right_eye_x, right_eye_y, 110, 80, 210, 120))
                         {
                             stable_face_count++;
@@ -400,6 +433,49 @@ static void face_task(Face *self)
                     }
                 }
             }
+            if (authen_on == true)
+            {
+                int left_eye_x, left_eye_y, right_eye_x, right_eye_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, nose_x, nose_y;
+                if (stable_face_count_authen > 7)
+                {
+                    if (detect_results.size() == 1)
+                    {
+                        self->recognize_result = self->recognizer->recognize((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_results.front().keypoint);
+
+                        ESP_LOGI(TAG, "Similarity: %f", self->recognize_result.similarity);
+                        if (self->recognize_result.id > 0)
+                            ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
+                        else
+                            ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
+                    }
+                    stable_face_count_authen = 0;
+                    
+                    // dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 220, 340, 240, RGB565_MASK_WHITE);
+                    // rgb_printf(frame, 80, 234, RGB565_MASK_GREEN, "Enroll success");
+                    // ESP_LOGI(TAG, "Authen success");
+                }
+                else 
+                {
+                    draw_fixed_face_box((uint16_t *)frame->buf, frame->height, frame->width);
+                    dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 220, 340, 240, RGB565_MASK_WHITE);
+                    rgb_printf(frame, 20, 234, RGB565_MASK_BLACK, "Keep your face in the box");
+
+                    std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
+                    detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);                    
+
+                    if (detect_results.size())
+                    {
+                        draw_detection((uint16_t *)frame->buf, frame->height, frame->width, detect_results, left_eye_x, left_eye_y, right_eye_x, right_eye_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, nose_x, nose_y);
+
+                        if (check_face_in_box(left_eye_x, left_eye_y, right_eye_x, right_eye_y, nose_x, nose_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, 100, 20, 230, 200) == true)
+                        {
+                            stable_face_count_authen++;
+                            ESP_LOGI(TAG, "stable_face_count_authen: %d", stable_face_count_authen);
+                        }
+                    }                    
+                }
+            }
+
 
             if (self->queue_o)
                 xQueueSend(self->queue_o, &frame, portMAX_DELAY);

@@ -25,6 +25,7 @@ static lv_group_t *g_key_op_group = NULL;
 volatile bool lvgl_enable = true;
 volatile bool lcd_on = false;
 volatile bool faceid_enroll_on = false;
+volatile bool authen_on = false;
 esp_timer_handle_t lvgl_tick_timer = NULL;
 esp_lcd_panel_handle_t global_panel_handle = NULL;
 esp_lcd_panel_io_handle_t io_handle = NULL;

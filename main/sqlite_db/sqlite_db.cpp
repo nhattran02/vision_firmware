@@ -79,7 +79,6 @@ SQLiteDB::SQLiteDB(Button *key,
     if (open_db("/sdcard/data.db", &db))
         return;
 
-
     // delete_db();
     print_db();
 
@@ -89,7 +88,6 @@ SQLiteDB::SQLiteDB(Button *key,
     // import_csv_to_db("/sdcard/template.csv");
 
     // print_db();
-
 
     // sqlite3_close(db);
 }
@@ -348,7 +346,31 @@ void update_password_to_db(int id, const char *password_hash)
     sqlite3_finalize(stmt);
 }
 
+bool check_admin_exist()
+{
+    const char *sql = "SELECT EXISTS (SELECT 1 FROM employee WHERE (FINGER = 1 OR FACEID = 1) AND ROLE = 1);";
+    sqlite3_stmt *stmt;
 
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return false;
+    }
+
+    bool exists = false;
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        exists = sqlite3_column_int(stmt, 0) == 1;
+    }
+    else
+    {
+        printf("Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+
+    return exists;
+}
 
 void print_users(void)
 {
