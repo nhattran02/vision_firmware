@@ -25,6 +25,8 @@ typedef enum
     FACE_DELETE = 3,
 } face_action_t;
 
+extern volatile bool is_face_enrolled;
+
 class Face : public Observer, public Frame
 {
 private:

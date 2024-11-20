@@ -1,9 +1,11 @@
 #include "utils.hpp"
 #include "freertos/FreeRTOS.h"
+#include "esp_partition.h"
 
 void print_mem_info(const char *TAG) 
 {
-   ESP_LOGW(TAG,
+    // In thông tin bộ nhớ heap
+    ESP_LOGW(TAG,
         "\n  Free Heap: %u bytes\n"
         "  MALLOC_CAP_8BIT      %7zu bytes\n"
         "  MALLOC_CAP_DMA       %7zu bytes\n"

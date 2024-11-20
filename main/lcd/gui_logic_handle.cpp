@@ -14,6 +14,7 @@ extern "C"
 #include "r307.h"
 #include "fingerprint.hpp"
 #include "utils.hpp"
+#include "face_recog.hpp"
 
 static const char TAG[] = "gui_logic_handle";
 
@@ -273,6 +274,7 @@ void GUIHandler::update()
             disable_lvgl();
             // print_mem_info("After disable_lvgl");
             lcd_on = true;
+            faceid_enroll_on = false;
             current_state = STATE_CAMERA_SCREEN;
         }
         else if (this->key->pressed == BUTTON_ESC)
@@ -298,10 +300,11 @@ void GUIHandler::update()
     {
         if (this->key->pressed == BUTTON_ESC)
         {
-            print_mem_info("Before enable_lvgl");
-            enable_lvgl();
-            print_mem_info("After enable_lvgl");
             lcd_on = false;
+            faceid_enroll_on = false;
+            vTaskDelay(pdMS_TO_TICKS(200));
+            enable_lvgl();
+            vTaskDelay(pdMS_TO_TICKS(200));
             current_state = STATE_ATTENDANCE_SCREEN;
             ui_load_scr_animation(&guider_ui, &guider_ui.attendance_screen, guider_ui.attendance_screen_del, &guider_ui.attendance_screen_del, setup_scr_attendance_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
             update_data_gui(STATE_ATTENDANCE_SCREEN);
@@ -457,9 +460,11 @@ void GUIHandler::update()
             }
             case 2: // FaceID
             {
+                print_mem_info("Before enroll faceid");
                 disable_lvgl();
                 faceid_enroll_on = true;
                 lcd_on = true;
+                is_face_enrolled = false;
                 current_state = STATE_FACEID_ENROLL_SCREEN;
 
                 break;
@@ -694,7 +699,20 @@ void GUIHandler::update()
     }
     case STATE_FACEID_ENROLL_SCREEN:
     {
+        if (this->key->pressed == BUTTON_ESC)
+        {
+            lcd_on = false;
+            faceid_enroll_on = false;
+            vTaskDelay(pdMS_TO_TICKS(200));
+            enable_lvgl();
+            vTaskDelay(pdMS_TO_TICKS(500));
+            print_mem_info("After enroll faceid");
 
+            current_state = STATE_USER_INFO_SCREEN;
+            ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.pw_enter_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            update_usrinfo_selection(usr_info_selected_item);
+            update_data_gui(STATE_USER_INFO_SCREEN);
+        }        
         break;
     }
     }
