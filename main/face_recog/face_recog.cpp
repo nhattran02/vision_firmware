@@ -24,9 +24,12 @@ static const char TAG[] = "face recognition";
 int stable_face_count = 0;
 int stable_face_count_authen = 0;
 int post_enroll_frame_count = 0;
+int post_recog_frame_count = 0;
 uint16_t *original_frame_buf = nullptr;
 std::list<dl::detect::result_t> detect_results;
 volatile bool is_face_enrolled = false;
+volatile bool is_face_recognized = false;
+volatile bool is_authen_success = false;
 
 static void draw_fixed_eye_box(uint16_t *image_ptr, int image_height, int image_width)
 {
@@ -436,23 +439,57 @@ static void face_task(Face *self)
             if (authen_on == true)
             {
                 int left_eye_x, left_eye_y, right_eye_x, right_eye_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, nose_x, nose_y;
-                if (stable_face_count_authen > 7)
+                static int userid = -1;
+                if (stable_face_count_authen > 4)
                 {
-                    if (detect_results.size() == 1)
+                    if (is_face_recognized == false)
                     {
-                        self->recognize_result = self->recognizer->recognize((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_results.front().keypoint);
+                        if (detect_results.size() == 1)
+                        {
+                            self->recognize_result = self->recognizer->recognize((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_results.front().keypoint);
 
-                        ESP_LOGI(TAG, "Similarity: %f", self->recognize_result.similarity);
-                        if (self->recognize_result.id > 0)
-                            ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
-                        else
-                            ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
+                            ESP_LOGI(TAG, "Similarity: %f", self->recognize_result.similarity);
+
+                            const char *name_c_str = self->recognize_result.name.c_str();
+
+                            if (name_c_str != nullptr && name_c_str[0] != '\0')
+                            {
+                                userid = atoi(name_c_str);
+                            }
+
+                            ESP_LOGI(TAG, "Match ID: %d ", userid);
+                            is_face_recognized = true;
+                        }
                     }
-                    stable_face_count_authen = 0;
-                    
-                    // dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 220, 340, 240, RGB565_MASK_WHITE);
-                    // rgb_printf(frame, 80, 234, RGB565_MASK_GREEN, "Enroll success");
-                    // ESP_LOGI(TAG, "Authen success");
+
+                    if (userid >= 0 && users[userid - 1].role == 1)
+                    {
+                        char text[60] = {0};
+                        snprintf(text, sizeof(text), "ID-%d  %s", users[userid - 1].id, users[userid - 1].name);
+                        dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 200, 340, 240, RGB565_MASK_RED);
+                        rgb_printf(frame, 10, 224, RGB565_MASK_WHITE, text);
+                        is_authen_success = true;
+                        ESP_LOGI(TAG, "Authen success");  
+                    }
+                    else
+                    {
+                        dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 200, 340, 240, RGB565_MASK_GREEN);
+                        rgb_printf(frame, 80, 224, RGB565_MASK_WHITE, "Authen failed");
+                        is_authen_success = false;
+                        ESP_LOGI(TAG, "Authen failed");
+                    }
+                    post_recog_frame_count++;
+                    if (post_recog_frame_count >= 15)
+                    {
+                        post_recog_frame_count = 0;
+                        stable_face_count_authen = 0;
+                        userid = -1;
+                        ESP_LOGI(TAG, "Recognize completed.");
+                        if (is_authen_success == true)
+                            enter_menu_after_face_recog();
+                        else
+                            is_face_recognized = false; 
+                    }
                 }
                 else 
                 {
@@ -461,7 +498,7 @@ static void face_task(Face *self)
                     rgb_printf(frame, 20, 234, RGB565_MASK_BLACK, "Keep your face in the box");
 
                     std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
-                    detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);                    
+                    detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
 
                     if (detect_results.size())
                     {

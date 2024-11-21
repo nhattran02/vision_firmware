@@ -164,6 +164,21 @@ void esc_faceid_enroll(void)
     update_data_gui(STATE_USER_INFO_SCREEN);
 }
 
+void enter_menu_after_face_recog(void)
+{
+    lcd_on = false;
+    faceid_enroll_on = false;
+    authen_on = false;
+    vTaskDelay(pdMS_TO_TICKS(200));
+    enable_lvgl();
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    current_state = STATE_MENU_SCREEN;
+    ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.menu_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+    update_menu_selection(menu_selected_item);
+    update_data_gui(STATE_MENU_SCREEN);
+}
+
 void GUIHandler::update()
 {
     switch (current_state)
@@ -172,6 +187,7 @@ void GUIHandler::update()
     {
         if (this->key->pressed == BUTTON_MENU)
         {
+            load_data_from_database_to_users();
             if (check_admin_exist() == false)
             {
                 menu_selected_item = 0;
@@ -312,7 +328,6 @@ void GUIHandler::update()
             }
             case 1: // Scan user data
             {
-                load_data_from_database_to_users();
                 current_state = STATE_USER_DATA_SCREEN;
                 ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.data_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_usr_data_selection(usr_data_selected_item);

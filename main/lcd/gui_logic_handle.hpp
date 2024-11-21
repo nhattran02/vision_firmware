@@ -7,6 +7,7 @@
 #include "lcd.hpp"
 
 void esc_faceid_enroll(void);
+void enter_menu_after_face_recog(void);
 
 class GUIHandler : public Observer, public Frame
 {
