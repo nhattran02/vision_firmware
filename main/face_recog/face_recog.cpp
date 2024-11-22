@@ -11,6 +11,7 @@
 #include "gui_logic_handle.hpp"
 #include "r307.h"
 #include "fingerprint.hpp"
+#include "sqlite_db.hpp"
 
 static const char TAG[] = "face recognition";
 
@@ -25,8 +26,10 @@ static const char TAG[] = "face recognition";
 
 int stable_face_count = 0;
 int stable_face_count_authen = 0;
+int stable_face_count_attendance = 0;
 int post_enroll_frame_count = 0;
 int post_recog_frame_count = 0;
+int post_attend_frame_count = 0;
 int post_finger_frame_count = 0;
 
 uint16_t *original_frame_buf = nullptr;
@@ -34,6 +37,7 @@ std::list<dl::detect::result_t> detect_results;
 volatile bool is_face_enrolled = false;
 volatile bool is_face_recognized = false;
 volatile bool is_authen_success = false;
+volatile bool is_attend_success = false;
 
 static void draw_fixed_eye_box(uint16_t *image_ptr, int image_height, int image_width)
 {
@@ -334,77 +338,121 @@ static void face_task(Face *self)
         if (xQueueReceive(self->queue_i, &frame, portMAX_DELAY))
         {
 
-            if (self->switch_on)
+            if (attendance_on)
             {
-                std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
-                std::list<dl::detect::result_t> &detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
-
-                if (detect_results.size())
+                int left_eye_x, left_eye_y, right_eye_x, right_eye_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, nose_x, nose_y;
+                static int userid = -1;
+                if (finger_detected == false)
                 {
-                    draw_detection2((uint16_t *)frame->buf, frame->height, frame->width, detect_results);
-                }
-
-                if (self->state)
-                {
-                    if (detect_results.size() == 1)
+                    if (stable_face_count_attendance > 4)
                     {
-                        if (self->state == FACE_ENROLL)
+                        if (is_face_recognized == false)
                         {
-                            print_mem_info("Before enroll faceid");
+                            if (detect_results.size() == 1)
+                            {
+                                self->recognize_result = self->recognizer->recognize((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_results.front().keypoint);
 
-                            self->recognizer->enroll_id((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_results.front().keypoint, "", true);
-                            ESP_LOGI(TAG, "Enroll ID %d", self->recognizer->get_enrolled_ids().back().id);
-                            print_mem_info("After enroll faceid");
+                                ESP_LOGI(TAG, "Similarity: %f", self->recognize_result.similarity);
+
+                                const char *name_c_str = self->recognize_result.name.c_str();
+
+                                if (name_c_str != nullptr && name_c_str[0] != '\0')
+                                {
+                                    userid = atoi(name_c_str);
+                                }
+
+                                ESP_LOGI(TAG, "Match ID: %d ", userid);
+                                is_face_recognized = true;
+                            }
                         }
-                        else if (self->state == FACE_RECOGNIZE)
+
+                        if (userid > 0)
                         {
-                            self->recognize_result = self->recognizer->recognize((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_results.front().keypoint);
-
-                            ESP_LOGI(TAG, "Similarity: %f", self->recognize_result.similarity);
-                            if (self->recognize_result.id > 0)
-                                ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
-                            else
-                                ESP_LOGI(TAG, "Match ID: %d", self->recognize_result.id);
+                            char text[60] = {0};
+                            snprintf(text, sizeof(text), "ID-%d  %s", users[userid - 1].id, users[userid - 1].name);
+                            dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 200, 340, 240, RGB565_MASK_RED);
+                            rgb_printf(frame, 10, 224, RGB565_MASK_WHITE, text);
+                            is_attend_success = true;
+                            ESP_LOGI(TAG, "Attend success | Face");
                         }
-                    }
-
-                    if (self->state == FACE_DELETE)
-                    {
-                        vTaskDelay(10);
-                        self->recognizer->delete_id(true);
-                        ESP_LOGI(TAG, "%d IDs left", self->recognizer->get_enrolled_id_num());
-                    }
-
-                    self->state_previous = self->state;
-                    self->state = FACE_IDLE;
-                    self->frame_count = FRAME_DELAY_NUM;
-                }
-
-                // Write result on several frames of image
-                if (self->frame_count)
-                {
-                    switch (self->state_previous)
-                    {
-                    case FACE_DELETE:
-                        rgb_printf(frame, 80, 234, RGB565_MASK_RED, "%d IDs left", self->recognizer->get_enrolled_id_num());
-                        break;
-
-                    case FACE_RECOGNIZE:
-                        if (self->recognize_result.id > 0)
-                            rgb_printf(frame, 80, 234, RGB565_MASK_GREEN, "ID %s", self->recognize_result.name.c_str());
                         else
-                            rgb_print(frame, 80, 234, RGB565_MASK_RED, "UNKNOWN");
-                        break;
-
-                    case FACE_ENROLL:
-                        rgb_printf(frame, 80, 234, RGB565_MASK_BLUE, "Enroll: ID %d", self->recognizer->get_enrolled_ids().back().id);
-                        break;
-
-                    default:
-                        break;
+                        {
+                            dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 200, 340, 240, RGB565_MASK_GREEN);
+                            rgb_printf(frame, 80, 224, RGB565_MASK_WHITE, "Attend failed");
+                            is_attend_success = false;
+                            ESP_LOGI(TAG, "Attend failed | Face");
+                        }
+                        post_attend_frame_count++;
+                        if (post_attend_frame_count >= 15)
+                        {
+                            post_attend_frame_count = 0;
+                            stable_face_count_attendance = 0;
+                            is_face_recognized = false;
+                            ESP_LOGI(TAG, "Attend completed.");
+                            if (is_attend_success == true)
+                            {
+                                // write to database
+                                ESP_LOGI(TAG, "Write to database");
+                                char date[20] = "22/11/2024";
+                                char time[20] = "09:00";
+                                update_attendance_to_db(users[userid - 1].id, (const char *)users[userid - 1].name, (const char *)date, (const char *)time);
+                            }
+                            userid = -1;
+                        }
                     }
+                    else
+                    {
+                        draw_fixed_face_box((uint16_t *)frame->buf, frame->height, frame->width);
+                        dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 220, 340, 240, RGB565_MASK_WHITE);
+                        rgb_printf(frame, 20, 234, RGB565_MASK_BLACK, "Keep your face in the box");
 
-                    self->frame_count--;
+                        std::list<dl::detect::result_t> &detect_candidates = self->detector.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3});
+                        detect_results = self->detector2.infer((uint16_t *)frame->buf, {(int)frame->height, (int)frame->width, 3}, detect_candidates);
+
+                        if (detect_results.size())
+                        {
+                            draw_detection((uint16_t *)frame->buf, frame->height, frame->width, detect_results, left_eye_x, left_eye_y, right_eye_x, right_eye_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, nose_x, nose_y);
+
+                            if (check_face_in_box(left_eye_x, left_eye_y, right_eye_x, right_eye_y, nose_x, nose_y, left_mouth_x, left_mouth_y, right_mouth_x, right_mouth_y, 100, 20, 230, 200) == true)
+                            {
+                                stable_face_count_attendance++;
+                                ESP_LOGI(TAG, "stable_face_count_attendance: %d", stable_face_count_attendance);
+                            }
+                        }
+                    }
+                }
+                else // is finger detected
+                {
+                    if (is_finger_true == true) // match
+                    {
+                        char text[60] = {0};
+                        snprintf(text, sizeof(text), "ID-%d  %s", users[_page_id - 1].id, users[_page_id - 1].name);
+                        dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 200, 340, 240, RGB565_MASK_RED);
+                        rgb_printf(frame, 10, 224, RGB565_MASK_WHITE, text);
+                        ESP_LOGI(TAG, "Attend success | Finger");
+                    }
+                    else // not match
+                    {
+                        dl::image::draw_filled_rectangle((uint16_t *)frame->buf, frame->height, frame->width, 0, 200, 340, 240, RGB565_MASK_GREEN);
+                        rgb_printf(frame, 80, 224, RGB565_MASK_WHITE, "Attend failed");
+                        ESP_LOGI(TAG, "Attend failed | Finger");
+                    }
+                    post_attend_frame_count++;
+                    if (post_attend_frame_count >= 15)
+                    {
+                        post_attend_frame_count = 0;
+
+                        ESP_LOGI(TAG, "Recognize by finger completed.");
+                        finger_detected = false;
+                        if (is_finger_true == true)
+                        {
+                            // write to database
+                            ESP_LOGI(TAG, "Write to database");
+                            char date[20] = "22/11/2024";
+                            char time[20] = "09:00";
+                            update_attendance_to_db(users[_page_id - 1].id, (const char *)users[_page_id - 1].name, (const char *)date, (const char *)time);
+                        }
+                    }
                 }
             }
 

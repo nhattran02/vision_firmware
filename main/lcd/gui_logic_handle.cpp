@@ -232,9 +232,11 @@ void GUIHandler::update()
         }
         else if (this->key->pressed == BUTTON_OK)
         {
+            load_data_from_database_to_users();
             disable_lvgl();
             lcd_on = true;
             faceid_enroll_on = false;
+            attendance_on = true;
             current_state = STATE_CAMERA_SCREEN;
         }
         break;
@@ -310,6 +312,7 @@ void GUIHandler::update()
             lcd_on = false;
             faceid_enroll_on = false;
             authen_on = false;
+            attendance_on = false;
             vTaskDelay(pdMS_TO_TICKS(200));
             enable_lvgl();
             vTaskDelay(pdMS_TO_TICKS(200));

@@ -11,6 +11,7 @@ extern "C"
 #include "r307.h"
 }
 #include "gui_logic_utils.h"
+#include "lcd.hpp"
 
 #define TOTAL_DATA_LENGTH   40044
 #define ACK_PACKET_SIZE     12      
@@ -244,11 +245,27 @@ static void fingerprint_detect_task(Fingerprint *self)
             else if (current_state == STATE_CAMERA_SCREEN)
             {
                 ESP_LOGI(TAG, "Fingerprint detected! User ID: %d", _page_id);
-                if (_page_id >= 0 && users[_page_id - 1].role == 1)
+                if (authen_on == true)
                 {
-                    is_finger_true = true;
-                }else{
-                    is_finger_true = false;
+                    if (_page_id > 0 && users[_page_id - 1].role == 1)
+                    {
+                        is_finger_true = true;
+                    }
+                    else
+                    {
+                        is_finger_true = false;
+                    }
+                }
+                else // attend or enroll
+                {
+                    if (_page_id > 0)
+                    {
+                        is_finger_true = true;
+                    }
+                    else
+                    {
+                        is_finger_true = false;
+                    }
                 }
             }
         }

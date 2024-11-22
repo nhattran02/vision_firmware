@@ -23,6 +23,7 @@ void update_password_to_db(int id, const char *password_hash);
 void print_users(void);
 void create_csv_template(const char *csv_filename);
 void import_csv_to_db(const char* csv_filename);
+void update_attendance_to_db(int id, const char *name, const char *date, const char *time);
 
 class SQLiteDB : public Observer, public Frame
 {

@@ -32,6 +32,7 @@ void enable_lvgl();
 extern volatile bool lcd_on;
 extern volatile bool faceid_enroll_on;
 extern volatile bool authen_on;
+extern volatile bool attendance_on;
 
 class LCD : public Observer, public Frame
 {

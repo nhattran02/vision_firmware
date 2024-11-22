@@ -81,6 +81,7 @@ SQLiteDB::SQLiteDB(Button *key,
 
     // delete_db();
     print_employee_db();
+    ESP_LOGI(TAG, "\n");
     print_attendance_db();
 
 
@@ -187,6 +188,55 @@ void import_csv_to_db(const char *csv_filename)
     fclose(file);
     ESP_LOGI(TAG, "Entered data from file %s", csv_filename);
 }
+
+void update_attendance_to_db(int id, const char *name, const char *date, const char *time)
+{
+    char sql[512] = {0};
+    sqlite3_stmt *stmt;
+
+    // check if ID and DATE already exist
+    snprintf(sql, sizeof(sql), "SELECT CHECK1, CHECK2, CHECK3, CHECK4, CHECK5, CHECK6 FROM attendance WHERE ID = %d AND DATE = '%s';", id, date);
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to prepare SELECT statement: %s", sqlite3_errmsg(db));
+        return;
+    }
+
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW)
+    {
+        // ID and DATE already exist, update CHECK columns
+        for (int i = 0; i < 6; i++)
+        {
+            const unsigned char *check = sqlite3_column_text(stmt, i);
+            if (check == NULL) // Cột trống
+            {
+                snprintf(sql, sizeof(sql), "UPDATE attendance SET CHECK%d = '%s' WHERE ID = %d AND DATE = '%s';", i + 1, time, id, date);
+                sqlite3_finalize(stmt);
+                rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
+                if (rc != SQLITE_OK)
+                {
+                    ESP_LOGE(TAG, "Failed to update data: %s", sqlite3_errmsg(db));
+                }
+                return;
+            }
+        }
+        ESP_LOGW(TAG, "All CHECK columns are full for ID %d on DATE %s", id, date);
+    }
+    else
+    {
+        // ID and DATE do not exist, insert new data
+        snprintf(sql, sizeof(sql), "INSERT INTO attendance (ID, NAME, DATE, CHECK1) VALUES (%d, '%s', '%s', '%s');", id, name, date, time);
+        sqlite3_finalize(stmt);
+        rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
+        if (rc != SQLITE_OK)
+        {
+            ESP_LOGE(TAG, "Failed to insert new data: %s", sqlite3_errmsg(db));
+        }
+    }
+}
+
 
 void SQLiteDB::delete_db()
 {
@@ -371,7 +421,7 @@ void update_role_to_db(int id, int value)
     }
 
     // Bind the value and id to the SQL statement
-    sqlite3_bind_int(stmt, 1, value); 
+    sqlite3_bind_int(stmt, 1, value);
     sqlite3_bind_int(stmt, 2, id);
 
     // Execute the statement
