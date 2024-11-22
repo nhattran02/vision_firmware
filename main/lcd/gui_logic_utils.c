@@ -9,6 +9,7 @@ ui_state_t current_state = STATE_MAIN_SCREEN;
 uint8_t menu_selected_item = 0;
 uint8_t attendance_selected_item = 0;
 uint8_t data_selected_item = 0;
+uint8_t role_selected_item = 0;
 uint16_t usr_data_selected_item = 0;
 uint8_t usr_info_selected_item = 0;
 
@@ -1786,4 +1787,28 @@ void usrinfo_screen_role_default(void)
     lv_obj_set_style_bg_color(guider_ui.usrinfo_screen_cont_role, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(guider_ui.usrinfo_screen_label_role_text, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(guider_ui.usrinfo_screen_label_role_value, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+}
+
+void role_screen_cont_normal_user_default(void)
+{
+    lv_obj_set_style_bg_color(guider_ui.role_screen_cont_normal_user, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(guider_ui.role_screen_text_normal_user, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+}
+
+void role_screen_cont_admin_default(void)
+{
+    lv_obj_set_style_bg_color(guider_ui.role_screen_cont_admin, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(guider_ui.role_screen_text_admin, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+}
+
+void role_screen_cont_normal_user_check(void)
+{
+    lv_obj_set_style_bg_color(guider_ui.role_screen_cont_normal_user, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(guider_ui.role_screen_text_normal_user, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+}
+
+void role_screen_cont_admin_check(void)
+{
+    lv_obj_set_style_bg_color(guider_ui.role_screen_cont_admin, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(guider_ui.role_screen_text_admin, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
 }

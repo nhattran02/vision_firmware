@@ -27,6 +27,8 @@ char default_address[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 char default_password[4] = {0x00, 0x00, 0x00, 0x00};
 char enroll_buffer_id_1[1] = {0x01};
 char enroll_buffer_id_2[1] = {0x02};
+volatile bool finger_detected = false;
+volatile bool is_finger_true = false;
 
 Fingerprint::Fingerprint(Button *key,
                          QueueHandle_t queue_i,
@@ -199,18 +201,31 @@ static void fingerprint_enroll_task(Fingerprint *self)
     
 }
 
+void finger_delete_all()
+{
+    uint8_t confirmation_code;
+    char start_page[2] = {0x00, 0x00};
+    char page_number[2] = {0x00, 0x64};
+
+    confirmation_code = DeletChar(default_address, start_page, page_number);
+    if (confirmation_code != 0)
+    {
+        ESP_LOGE(TAG, "Failed to delete all templates");
+    }
+    ESP_LOGI(TAG, "Deleted all Fingerprint templates");
+}
 
 static void fingerprint_detect_task(Fingerprint *self)
 {
     uint8_t confirmation_code;
     char start_page[2] = {0x00, 0x00};      // Specify the start page for the search
-    char page_number[2] = {0x00, 0x09};     // Specify the page range for the search
+    char page_number[2] = {0x00, 0x64};     // Specify the page range for the search
     
     while (1)
     {
         while (GenImg(default_address) != 0)
         {
-            
+            finger_detected = false;
         }
 
         confirmation_code = Img2Tz(default_address, enroll_buffer_id_1);
@@ -222,8 +237,27 @@ static void fingerprint_detect_task(Fingerprint *self)
         confirmation_code = Search(default_address, enroll_buffer_id_1, start_page, page_number);
         if (confirmation_code == 0)
         {
-            vTaskDelay(pdMS_TO_TICKS(1000));
+            if (current_state == STATE_MAIN_SCREEN)
+            {
+
+            }
+            else if (current_state == STATE_CAMERA_SCREEN)
+            {
+                ESP_LOGI(TAG, "Fingerprint detected! User ID: %d", _page_id);
+                if (_page_id >= 0 && users[_page_id - 1].role == 1)
+                {
+                    is_finger_true = true;
+                }else{
+                    is_finger_true = false;
+                }
+            }
         }
+        else 
+        {
+            is_finger_true = false;
+        }
+        finger_detected = true;
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }  
 }
 

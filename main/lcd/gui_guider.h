@@ -198,16 +198,23 @@ typedef struct
 	lv_obj_t *pw_enter_screen_label_id_name;
 	lv_obj_t *pw_enter_screen_label_pw_first;
 	lv_obj_t *pw_enter_screen_label_pw_second;
-	lv_obj_t *faceid_enroll_screen;
-	bool faceid_enroll_screen_del;
-	lv_obj_t *faceid_enroll_screen_label_time8;
-	lv_obj_t *faceid_enroll_screen_label_faceid_name;
-	lv_obj_t *faceid_enroll_screen_label_WIFI8;
-	lv_obj_t *faceid_enroll_screen_label_BT8;
-	lv_obj_t *faceid_enroll_screen_label_SD8;
-	lv_obj_t *faceid_enroll_screen_label_USB8;
-	lv_obj_t *faceid_enroll_screen_canvas_1;
-	lv_obj_t *faceid_enroll_screen_label_1;
+	lv_obj_t *role_screen;
+	bool role_screen_del;
+	lv_obj_t *role_screen_label_time9;
+	lv_obj_t *role_screen_label_authen_name;
+	lv_obj_t *role_screen_label_WIFI8;
+	lv_obj_t *role_screen_label_BT8;
+	lv_obj_t *role_screen_label_SD8;
+	lv_obj_t *role_screen_label_USB8;
+	lv_obj_t *role_screen_btn_esc8;
+	lv_obj_t *role_screen_btn_esc8_label;
+	lv_obj_t *role_screen_btn_ok8;
+	lv_obj_t *role_screen_btn_ok8_label;
+	lv_obj_t *role_screen_cont_normal_user;
+	lv_obj_t *role_screen_text_normal_user;
+	lv_obj_t *role_screen_cont_admin;
+	lv_obj_t *role_screen_text_admin;
+	lv_obj_t *role_screen_label;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -239,9 +246,8 @@ void setup_scr_usrdata_screen(lv_ui *ui);
 void setup_scr_usrinfo_screen(lv_ui *ui);
 void setup_scr_finger_enroll_screen(lv_ui *ui);
 void setup_scr_pw_enter_screen(lv_ui *ui);
-void setup_scr_faceid_enroll_screen(lv_ui *ui);
+void setup_scr_role_screen(lv_ui *ui);
 LV_IMG_DECLARE(_ready_alpha_80x80);
-LV_IMG_DECLARE(_wifi_alpha_240x176);
 
 LV_FONT_DECLARE(lv_font_montserrat_16)
 LV_FONT_DECLARE(lv_font_montserrat_48)

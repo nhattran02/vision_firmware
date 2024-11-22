@@ -23,7 +23,6 @@ typedef struct
     int fingerprint;
     int faceid;
     char password_hash[65];
-    int check[6];  // CHECK1 to CHECK6
 } user_data_t;
 
 extern user_data_t users[MAX_USERS];
@@ -56,12 +55,15 @@ typedef enum
 
     STATE_FACEID_ENROLL_SCREEN, 
 
+    STATE_SET_ROLE_SCREEN,
+
 } ui_state_t;
 
 
 extern uint8_t menu_selected_item;
 extern uint8_t attendance_selected_item;
 extern uint8_t data_selected_item;
+extern uint8_t role_selected_item;
 extern uint16_t usr_data_selected_item;
 extern uint8_t usr_info_selected_item;
 
@@ -115,3 +117,7 @@ void usrinfo_screen_password_default(void);
 void usrinfo_screen_faceid_default(void);
 void usrinfo_screen_role_default(void);
 
+void role_screen_cont_normal_user_default(void);
+void role_screen_cont_admin_default(void);
+void role_screen_cont_normal_user_check(void);
+void role_screen_cont_admin_check(void);

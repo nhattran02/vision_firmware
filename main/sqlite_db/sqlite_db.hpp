@@ -17,6 +17,7 @@ extern "C"
 void load_data_from_database_to_users(void);
 void update_finger_print_to_db(int id, int value);
 void update_faceid_to_db(int id, int value);
+void update_role_to_db(int id, int value);
 bool check_admin_exist();
 void update_password_to_db(int id, const char *password_hash);
 void print_users(void);
@@ -35,7 +36,8 @@ public:
     ~SQLiteDB();
     
     void delete_db();
-    void print_db();
+    void print_employee_db();
+    void print_attendance_db();
     void update();
     void run();
 };

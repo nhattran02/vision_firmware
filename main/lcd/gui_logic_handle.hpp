@@ -5,9 +5,11 @@
 #include "camera.hpp"
 #include "button.hpp"
 #include "lcd.hpp"
+#include "face_recog.hpp"
 
 void esc_faceid_enroll(void);
 void enter_menu_after_face_recog(void);
+extern Face *face;
 
 class GUIHandler : public Observer, public Frame
 {

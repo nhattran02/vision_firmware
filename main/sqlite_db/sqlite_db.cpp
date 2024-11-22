@@ -80,7 +80,8 @@ SQLiteDB::SQLiteDB(Button *key,
         return;
 
     // delete_db();
-    print_db();
+    print_employee_db();
+    print_attendance_db();
 
 
     // create_csv_template();
@@ -114,9 +115,9 @@ void create_csv_template(const char *csv_filename)
         return;
     }
 
-    fprintf(file, "ID,NAME,EMPLOYEEID,ROLE,CHECK1,CHECK2,CHECK3,CHECK4,CHECK5,CHECK6\n");
-    fprintf(file, "1,Nguyen Van A,123456,1,,,,,,\n");
-    fprintf(file, "2,Tran Thi B,654321,0,,,,,,\n");
+    fprintf(file, "ID,NAME,EMPLOYEEID,ROLE\n");
+    fprintf(file, "1,Nguyen Van A,123456,1\n");
+    fprintf(file, "2,Tran Thi B,654321,0\n");
 
     fclose(file);
     ESP_LOGI(TAG, "Created csv template %s", csv_filename);
@@ -125,12 +126,17 @@ void create_csv_template(const char *csv_filename)
 void import_csv_to_db(const char *csv_filename)
 {  
     int rc = db_exec(db, "DELETE FROM employee;");
-    if (rc != SQLITE_OK) 
+    if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "Failed to clear existing data in the employee table");
         sqlite3_close(db);
         return;
     }
+    rc = db_exec(db, "DELETE FROM attendance;");
+    if (rc != SQLITE_OK)
+    {
+        sqlite3_close(db);
+        return;
+    }      
     ESP_LOGI(TAG, "Old data cleared from the employee table");
 
     FILE *file = fopen(csv_filename, "r");
@@ -151,7 +157,6 @@ void import_csv_to_db(const char *csv_filename)
         char name[100] = {0};
         char employeeId[50] = {0};
         char role[10] = {0};
-        int check[6] = {0}; // CHECK1, CHECK2, CHECK3, CHECK4, CHECK5, CHECK6
         
         char *token = strtok(line, ",");
         if (token) strcpy(id, token);
@@ -161,19 +166,14 @@ void import_csv_to_db(const char *csv_filename)
         if (token) strcpy(employeeId, token);
         token = strtok(NULL, ",");
         if (token) strcpy(role, token);
-        for (int i = 0; i < 6 && (token = strtok(NULL, ",")); i++) {
-            check[i] = atoi(token);
-        }
 
         if (strlen(id) == 0 || strlen(name) == 0 || strlen(employeeId) == 0 || strlen(role) == 0) {
             ESP_LOGE(TAG, "Invalid data format: %s", line);
             continue;
         }
         
-        char sql[512]; 
-        snprintf(sql, sizeof(sql),
-            "INSERT INTO employee (ID, NAME, EMPLOYEEID, ROLE, CHECK1, CHECK2, CHECK3, CHECK4, CHECK5, CHECK6) VALUES (%s, '%s', '%s', '%s', %d, %d, %d, %d, %d, %d);",
-            id, name, employeeId, role, check[0], check[1], check[2], check[3], check[4], check[5]);
+        char sql[512] = {0}; 
+        snprintf(sql, sizeof(sql), "INSERT INTO employee (ID, NAME, EMPLOYEEID, ROLE) VALUES (%s, '%s', '%s', '%s');", id, name, employeeId, role);
 
         int rc = db_exec(db, sql);
         if (rc != SQLITE_OK)
@@ -196,11 +196,50 @@ void SQLiteDB::delete_db()
         sqlite3_close(db);
         return;
     }
+    rc = db_exec(db, "DELETE FROM attendance;");
+    if (rc != SQLITE_OK)
+    {
+        sqlite3_close(db);
+        return;
+    }    
 }
 
-void SQLiteDB::print_db() 
+void SQLiteDB::print_employee_db()
 {
     const char* sql = "SELECT * FROM employee;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    int column_count = sqlite3_column_count(stmt);
+    
+
+    for (int i = 0; i < column_count; i++) {
+        printf("%s\t", sqlite3_column_name(stmt, i));
+    }
+    printf("\n");
+
+    
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        for (int i = 0; i < column_count; i++) {
+            if (sqlite3_column_type(stmt, i) == SQLITE_NULL) {
+                printf("NULL\t"); 
+            } else {
+                printf("%s\t", sqlite3_column_text(stmt, i));
+            }
+        }
+        printf("\n"); 
+    }
+
+    sqlite3_finalize(stmt); 
+}
+
+void SQLiteDB::print_attendance_db()
+{
+    const char* sql = "SELECT * FROM attendance;";
     sqlite3_stmt* stmt;
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
@@ -262,11 +301,6 @@ void load_data_from_database_to_users(void)
         users[n_users].faceid = sqlite3_column_int(stmt, 5);
         const unsigned char *password_hash_text = sqlite3_column_text(stmt, 6);
         snprintf(users[n_users].password_hash, sizeof(users[n_users].password_hash), "%s", password_hash_text ? reinterpret_cast<const char *>(password_hash_text) : "");
-
-        for (int i = 0; i < 6; i++)
-        {
-            users[n_users].check[i] = sqlite3_column_int(stmt, 4 + i);
-        }
         
         n_users++;
     }
@@ -301,6 +335,32 @@ void update_finger_print_to_db(int id, int value)
 void update_faceid_to_db(int id, int value)
 {
     const char *sql = "UPDATE employee SET FACEID = ? WHERE id = ?;";
+    sqlite3_stmt *stmt;
+
+    // Prepare the SQL statement
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    // Bind the value and id to the SQL statement
+    sqlite3_bind_int(stmt, 1, value); 
+    sqlite3_bind_int(stmt, 2, id);
+
+    // Execute the statement
+    if (sqlite3_step(stmt) != SQLITE_DONE)
+    {
+        printf("Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    // Finalize the statement to release resources
+    sqlite3_finalize(stmt);
+}
+
+void update_role_to_db(int id, int value)
+{
+    const char *sql = "UPDATE employee SET ROLE = ? WHERE id = ?;";
     sqlite3_stmt *stmt;
 
     // Prepare the SQL statement
@@ -388,12 +448,6 @@ void print_users(void)
         printf("  Name: %s\n", users[i].name);
         printf("  Employee ID: %s\n", users[i].employeeId);
         printf("  Role: %d\n", users[i].role);
-
-        printf("  Check Values: ");
-        for (int j = 0; j < 6; j++)
-        {
-            printf("%d ", users[i].check[j]);
-        }
         printf("\n");
     }
 }

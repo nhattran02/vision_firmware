@@ -14,6 +14,8 @@
 static const int RX_BUF_SIZE = 2048;    //++ UART RX Buffer Size
 static const char *R307_TX = "R307_TX"; //++ UART RX TAG
 
+uint16_t _page_id = 0;
+
 void r307_response_parser(char instruction_code[], uint8_t received_package[]);
 
 void r307_init(void)
@@ -1311,13 +1313,13 @@ void r307_response_parser(char instruction_code[], uint8_t received_package[])
     {
         if (confirmation_code == 0x00)
         {
-            uint16_t page_id = 0;
+            
             uint16_t match_score = 0;
             ESP_LOGI("Search", "(0x00H) FOUND MATCHING FINGER");
 
-            page_id = received_package[10] + received_package[11];
+            _page_id = received_package[10] + received_package[11];
             match_score = received_package[12] + received_package[13];
-            ESP_LOGW("SYSTEM PARAMETER", "Page ID - %d", page_id);
+            ESP_LOGW("SYSTEM PARAMETER", "Page ID - %d", _page_id);
             ESP_LOGW("SYSTEM PARAMETER", "Match Score - %d", match_score);
         }
         else if (confirmation_code == 0x01)

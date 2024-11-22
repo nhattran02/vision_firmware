@@ -18,7 +18,7 @@ static const char *TAG = "main";
 #define TEST_R307 0
 
 static QueueHandle_t xQueueHttpFrame = NULL;
-
+Face *face = NULL;
 
 extern "C" void app_main()
 {
@@ -28,7 +28,7 @@ extern "C" void app_main()
 
     Button *matrix_button = new Button();
     Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
-    Face *face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
+    face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
     LCD *lcd = new LCD(matrix_button, xQueueFrame2);
     GUIHandler *gui_handler = new GUIHandler(matrix_button);
     Fingerprint *fingerprint = new Fingerprint(matrix_button);

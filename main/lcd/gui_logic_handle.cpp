@@ -34,6 +34,12 @@ GUIHandler::GUIHandler(Button *key,
 {
 }
 
+void delete_all_data(void)
+{
+    face->face_delete_all();
+    finger_delete_all();
+}
+
 static void update_menu_selection(uint8_t _menu_selected_item)
 {
     menu_screen_setting_default();
@@ -98,6 +104,25 @@ static void update_data_selection(uint8_t _data_selected_item)
         break;
     case 3:
         data_screen_uptemplate_check();
+        break;
+    default:
+        break;
+    }
+}
+
+
+static void update_role_selection(uint8_t _role_selected_item)
+{
+    role_screen_cont_normal_user_default();
+    role_screen_cont_admin_default();
+
+    switch (_role_selected_item)
+    {
+    case 0:
+        role_screen_cont_normal_user_check();
+        break;
+    case 1:
+        role_screen_cont_admin_check();
         break;
     default:
         break;
@@ -264,6 +289,9 @@ void GUIHandler::update()
         }
         else if (this->key->pressed == BUTTON_ESC)
         {
+            authen_on = false;
+            lcd_on = false;
+            faceid_enroll_on = false;
             current_state = STATE_MAIN_SCREEN;
             ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.menu_screen_del, setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
             update_data_gui(STATE_MAIN_SCREEN);
@@ -281,6 +309,7 @@ void GUIHandler::update()
         {
             lcd_on = false;
             faceid_enroll_on = false;
+            authen_on = false;
             vTaskDelay(pdMS_TO_TICKS(200));
             enable_lvgl();
             vTaskDelay(pdMS_TO_TICKS(200));
@@ -328,6 +357,7 @@ void GUIHandler::update()
             }
             case 1: // Scan user data
             {
+                load_data_from_database_to_users();
                 current_state = STATE_USER_DATA_SCREEN;
                 ui_load_scr_animation(&guider_ui, &guider_ui.usrdata_screen, guider_ui.usrdata_screen_del, &guider_ui.data_screen_del, _setup_scr_usrdata_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_usr_data_selection(usr_data_selected_item);
@@ -342,6 +372,7 @@ void GUIHandler::update()
             }
             case 3: // UPLOAD TEMPLATE
             {
+                delete_all_data();
                 import_csv_to_db((const char *)TEMPLATE_CSV);
                 current_state = STATE_FINISH_SCREEN;
                 ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
@@ -453,7 +484,10 @@ void GUIHandler::update()
             }
             case 3: // Role
             {
-
+                current_state = STATE_SET_ROLE_SCREEN;
+                ui_load_scr_animation(&guider_ui, &guider_ui.role_screen, guider_ui.role_screen_del, &guider_ui.usrinfo_screen_del, setup_scr_role_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+                update_role_selection(role_selected_item);
+                update_data_gui(STATE_SET_ROLE_SCREEN);
                 break;
             }
             default:
@@ -681,6 +715,41 @@ void GUIHandler::update()
         {
             esc_faceid_enroll();
         }
+        break;
+    }
+    case STATE_SET_ROLE_SCREEN:
+    {
+        if (this->key->pressed == BUTTON_UP)
+        {
+            role_selected_item = (role_selected_item - 1 + 2) % 2;
+            update_role_selection(role_selected_item);
+        }
+        else if (this->key->pressed == BUTTON_DOWN)
+        {
+            role_selected_item = (role_selected_item + 1) % 2;
+            update_role_selection(role_selected_item);
+        }
+        else if (this->key->pressed == BUTTON_OK)
+        {
+            ESP_LOGI(TAG, "Role selected item: %d", role_selected_item);
+            if (role_selected_item == 0)
+            {
+                update_role_to_db(users[usr_data_selected_item].id, 0);
+                users[usr_data_selected_item].role = 0;
+            }
+            else
+            {
+                update_role_to_db(users[usr_data_selected_item].id, 1);
+                users[usr_data_selected_item].role = 1;
+            }
+        }
+        else if (this->key->pressed == BUTTON_ESC)
+        {
+            current_state = STATE_USER_INFO_SCREEN;
+            ui_load_scr_animation(&guider_ui, &guider_ui.usrinfo_screen, guider_ui.usrinfo_screen_del, &guider_ui.role_screen_del, _setup_scr_usrinfo_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            update_usrinfo_selection(usr_info_selected_item);
+            update_data_gui(STATE_USER_INFO_SCREEN);
+        }        
         break;
     }
     }

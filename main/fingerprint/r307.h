@@ -8,6 +8,8 @@ extern "C"
 {
 #endif
 
+    extern uint16_t _page_id;
+
     /**
      * @brief INITIALIZE UART FOR R307 FINGERPRINT MODULE
      *

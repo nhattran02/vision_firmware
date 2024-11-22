@@ -59,4 +59,5 @@ public:
 
     void update();
     void run();
+    void face_delete_all();
 };
