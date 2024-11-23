@@ -350,10 +350,7 @@ void GUIHandler::update()
             {
             case 0: // SAVE REPORT
             {
-                // Execute the save report function
-
-                // After that load the finish screen
-
+                save_report_to_csv((const char *)REPORT_CSV);
                 current_state = STATE_FINISH_SCREEN;
                 ui_load_scr_animation(&guider_ui, &guider_ui.finish_screen, guider_ui.finish_screen_del, &guider_ui.data_screen_del, setup_scr_finish_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 break;

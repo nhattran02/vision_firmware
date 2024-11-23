@@ -455,7 +455,7 @@ static void face_task(Face *self)
                     }
                 }
             }
-
+            
             if (faceid_enroll_on == true)
             {
 

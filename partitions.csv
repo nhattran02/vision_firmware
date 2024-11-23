@@ -3,5 +3,5 @@
 
 factory,  app,  factory,  0x010000,  4000K,
 model,   data,  spiffs,   ,          3900K,
-nvs,     data,  nvs,      ,          16K,
+nvs,     data,  nvs,      ,          1000K,
 fr,      data,  ,         ,          1000K,

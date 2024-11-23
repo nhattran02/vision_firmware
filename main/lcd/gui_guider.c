@@ -10,9 +10,11 @@
 #include "lvgl.h"
 #include <stdio.h>
 #include "gui_guider.h"
+#include "esp_attr.h"
 #if LV_USE_GUIDER_SIMULATOR && LV_USE_FREEMASTER
 #include "gg_external_data.h"
 #endif
+
 lv_ui guider_ui;
 void ui_init_style(lv_style_t * style)
 {

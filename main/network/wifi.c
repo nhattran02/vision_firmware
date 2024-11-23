@@ -116,8 +116,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
             ESP_LOGI(TAG, "retry to connect to the AP");
         }
         else {
-            wifi_connected = false;
-            update_wifi_status(wifi_connected, current_state);
+            // wifi_connected = false;
+            // update_wifi_status(wifi_connected, current_state);
             if (s_wifi_event_group != NULL)
             {
                 xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
@@ -143,8 +143,8 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base,
         event = (ip_event_got_ip_t*)event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR "\n", IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
-        wifi_connected = true;
-        update_wifi_status(wifi_connected, current_state);
+        // wifi_connected = true;
+        // update_wifi_status(wifi_connected, current_state);
         if (s_wifi_event_group != NULL)
         {
             xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);

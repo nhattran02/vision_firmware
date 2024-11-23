@@ -1,4 +1,5 @@
 #include "wifi.h"
+#include "smartconfig_wifi.h"
 #include "httpd.hpp"
 #include "http_client.hpp"
 #include "websocket_client.hpp"
@@ -13,6 +14,7 @@
 #include "sqlite_db.hpp"
 #include "utils.hpp"
 
+
 static const char *TAG = "main";
 
 #define TEST_R307 0
@@ -22,14 +24,14 @@ Face *face = NULL;
 
 extern "C" void app_main()
 {
-
+    
     QueueHandle_t xQueueFrame1 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame2 = xQueueCreate(2, sizeof(camera_fb_t *));
 
     Button *matrix_button = new Button();
     Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
     face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
-    LCD *lcd = new LCD(matrix_button, xQueueFrame2);
+    LCD *lcd = new LCD(matrix_button, xQueueFrame2); 
     GUIHandler *gui_handler = new GUIHandler(matrix_button);
     Fingerprint *fingerprint = new Fingerprint(matrix_button);
     AppSDCard *sd_card = new AppSDCard(matrix_button);
@@ -48,7 +50,12 @@ extern "C" void app_main()
     matrix_button->run();
     // fingerprint->fingerprint_enroll_run();
     fingerprint->fingerprint_detect_run();
-
+    
     // sd_card->run();
 
+    print_mem_info("before wifi init");
+    ESP_ERROR_CHECK( nvs_flash_init() );
+
+    initialise_wifi();
+    print_mem_info("all run done");
 }

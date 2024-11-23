@@ -456,6 +456,55 @@ void update_password_to_db(int id, const char *password_hash)
     sqlite3_finalize(stmt);
 }
 
+void save_report_to_csv(const char *csv_file_path) 
+{
+    FILE *file = fopen(csv_file_path, "w");
+    if (!file) 
+    {
+        printf("Failed to open file: %s\n", csv_file_path);
+        return;
+    }
+
+    const char *sql = "SELECT * FROM attendance;";
+    sqlite3_stmt *stmt;
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Failed to prepare SQL statement: %s\n", sqlite3_errmsg(db));
+        fclose(file);
+        return;
+    }
+
+    int column_count = sqlite3_column_count(stmt);
+    for (int i = 0; i < column_count; i++) {
+        fprintf(file, "%s", sqlite3_column_name(stmt, i));
+        if (i < column_count - 1) {
+            fprintf(file, ",");
+        }
+    }
+    fprintf(file, "\n");
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        for (int i = 0; i < column_count; i++) {
+            const char *value = (const char *)sqlite3_column_text(stmt, i);
+            fprintf(file, "%s", value ? value : "");
+            if (i < column_count - 1) {
+                fprintf(file, ",");
+            }
+        }
+        fprintf(file, "\n");
+    }
+
+    if (rc != SQLITE_DONE) {
+        printf("Failed to fetch data: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    fclose(file);
+
+    printf("Report saved to: %s\n", csv_file_path);
+}
+
 bool check_admin_exist()
 {
     const char *sql = "SELECT EXISTS (SELECT 1 FROM employee WHERE (FINGER = 1 OR FACEID = 1) AND ROLE = 1);";

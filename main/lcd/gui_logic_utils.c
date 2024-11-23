@@ -13,10 +13,14 @@ uint8_t role_selected_item = 0;
 uint16_t usr_data_selected_item = 0;
 uint8_t usr_info_selected_item = 0;
 
-user_data_t users[MAX_USERS] = {0};
+EXT_RAM_BSS_ATTR user_data_t users[MAX_USERS] = {0};
 uint16_t n_users = 0;
 
 TaskHandle_t FingerprintDetectTaskHandle = NULL;
+
+lv_obj_t **list_id_items = NULL;
+lv_obj_t **list_name_items = NULL;
+lv_obj_t **list_role_items = NULL;
 
 bool compare_passwords(const char *pw1, const char *pw2, size_t length)
 {
@@ -97,9 +101,7 @@ void update_usrdata_screen(lv_ui *ui)
 }
 
 
-lv_obj_t **list_id_items = NULL;
-lv_obj_t **list_name_items = NULL;
-lv_obj_t **list_role_items = NULL;
+
 
 void _setup_scr_usrdata_screen(lv_ui *ui)
 {

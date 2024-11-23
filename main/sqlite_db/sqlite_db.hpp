@@ -13,6 +13,7 @@ extern "C"
 }
 
 #define TEMPLATE_CSV "/sdcard/template.csv"
+#define REPORT_CSV   "/sdcard/report.csv"
 
 void load_data_from_database_to_users(void);
 void update_finger_print_to_db(int id, int value);
@@ -24,6 +25,7 @@ void print_users(void);
 void create_csv_template(const char *csv_filename);
 void import_csv_to_db(const char* csv_filename);
 void update_attendance_to_db(int id, const char *name, const char *date, const char *time);
+void save_report_to_csv(const char *csv_file_path);
 
 class SQLiteDB : public Observer, public Frame
 {
