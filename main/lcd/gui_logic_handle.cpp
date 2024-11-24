@@ -15,6 +15,7 @@ extern "C"
 #include "fingerprint.hpp"
 #include "utils.hpp"
 #include "face_recog.hpp"
+#include "smartconfig_wifi.h"
 
 static const char TAG[] = "gui_logic_handle";
 
@@ -269,7 +270,13 @@ void GUIHandler::update()
             }
             case 1: // Load STATE_CONNECTION_SCREEN
             {
-
+                current_state = STATE_CONNECTION_SCREEN;
+                ui_load_scr_animation(&guider_ui, &guider_ui.connect_screen, guider_ui.connect_screen_del, &guider_ui.menu_screen_del, _setup_scr_connect_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+                update_data_gui(STATE_CONNECTION_SCREEN);
+                if (is_wifi_connected == false)
+                {
+                    goto STATE_CONNECTION;
+                }
                 break;
             }
             case 2: // Load STATE_DATA_SCREEN
@@ -329,6 +336,35 @@ void GUIHandler::update()
     }
     case STATE_CONNECTION_SCREEN:
     {
+        if (this->key->pressed == BUTTON_ESC)
+        {
+            current_state = STATE_MENU_SCREEN;
+            ui_load_scr_animation(&guider_ui, &guider_ui.menu_screen, guider_ui.menu_screen_del, &guider_ui.connect_screen_del, setup_scr_menu_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            update_menu_selection(menu_selected_item);
+            update_data_gui(STATE_MENU_SCREEN);
+            break;
+        }
+        STATE_CONNECTION:
+        while(1)
+        {
+            if (is_found_channel)
+            {
+                lv_label_set_text(guider_ui.connect_screen_label_1, "Found channel");
+                is_found_channel = false;
+            }
+            if (is_got_ssid_pswd)
+            {
+                lv_label_set_text(guider_ui.connect_screen_label_1, "Got SSID and password");
+                is_got_ssid_pswd = false;
+            }
+            if (is_wifi_connected)
+            {
+                char buf[100] = {0};
+                snprintf(buf, sizeof(buf), "Wi-Fi is connected to %s", ssid);
+                lv_label_set_text(guider_ui.connect_screen_label_wifi_status, buf);
+                break;
+            }
+        }
 
         break;
     }

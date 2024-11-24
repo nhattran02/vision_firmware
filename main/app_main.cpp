@@ -55,5 +55,4 @@ extern "C" void app_main()
 
     ESP_ERROR_CHECK(nvs_flash_init());
     initialise_wifi();
-    print_mem_info("all run done");
 }

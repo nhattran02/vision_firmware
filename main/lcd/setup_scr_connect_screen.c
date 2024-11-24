@@ -198,13 +198,13 @@ void setup_scr_connect_screen(lv_ui *ui)
     lv_label_set_text(ui->connect_screen_label_wifi_status, "Wi-Fi is connected to 808");
     lv_label_set_long_mode(ui->connect_screen_label_wifi_status, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->connect_screen_label_wifi_status, 10, 46);
-    lv_obj_set_size(ui->connect_screen_label_wifi_status, 300, 30);
+    lv_obj_set_size(ui->connect_screen_label_wifi_status, 300, 40);
 
     //Write style for connect_screen_label_wifi_status, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->connect_screen_label_wifi_status, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_radius(ui->connect_screen_label_wifi_status, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui->connect_screen_label_wifi_status, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui->connect_screen_label_wifi_status, &lv_font_montserrat_12, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->connect_screen_label_wifi_status, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui->connect_screen_label_wifi_status, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_letter_space(ui->connect_screen_label_wifi_status, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_line_space(ui->connect_screen_label_wifi_status, 3, LV_PART_MAIN|LV_STATE_DEFAULT);

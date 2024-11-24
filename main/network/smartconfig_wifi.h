@@ -21,19 +21,14 @@ extern "C" {
 #include "esp_mac.h"
 
 
-#define MAX_WIFI_LIST 20
+extern char ssid[33];
+extern char password[65];
 
-typedef struct
-{
-    char ssid[33];
-    char password[65];
-} wifi_cred_t;
-
-typedef struct
-{
-    wifi_cred_t wifi_list[MAX_WIFI_LIST];
-    int wifi_count;
-} wifi_store_t;
+extern volatile bool is_smart_config_run;
+extern volatile bool is_wifi_connected;
+extern volatile bool is_wifi_changed;
+extern volatile bool is_found_channel;
+extern volatile bool is_got_ssid_pswd;
 
 void initialise_wifi(void);
 

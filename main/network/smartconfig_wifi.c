@@ -7,7 +7,6 @@
 
 #define WIFI_MAXIMUM_RETRY 2
 
-wifi_store_t wifi_storage = {0};
 static int s_retry_num = 0;
 static EventGroupHandle_t s_wifi_event_group;
 
@@ -21,8 +20,12 @@ static const char *TAG = "smartconfig_wifi";
 volatile bool is_smart_config_run = false;
 volatile bool is_wifi_connected = false;
 volatile bool is_wifi_changed = false;
+volatile bool is_found_channel = false;
+volatile bool is_got_ssid_pswd = false;
 
 
+char ssid[33] = {0};
+char password[65] = {0};
 
 static void save_wifi_credentials(const char *ssid, const char *password)
 {
@@ -60,8 +63,6 @@ static esp_err_t load_wifi_credentials(char *ssid, size_t ssid_len, char *passwo
 
 static void connect_to_saved_wifi(void)
 {
-    char ssid[50] = {0};
-    char password[50] = {0};
 
     if (load_wifi_credentials(ssid, sizeof(ssid), password, sizeof(password)) == ESP_OK)
     {
@@ -91,8 +92,8 @@ static void connect_to_saved_wifi(void)
         SMART_CONFIG:
         is_smart_config_run = true;
         ESP_LOGI(TAG, "No saved WiFi credentials found, starting SmartConfig");
-        ESP_ERROR_CHECK(esp_wifi_stop());
-        ESP_ERROR_CHECK(esp_wifi_start());
+        // ESP_ERROR_CHECK(esp_wifi_stop());
+        // ESP_ERROR_CHECK(esp_wifi_start());
     }
 }
 
@@ -159,16 +160,17 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
     else if (event_base == SC_EVENT && event_id == SC_EVENT_FOUND_CHANNEL)
     {
+        is_found_channel = true;
         ESP_LOGI(TAG, "Found channel");
     }
     else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD)
     {
+        is_got_ssid_pswd = true;
         ESP_LOGI(TAG, "Got SSID and password");
 
         smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
         wifi_config_t wifi_config;
-        uint8_t ssid[33] = {0};
-        uint8_t password[65] = {0};
+
         uint8_t rvd_data[33] = {0};
 
         bzero(&wifi_config, sizeof(wifi_config_t));
@@ -201,6 +203,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
         xEventGroupSetBits(s_wifi_event_group, ESPTOUCH_DONE_BIT);
     }
 }
+
 
 void initialise_wifi(void)
 {
