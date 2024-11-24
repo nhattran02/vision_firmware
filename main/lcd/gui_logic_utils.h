@@ -41,7 +41,7 @@ typedef enum
 
     STATE_CONNECTION_SCREEN,
 
-    STATE_DATA_SCREEN, //parent
+    STATE_DATA_SCREEN, 
 
     STATE_FINISH_SCREEN,
 

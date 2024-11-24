@@ -53,9 +53,7 @@ extern "C" void app_main()
     
     // sd_card->run();
 
-    print_mem_info("before wifi init");
-    ESP_ERROR_CHECK( nvs_flash_init() );
-
+    ESP_ERROR_CHECK(nvs_flash_init());
     initialise_wifi();
     print_mem_info("all run done");
 }

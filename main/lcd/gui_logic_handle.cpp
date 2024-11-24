@@ -302,7 +302,7 @@ void GUIHandler::update()
     }
     case STATE_ATTENDANCE_SCREEN:
     {
-
+        
         break;
     }
     case STATE_CAMERA_SCREEN:
@@ -390,7 +390,7 @@ void GUIHandler::update()
             update_data_gui(STATE_MENU_SCREEN);
         }
 
-        break;
+        break; 
     }
     case STATE_FINISH_SCREEN:
     {

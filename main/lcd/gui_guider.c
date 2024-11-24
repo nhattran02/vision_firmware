@@ -10,12 +10,12 @@
 #include "lvgl.h"
 #include <stdio.h>
 #include "gui_guider.h"
-#include "esp_attr.h"
 #if LV_USE_GUIDER_SIMULATOR && LV_USE_FREEMASTER
 #include "gg_external_data.h"
 #endif
 
 lv_ui guider_ui;
+
 void ui_init_style(lv_style_t * style)
 {
     if (style->prop_cnt > 1)
@@ -85,6 +85,7 @@ void init_scr_del_flag(lv_ui *ui)
     ui->finger_enroll_screen_del = true;
     ui->pw_enter_screen_del = true;
     ui->role_screen_del = true;
+    ui->connect_screen_del = true;
 }
 
 void setup_ui(lv_ui *ui)

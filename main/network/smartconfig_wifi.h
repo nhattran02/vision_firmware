@@ -20,6 +20,21 @@ extern "C" {
 #include "esp_smartconfig.h"
 #include "esp_mac.h"
 
+
+#define MAX_WIFI_LIST 20
+
+typedef struct
+{
+    char ssid[33];
+    char password[65];
+} wifi_cred_t;
+
+typedef struct
+{
+    wifi_cred_t wifi_list[MAX_WIFI_LIST];
+    int wifi_count;
+} wifi_store_t;
+
 void initialise_wifi(void);
 
 

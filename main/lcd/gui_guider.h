@@ -215,6 +215,17 @@ typedef struct
 	lv_obj_t *role_screen_cont_admin;
 	lv_obj_t *role_screen_text_admin;
 	lv_obj_t *role_screen_label;
+	lv_obj_t *connect_screen;
+	bool connect_screen_del;
+	lv_obj_t *connect_screen_label_time9;
+	lv_obj_t *connect_screen_label_connect_name;
+	lv_obj_t *connect_screen_label_WIFI9;
+	lv_obj_t *connect_screen_label_BT9;
+	lv_obj_t *connect_screen_label_SD9;
+	lv_obj_t *connect_screen_label_USB9;
+	lv_obj_t *connect_screen_cont_wifi;
+	lv_obj_t *connect_screen_label_wifi_status;
+	lv_obj_t *connect_screen_label_1;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -247,6 +258,7 @@ void setup_scr_usrinfo_screen(lv_ui *ui);
 void setup_scr_finger_enroll_screen(lv_ui *ui);
 void setup_scr_pw_enter_screen(lv_ui *ui);
 void setup_scr_role_screen(lv_ui *ui);
+void setup_scr_connect_screen(lv_ui *ui);
 LV_IMG_DECLARE(_ready_alpha_80x80);
 
 LV_FONT_DECLARE(lv_font_montserrat_16)
