@@ -1,8 +1,13 @@
 #include "gui_logic_utils.h"
-#include "wifi.h"
 #include "esp_log.h"
 #include <stdlib.h> 
-#include "smartconfig_wifi.h"
+#include "smartconfig_wifi.hpp"
+#include "ntp_time.hpp"
+
+char ntp_date[11] = {0};
+char ntp_time[9] = {0};
+char ntp_time_no_sec[6] = {0};
+char ntp_day[10] = {0};
 
 // Navigation variables
 ui_state_t current_state = STATE_MAIN_SCREEN;
@@ -43,7 +48,6 @@ void hash_to_hex(const uint8_t *hash, size_t hash_length, char *hex_output)
     hex_output[hash_length * 2] = '\0';
 }
 
-
 void hash_password(const char *password, size_t length, char *output_hash_hex)
 {
     uint8_t output_hash[32] = {0};
@@ -72,7 +76,6 @@ void generate_pwchar_string(char *str, int number_of_pwchar)
     // Null-terminate the string
     str[4] = '\0';
 }
-
 
 void update_usrdata_screen(lv_ui *ui)
 {
@@ -444,7 +447,10 @@ void _setup_scr_usrinfo_screen(lv_ui *ui)
 
     //Write codes usrinfo_screen_label_time5
     ui->usrinfo_screen_label_time5 = lv_label_create(ui->usrinfo_screen);
-    lv_label_set_text(ui->usrinfo_screen_label_time5, "11:00");
+    char buf[20] = {0};
+    snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+    lv_label_set_text(ui->usrinfo_screen_label_time5, buf);
+    // lv_label_set_text(ui->usrinfo_screen_label_time5, "11:00");
     lv_label_set_long_mode(ui->usrinfo_screen_label_time5, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->usrinfo_screen_label_time5, -31, 8);
     lv_obj_set_size(ui->usrinfo_screen_label_time5, 128, 20);
@@ -1018,7 +1024,10 @@ void _setup_scr_finger_enroll_screen(lv_ui *ui)
 
     //Write codes finger_enroll_screen_label_time6
     ui->finger_enroll_screen_label_time6 = lv_label_create(ui->finger_enroll_screen);
-    lv_label_set_text(ui->finger_enroll_screen_label_time6, "11:00");
+    char buf[20] = {0};
+    snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+    lv_label_set_text(ui->finger_enroll_screen_label_time6, buf);
+    // lv_label_set_text(ui->finger_enroll_screen_label_time6, "11:00");
     lv_label_set_long_mode(ui->finger_enroll_screen_label_time6, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->finger_enroll_screen_label_time6, -31, 8);
     lv_obj_set_size(ui->finger_enroll_screen_label_time6, 128, 20);
@@ -1291,7 +1300,10 @@ void _setup_scr_pw_enter_screen(lv_ui *ui)
 
     //Write codes pw_enter_screen_label_time7
     ui->pw_enter_screen_label_time7 = lv_label_create(ui->pw_enter_screen);
-    lv_label_set_text(ui->pw_enter_screen_label_time7, "11:00");
+    char buf[20] = {0};
+    snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+    lv_label_set_text(ui->pw_enter_screen_label_time7, buf);    
+    // lv_label_set_text(ui->pw_enter_screen_label_time7, "11:00");
     lv_label_set_long_mode(ui->pw_enter_screen_label_time7, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->pw_enter_screen_label_time7, -31, 8);
     lv_obj_set_size(ui->pw_enter_screen_label_time7, 128, 20);
@@ -1601,7 +1613,10 @@ void _setup_scr_connect_screen(lv_ui *ui)
 
     //Write codes connect_screen_label_time9
     ui->connect_screen_label_time9 = lv_label_create(ui->connect_screen);
-    lv_label_set_text(ui->connect_screen_label_time9, "11:00");
+    char buf[20] = {0};
+    snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+    lv_label_set_text(ui->connect_screen_label_time9, buf);
+    // lv_label_set_text(ui->connect_screen_label_time9, "11:00");
     lv_label_set_long_mode(ui->connect_screen_label_time9, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->connect_screen_label_time9, -31, 8);
     lv_obj_set_size(ui->connect_screen_label_time9, 128, 20);
@@ -1765,11 +1780,11 @@ void _setup_scr_connect_screen(lv_ui *ui)
 
     //Write codes connect_screen_label_wifi_status
     ui->connect_screen_label_wifi_status = lv_label_create(ui->connect_screen);
-    char buf[100] = {0};
-    snprintf(buf, sizeof(buf), "Wi-Fi is connected to %s", ssid);
+    char _buf[100] = {0};
+    snprintf(_buf, sizeof(_buf), "Wi-Fi is connected to %s", ssid);
     if (is_wifi_connected)
     {
-        lv_label_set_text(ui->connect_screen_label_wifi_status, buf);
+        lv_label_set_text(ui->connect_screen_label_wifi_status, _buf);
     }
     else
     {
@@ -1835,9 +1850,585 @@ void _setup_scr_connect_screen(lv_ui *ui)
 }
 
 
+
+void _setup_scr_main_screen(lv_ui *ui)
+{
+    //Write codes main_screen
+    ui->main_screen = lv_obj_create(NULL);
+    lv_obj_set_size(ui->main_screen, 320, 240);
+    lv_obj_set_scrollbar_mode(ui->main_screen, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_add_flag(ui->main_screen, LV_OBJ_FLAG_CLICKABLE);
+
+    //Write style for main_screen, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_bg_opa(ui->main_screen, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->main_screen, lv_color_hex(0xd5d9de), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->main_screen, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_cont_1
+    ui->main_screen_cont_1 = lv_obj_create(ui->main_screen);
+    lv_obj_set_pos(ui->main_screen_cont_1, 10, 35);
+    lv_obj_set_size(ui->main_screen_cont_1, 300, 170);
+    lv_obj_set_scrollbar_mode(ui->main_screen_cont_1, LV_SCROLLBAR_MODE_OFF);
+
+    //Write style for main_screen_cont_1, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_cont_1, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui->main_screen_cont_1, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui->main_screen_cont_1, lv_color_hex(0xb0b0b0), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui->main_screen_cont_1, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_cont_1, 10, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_cont_1, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->main_screen_cont_1, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->main_screen_cont_1, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_cont_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_cont_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_cont_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_cont_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_cont_1, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_color(ui->main_screen_cont_1, lv_color_hex(0xb0b0b0), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(ui->main_screen_cont_1, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui->main_screen_cont_1, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui->main_screen_cont_1, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui->main_screen_cont_1, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_label_date
+    ui->main_screen_label_date = lv_label_create(ui->main_screen);
+    char buf[20] = {0};
+    snprintf(buf, sizeof(buf), "%s", ntp_date);
+    lv_label_set_text(ui->main_screen_label_date, buf);
+
+    // lv_label_set_text(ui->main_screen_label_date, "21-10-2024");
+    lv_label_set_long_mode(ui->main_screen_label_date, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->main_screen_label_date, 3, 217);
+    lv_obj_set_size(ui->main_screen_label_date, 127, 17);
+
+    //Write style for main_screen_label_date, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->main_screen_label_date, lv_color_hex(0x07080A), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->main_screen_label_date, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->main_screen_label_date, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->main_screen_label_date, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->main_screen_label_date, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_label_date, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_label_day
+    ui->main_screen_label_day = lv_label_create(ui->main_screen);
+    memset(buf, 0, sizeof(buf));
+    snprintf(buf, sizeof(buf), "%s", ntp_day);
+    lv_label_set_text(ui->main_screen_label_day, buf);
+    // lv_label_set_text(ui->main_screen_label_day, "Monday");
+    lv_label_set_long_mode(ui->main_screen_label_day, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->main_screen_label_day, 189, 217);
+    lv_obj_set_size(ui->main_screen_label_day, 127, 17);
+
+    //Write style for main_screen_label_day, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->main_screen_label_day, lv_color_hex(0x07080A), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->main_screen_label_day, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->main_screen_label_day, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->main_screen_label_day, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->main_screen_label_day, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_label_day, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_label_time
+    ui->main_screen_label_time = lv_label_create(ui->main_screen);
+    memset(buf, 0, sizeof(buf));
+    snprintf(buf, sizeof(buf), "%s", ntp_time);
+    lv_label_set_text(ui->main_screen_label_time, buf);
+    // lv_label_set_text(ui->main_screen_label_time, "11:00");
+    lv_label_set_long_mode(ui->main_screen_label_time, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->main_screen_label_time, 51, 99);
+    lv_obj_set_size(ui->main_screen_label_time, 225, 46);
+
+    //Write style for main_screen_label_time, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->main_screen_label_time, lv_color_hex(0x07080A), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->main_screen_label_time, &lv_font_montserrat_48, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->main_screen_label_time, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->main_screen_label_time, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->main_screen_label_time, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_label_time, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_label_home_name
+    ui->main_screen_label_home_name = lv_label_create(ui->main_screen);
+    lv_label_set_text(ui->main_screen_label_home_name, "Home");
+    lv_label_set_long_mode(ui->main_screen_label_home_name, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->main_screen_label_home_name, 96, 8);
+    lv_obj_set_size(ui->main_screen_label_home_name, 128, 17);
+
+    //Write style for main_screen_label_home_name, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->main_screen_label_home_name, lv_color_hex(0x07080A), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->main_screen_label_home_name, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->main_screen_label_home_name, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->main_screen_label_home_name, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->main_screen_label_home_name, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_label_home_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_label_WIFI
+    ui->main_screen_label_WIFI = lv_label_create(ui->main_screen);
+    lv_label_set_text(ui->main_screen_label_WIFI, "" LV_SYMBOL_WIFI "");
+    lv_label_set_long_mode(ui->main_screen_label_WIFI, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->main_screen_label_WIFI, 284, 9);
+    lv_obj_set_size(ui->main_screen_label_WIFI, 41, 20);
+
+    //Write style for main_screen_label_WIFI, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->main_screen_label_WIFI, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->main_screen_label_WIFI, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->main_screen_label_WIFI, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->main_screen_label_WIFI, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->main_screen_label_WIFI, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_label_WIFI, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_label_BT
+    ui->main_screen_label_BT = lv_label_create(ui->main_screen);
+    lv_label_set_text(ui->main_screen_label_BT, "" LV_SYMBOL_BLUETOOTH " ");
+    lv_label_set_long_mode(ui->main_screen_label_BT, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->main_screen_label_BT, 260, 9);
+    lv_obj_set_size(ui->main_screen_label_BT, 41, 20);
+
+    //Write style for main_screen_label_BT, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->main_screen_label_BT, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->main_screen_label_BT, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->main_screen_label_BT, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->main_screen_label_BT, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->main_screen_label_BT, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_label_BT, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_label_SD
+    ui->main_screen_label_SD = lv_label_create(ui->main_screen);
+    lv_label_set_text(ui->main_screen_label_SD, "" LV_SYMBOL_SD_CARD "");
+    lv_label_set_long_mode(ui->main_screen_label_SD, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->main_screen_label_SD, 232, 9);
+    lv_obj_set_size(ui->main_screen_label_SD, 41, 20);
+
+    //Write style for main_screen_label_SD, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->main_screen_label_SD, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->main_screen_label_SD, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->main_screen_label_SD, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->main_screen_label_SD, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->main_screen_label_SD, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_label_SD, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes main_screen_label_USB
+    ui->main_screen_label_USB = lv_label_create(ui->main_screen);
+    lv_label_set_text(ui->main_screen_label_USB, "" LV_SYMBOL_USB "");
+    lv_label_set_long_mode(ui->main_screen_label_USB, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->main_screen_label_USB, 205, 9);
+    lv_obj_set_size(ui->main_screen_label_USB, 41, 20);
+
+    //Write style for main_screen_label_USB, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->main_screen_label_USB, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->main_screen_label_USB, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->main_screen_label_USB, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->main_screen_label_USB, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->main_screen_label_USB, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->main_screen_label_USB, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //The custom code of main_screen.
+
+
+    //Update current screen layout.
+    lv_obj_update_layout(ui->main_screen);
+
+    //Init events for screen.
+    events_init_main_screen(ui);
+}
+
+
+void _setup_scr_role_screen(lv_ui *ui)
+{
+    //Write codes role_screen
+    ui->role_screen = lv_obj_create(NULL);
+    lv_obj_set_size(ui->role_screen, 320, 240);
+    lv_obj_set_scrollbar_mode(ui->role_screen, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_add_flag(ui->role_screen, LV_OBJ_FLAG_CLICKABLE);
+
+    //Write style for role_screen, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_bg_opa(ui->role_screen, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->role_screen, lv_color_hex(0xd5d9de), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->role_screen, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_label_time9
+    ui->role_screen_label_time9 = lv_label_create(ui->role_screen);
+    char buf[20] = {0};
+    snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+    lv_label_set_text(ui->role_screen_label_time9, buf);
+    // lv_label_set_text(ui->role_screen_label_time9, "11:00");
+    lv_label_set_long_mode(ui->role_screen_label_time9, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_label_time9, -31, 8);
+    lv_obj_set_size(ui->role_screen_label_time9, 128, 20);
+
+    //Write style for role_screen_label_time9, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_label_time9, lv_color_hex(0x07080A), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_label_time9, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_label_time9, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_label_time9, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_label_time9, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_label_time9, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_label_authen_name
+    ui->role_screen_label_authen_name = lv_label_create(ui->role_screen);
+    lv_label_set_text(ui->role_screen_label_authen_name, "Set Role");
+    lv_label_set_long_mode(ui->role_screen_label_authen_name, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_label_authen_name, 97, 8);
+    lv_obj_set_size(ui->role_screen_label_authen_name, 128, 17);
+
+    //Write style for role_screen_label_authen_name, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_label_authen_name, lv_color_hex(0x07080A), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_label_authen_name, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_label_authen_name, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_label_authen_name, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_label_authen_name, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_label_authen_name, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_label_WIFI8
+    ui->role_screen_label_WIFI8 = lv_label_create(ui->role_screen);
+    lv_label_set_text(ui->role_screen_label_WIFI8, "" LV_SYMBOL_WIFI "");
+    lv_label_set_long_mode(ui->role_screen_label_WIFI8, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_label_WIFI8, 284, 9);
+    lv_obj_set_size(ui->role_screen_label_WIFI8, 41, 20);
+
+    //Write style for role_screen_label_WIFI8, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_label_WIFI8, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_label_WIFI8, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_label_WIFI8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_label_WIFI8, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_label_WIFI8, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_label_WIFI8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_label_BT8
+    ui->role_screen_label_BT8 = lv_label_create(ui->role_screen);
+    lv_label_set_text(ui->role_screen_label_BT8, "" LV_SYMBOL_BLUETOOTH " ");
+    lv_label_set_long_mode(ui->role_screen_label_BT8, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_label_BT8, 260, 9);
+    lv_obj_set_size(ui->role_screen_label_BT8, 41, 20);
+
+    //Write style for role_screen_label_BT8, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_label_BT8, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_label_BT8, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_label_BT8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_label_BT8, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_label_BT8, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_label_BT8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_label_SD8
+    ui->role_screen_label_SD8 = lv_label_create(ui->role_screen);
+    lv_label_set_text(ui->role_screen_label_SD8, "" LV_SYMBOL_SD_CARD "");
+    lv_label_set_long_mode(ui->role_screen_label_SD8, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_label_SD8, 232, 9);
+    lv_obj_set_size(ui->role_screen_label_SD8, 41, 20);
+
+    //Write style for role_screen_label_SD8, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_label_SD8, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_label_SD8, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_label_SD8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_label_SD8, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_label_SD8, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_label_SD8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_label_USB8
+    ui->role_screen_label_USB8 = lv_label_create(ui->role_screen);
+    lv_label_set_text(ui->role_screen_label_USB8, "" LV_SYMBOL_USB "");
+    lv_label_set_long_mode(ui->role_screen_label_USB8, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_label_USB8, 205, 9);
+    lv_obj_set_size(ui->role_screen_label_USB8, 41, 20);
+
+    //Write style for role_screen_label_USB8, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_label_USB8, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_label_USB8, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_label_USB8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_label_USB8, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_label_USB8, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_label_USB8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_btn_esc8
+    ui->role_screen_btn_esc8 = lv_btn_create(ui->role_screen);
+    ui->role_screen_btn_esc8_label = lv_label_create(ui->role_screen_btn_esc8);
+    lv_label_set_text(ui->role_screen_btn_esc8_label, "ESC");
+    lv_label_set_long_mode(ui->role_screen_btn_esc8_label, LV_LABEL_LONG_WRAP);
+    lv_obj_align(ui->role_screen_btn_esc8_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_pad_all(ui->role_screen_btn_esc8, 0, LV_STATE_DEFAULT);
+    lv_obj_set_width(ui->role_screen_btn_esc8_label, LV_PCT(100));
+    lv_obj_set_pos(ui->role_screen_btn_esc8, 17, 204);
+    lv_obj_set_size(ui->role_screen_btn_esc8, 100, 28);
+
+    //Write style for role_screen_btn_esc8, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_bg_opa(ui->role_screen_btn_esc8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->role_screen_btn_esc8, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->role_screen_btn_esc8, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui->role_screen_btn_esc8, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui->role_screen_btn_esc8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui->role_screen_btn_esc8, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui->role_screen_btn_esc8, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_btn_esc8, 8, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_btn_esc8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_btn_esc8, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_btn_esc8, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_btn_esc8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_btn_esc8, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_btn_ok8
+    ui->role_screen_btn_ok8 = lv_btn_create(ui->role_screen);
+    ui->role_screen_btn_ok8_label = lv_label_create(ui->role_screen_btn_ok8);
+    lv_label_set_text(ui->role_screen_btn_ok8_label, "OK");
+    lv_label_set_long_mode(ui->role_screen_btn_ok8_label, LV_LABEL_LONG_WRAP);
+    lv_obj_align(ui->role_screen_btn_ok8_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_pad_all(ui->role_screen_btn_ok8, 0, LV_STATE_DEFAULT);
+    lv_obj_set_width(ui->role_screen_btn_ok8_label, LV_PCT(100));
+    lv_obj_set_pos(ui->role_screen_btn_ok8, 205, 204);
+    lv_obj_set_size(ui->role_screen_btn_ok8, 100, 28);
+
+    //Write style for role_screen_btn_ok8, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_bg_opa(ui->role_screen_btn_ok8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->role_screen_btn_ok8, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->role_screen_btn_ok8, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui->role_screen_btn_ok8, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui->role_screen_btn_ok8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui->role_screen_btn_ok8, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui->role_screen_btn_ok8, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_btn_ok8, 8, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_btn_ok8, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_btn_ok8, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_btn_ok8, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_btn_ok8, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_btn_ok8, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_cont_normal_user
+    ui->role_screen_cont_normal_user = lv_obj_create(ui->role_screen);
+    lv_obj_set_pos(ui->role_screen_cont_normal_user, -2, 92);
+    lv_obj_set_size(ui->role_screen_cont_normal_user, 324, 35);
+    lv_obj_set_scrollbar_mode(ui->role_screen_cont_normal_user, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_add_flag(ui->role_screen_cont_normal_user, LV_OBJ_FLAG_CHECKABLE);
+
+    //Write style for role_screen_cont_normal_user, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_cont_normal_user, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui->role_screen_cont_normal_user, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui->role_screen_cont_normal_user, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui->role_screen_cont_normal_user, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_cont_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_cont_normal_user, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->role_screen_cont_normal_user, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->role_screen_cont_normal_user, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_cont_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_cont_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_cont_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_cont_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_cont_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_text_normal_user
+    ui->role_screen_text_normal_user = lv_label_create(ui->role_screen_cont_normal_user);
+    lv_label_set_text(ui->role_screen_text_normal_user, "User");
+    lv_label_set_long_mode(ui->role_screen_text_normal_user, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_text_normal_user, 10, 7);
+    lv_obj_set_size(ui->role_screen_text_normal_user, 300, 20);
+
+    //Write style for role_screen_text_normal_user, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_text_normal_user, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_text_normal_user, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_text_normal_user, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_text_normal_user, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_text_normal_user, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_text_normal_user, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_cont_admin
+    ui->role_screen_cont_admin = lv_obj_create(ui->role_screen);
+    lv_obj_set_pos(ui->role_screen_cont_admin, -2, 127);
+    lv_obj_set_size(ui->role_screen_cont_admin, 324, 35);
+    lv_obj_set_scrollbar_mode(ui->role_screen_cont_admin, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_add_flag(ui->role_screen_cont_admin, LV_OBJ_FLAG_CHECKABLE);
+
+    //Write style for role_screen_cont_admin, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_cont_admin, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui->role_screen_cont_admin, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui->role_screen_cont_admin, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui->role_screen_cont_admin, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_cont_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_cont_admin, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->role_screen_cont_admin, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->role_screen_cont_admin, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_cont_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_cont_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_cont_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_cont_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_cont_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_text_admin
+    ui->role_screen_text_admin = lv_label_create(ui->role_screen_cont_admin);
+    lv_label_set_text(ui->role_screen_text_admin, "Admin");
+    lv_label_set_long_mode(ui->role_screen_text_admin, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_text_admin, 10, 7);
+    lv_obj_set_size(ui->role_screen_text_admin, 300, 20);
+
+    //Write style for role_screen_text_admin, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_text_admin, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_text_admin, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_text_admin, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_text_admin, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_text_admin, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_text_admin, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //Write codes role_screen_label
+    ui->role_screen_label = lv_label_create(ui->role_screen);
+    lv_label_set_text(ui->role_screen_label, "Please set role");
+    lv_label_set_long_mode(ui->role_screen_label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->role_screen_label, 10, 39);
+    lv_obj_set_size(ui->role_screen_label, 300, 18);
+
+    //Write style for role_screen_label, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->role_screen_label, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->role_screen_label, &lv_font_montserrat_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->role_screen_label, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->role_screen_label, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->role_screen_label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->role_screen_label, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+
+    //The custom code of role_screen.
+
+
+    //Update current screen layout.
+    lv_obj_update_layout(ui->role_screen);
+
+}
+
+
+
+
+
 void update_data_gui(ui_state_t current_screen)
 {
-    update_wifi_status(wifi_connected, current_screen);
+    // update_wifi_status(is_wifi_connected, current_screen);
 }
 
 void menu_screen_attendance_check(void)
@@ -2064,4 +2655,64 @@ void role_screen_cont_admin_check(void)
 {
     lv_obj_set_style_bg_color(guider_ui.role_screen_cont_admin, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(guider_ui.role_screen_text_admin, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+}
+
+void update_time_to_gui(void)
+{
+    char buf[50] = {0};
+    if (current_state == STATE_MAIN_SCREEN)
+    {
+        snprintf(buf, sizeof(buf), "%s", ntp_time);
+        lv_label_set_text(guider_ui.main_screen_label_time, buf);
+
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_date);
+        lv_label_set_text(guider_ui.main_screen_label_date, buf);
+
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_day);
+        lv_label_set_text(guider_ui.main_screen_label_day, buf);
+    } 
+    else if (current_state == STATE_MENU_SCREEN)
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+        lv_label_set_text(guider_ui.menu_screen_label_time2, buf);
+    }
+    else if (current_state == STATE_CONNECTION_SCREEN)
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+        lv_label_set_text(guider_ui.connect_screen_label_time9, buf);
+    }
+    else if (current_state == STATE_SET_ROLE_SCREEN)
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+        lv_label_set_text(guider_ui.role_screen_label_time9, buf);
+    }
+    else if (current_state == STATE_DATA_SCREEN)
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+        lv_label_set_text(guider_ui.data_screen_label_time4, buf); 
+    }
+    else if (current_state == STATE_USER_INFO_SCREEN)
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+        lv_label_set_text(guider_ui.usrinfo_screen_label_time5, buf);
+    }
+    else if (current_state == STATE_FINGERPRINT_ENROLL_SCREEN)
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+        lv_label_set_text(guider_ui.finger_enroll_screen_label_time6, buf);
+    }
+    else if (current_state == STATE_PW_ENTER_SCREEN)
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+        lv_label_set_text(guider_ui.pw_enter_screen_label_time7, buf);
+    }
 }

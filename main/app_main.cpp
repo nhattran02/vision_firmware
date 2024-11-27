@@ -1,8 +1,4 @@
-#include "wifi.h"
-#include "smartconfig_wifi.h"
-#include "httpd.hpp"
-#include "http_client.hpp"
-#include "websocket_client.hpp"
+#include "smartconfig_wifi.hpp"
 #include "camera.hpp"
 #include "lcd.hpp"
 #include "face_recog.hpp"
@@ -13,7 +9,8 @@
 #include "sdcard.hpp"
 #include "sqlite_db.hpp"
 #include "utils.hpp"
-
+#include "mqtt_client.hpp"
+#include "ntp_time.hpp"
 
 static const char *TAG = "main";
 
@@ -24,7 +21,13 @@ Face *face = NULL;
 
 extern "C" void app_main()
 {
-    
+
+    initialise_wifi();
+
+    // aws_iot_run();
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
     QueueHandle_t xQueueFrame1 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame2 = xQueueCreate(2, sizeof(camera_fb_t *));
 
@@ -53,6 +56,6 @@ extern "C" void app_main()
     
     // sd_card->run();
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-    initialise_wifi();
+    sntp_task_run();
+
 }

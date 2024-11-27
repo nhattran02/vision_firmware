@@ -393,9 +393,7 @@ static void face_task(Face *self)
                             {
                                 // write to database
                                 ESP_LOGI(TAG, "Write to database");
-                                char date[20] = "22/11/2024";
-                                char time[20] = "09:00";
-                                update_attendance_to_db(users[userid - 1].id, (const char *)users[userid - 1].name, (const char *)date, (const char *)time);
+                                update_attendance_to_db(users[userid - 1].id, (const char *)users[userid - 1].name, (const char *)ntp_date, (const char *)ntp_time);
                             }
                             userid = -1;
                         }
@@ -448,9 +446,7 @@ static void face_task(Face *self)
                         {
                             // write to database
                             ESP_LOGI(TAG, "Write to database");
-                            char date[20] = "22/11/2024";
-                            char time[20] = "09:00";
-                            update_attendance_to_db(users[_page_id - 1].id, (const char *)users[_page_id - 1].name, (const char *)date, (const char *)time);
+                            update_attendance_to_db(users[_page_id - 1].id, (const char *)users[_page_id - 1].name, (const char *)ntp_date, (const char *)ntp_time);
                         }
                     }
                 }

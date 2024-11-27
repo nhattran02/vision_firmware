@@ -25,12 +25,12 @@ dependencies:
       type: service
     version: 0.5.3
   espressif/esp32-camera:
-    component_hash: 32c2687d321b623c67a1137c43bd6797d4747aaed4315f44b57b8ed869f3e681
+    component_hash: c3eb05fbeeae884a23bed9b17d48d5f0da8872beadae0c0e747d2fbea6094f06
     dependencies: []
     source:
       registry_url: https://components.espressif.com/
       type: service
-    version: 2.0.14
+    version: 2.0.15
   espressif/esp32_s3_eye_noglib:
     component_hash: 5d5feae65316856500d90f264abc7bbd3b1e31a1621f89e459adb5314baae523
     dependencies:
@@ -77,6 +77,17 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.0.0
+  espressif/esp_secure_cert_mgr:
+    component_hash: 5d9175b416f751ba6a7cb35bdf092f0af85658ce06c4a592c7c541d8017ebeb9
+    dependencies:
+    - name: idf
+      registry_url: https://components.espressif.com
+      require: private
+      version: '>=4.3'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 2.5.0
   espressif/esp_tinyusb:
     component_hash: f151d680d6847bfcfd5d8eb6d1c3ff926c208e6b963b2e83643a141bc70baa15
     dependencies:
@@ -144,11 +155,12 @@ direct_dependencies:
 - espressif/esp32-camera
 - espressif/esp32_s3_eye_noglib
 - espressif/esp_lcd_ili9341
+- espressif/esp_secure_cert_mgr
 - espressif/esp_tinyusb
 - espressif/esp_websocket_client
 - espressif/mdns
 - idf
 - lvgl/lvgl
-manifest_hash: 6c00c0e5f03f682ba202c56e5c0846bedf372551df5d3fe7479aa34365d9ffd6
+manifest_hash: 498ffe5797bdfe2a376ce4ac2c6463a30d85855843b9917c0cf67969badc6b2c
 target: esp32s3
 version: 2.0.0

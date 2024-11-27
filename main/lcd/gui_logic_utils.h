@@ -29,6 +29,11 @@ extern user_data_t users[MAX_USERS];
 extern uint16_t n_users;
 extern TaskHandle_t FingerprintDetectTaskHandle;
 
+extern char ntp_date[11];
+extern char ntp_time[9];
+extern char ntp_time_no_sec[6];
+extern char ntp_day[10];
+
 typedef enum
 {
     STATE_MAIN_SCREEN,
@@ -80,11 +85,14 @@ void _setup_scr_usrinfo_screen(lv_ui *ui);
 void _setup_scr_finger_enroll_screen(lv_ui *ui);
 void _setup_scr_pw_enter_screen(lv_ui *ui);
 void _setup_scr_connect_screen(lv_ui *ui);
+void _setup_scr_main_screen(lv_ui *ui);
+void _setup_scr_role_screen(lv_ui *ui);
 
 bool compare_passwords(const char *pw1, const char *pw2, size_t length);
 void hash_password(const char *password, size_t length, char *output_hash_hex);
 void generate_pwchar_string(char *str, int number_of_pwchar);
 void update_data_gui(ui_state_t current_screen);
+void update_time_to_gui(void);
 
 void menu_screen_setting_default(void);
 void menu_screen_data_default(void);

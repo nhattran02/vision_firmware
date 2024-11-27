@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "lvgl.h"
-#include "wifi.h"
 #include "gui_logic_handle.hpp"
 #include "esp_log.h"
 #include "gui_guider.h"
@@ -15,7 +14,7 @@ extern "C"
 #include "fingerprint.hpp"
 #include "utils.hpp"
 #include "face_recog.hpp"
-#include "smartconfig_wifi.h"
+#include "smartconfig_wifi.hpp"
 
 static const char TAG[] = "gui_logic_handle";
 
@@ -302,7 +301,7 @@ void GUIHandler::update()
             lcd_on = false;
             faceid_enroll_on = false;
             current_state = STATE_MAIN_SCREEN;
-            ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.menu_screen_del, setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.menu_screen_del, _setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
             update_data_gui(STATE_MAIN_SCREEN);
         }
         break;
@@ -325,7 +324,7 @@ void GUIHandler::update()
             vTaskDelay(pdMS_TO_TICKS(200));
 
             current_state = STATE_MAIN_SCREEN;
-            ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.main_screen_del, setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+            ui_load_scr_animation(&guider_ui, &guider_ui.main_screen, guider_ui.main_screen_del, &guider_ui.main_screen_del, _setup_scr_main_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
             update_data_gui(STATE_MAIN_SCREEN);
 
             //current_state = STATE_ATTENDANCE_SCREEN;
@@ -521,7 +520,7 @@ void GUIHandler::update()
             case 3: // Role
             {
                 current_state = STATE_SET_ROLE_SCREEN;
-                ui_load_scr_animation(&guider_ui, &guider_ui.role_screen, guider_ui.role_screen_del, &guider_ui.usrinfo_screen_del, setup_scr_role_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
+                ui_load_scr_animation(&guider_ui, &guider_ui.role_screen, guider_ui.role_screen_del, &guider_ui.usrinfo_screen_del, _setup_scr_role_screen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 100, false, true);
                 update_role_selection(role_selected_item);
                 update_data_gui(STATE_SET_ROLE_SCREEN);
                 break;
