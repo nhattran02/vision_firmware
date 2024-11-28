@@ -34,7 +34,7 @@ void setup_scr_main_screen(lv_ui *ui)
     lv_obj_set_pos(ui->main_screen_cont_1, 10, 35);
     lv_obj_set_size(ui->main_screen_cont_1, 300, 170);
     lv_obj_set_scrollbar_mode(ui->main_screen_cont_1, LV_SCROLLBAR_MODE_OFF);
-
+    
     //Write style for main_screen_cont_1, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
     lv_obj_set_style_border_width(ui->main_screen_cont_1, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui->main_screen_cont_1, 255, LV_PART_MAIN|LV_STATE_DEFAULT);

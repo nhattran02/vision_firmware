@@ -1893,9 +1893,15 @@ void _setup_scr_main_screen(lv_ui *ui)
     //Write codes main_screen_label_date
     ui->main_screen_label_date = lv_label_create(ui->main_screen);
     char buf[20] = {0};
-    snprintf(buf, sizeof(buf), "%s", ntp_date);
-    lv_label_set_text(ui->main_screen_label_date, buf);
-
+    if (ntp_time[0] != '\0')
+    {
+        snprintf(buf, sizeof(buf), "%s", ntp_date);
+        lv_label_set_text(ui->main_screen_label_date, buf);
+    }
+    else
+    {
+        lv_label_set_text(ui->main_screen_label_date, "01-01-1970");
+    }
     // lv_label_set_text(ui->main_screen_label_date, "21-10-2024");
     lv_label_set_long_mode(ui->main_screen_label_date, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->main_screen_label_date, 3, 217);
@@ -1919,9 +1925,16 @@ void _setup_scr_main_screen(lv_ui *ui)
 
     //Write codes main_screen_label_day
     ui->main_screen_label_day = lv_label_create(ui->main_screen);
-    memset(buf, 0, sizeof(buf));
-    snprintf(buf, sizeof(buf), "%s", ntp_day);
-    lv_label_set_text(ui->main_screen_label_day, buf);
+    if (ntp_time[0] != '\0')
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_day);
+        lv_label_set_text(ui->main_screen_label_day, buf);
+    }
+    else
+    {
+        lv_label_set_text(ui->main_screen_label_day, "Monday");
+    }
     // lv_label_set_text(ui->main_screen_label_day, "Monday");
     lv_label_set_long_mode(ui->main_screen_label_day, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->main_screen_label_day, 189, 217);
@@ -1945,9 +1958,16 @@ void _setup_scr_main_screen(lv_ui *ui)
 
     //Write codes main_screen_label_time
     ui->main_screen_label_time = lv_label_create(ui->main_screen);
-    memset(buf, 0, sizeof(buf));
-    snprintf(buf, sizeof(buf), "%s", ntp_time);
-    lv_label_set_text(ui->main_screen_label_time, buf);
+    if (ntp_time[0] != '\0')
+    {
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s", ntp_time);
+        lv_label_set_text(ui->main_screen_label_time, buf);
+    }
+    else
+    {
+        lv_label_set_text(ui->main_screen_label_time, "07:00");
+    }
     // lv_label_set_text(ui->main_screen_label_time, "11:00");
     lv_label_set_long_mode(ui->main_screen_label_time, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(ui->main_screen_label_time, 51, 99);
@@ -2423,12 +2443,37 @@ void _setup_scr_role_screen(lv_ui *ui)
 }
 
 
+void update_wifi_gui(ui_state_t current_screen)
+{
+    switch (current_screen)
+    {
+    case STATE_MAIN_SCREEN:
+    {
+        if (is_wifi_connected)  
+            lv_obj_clear_flag(guider_ui.main_screen_label_WIFI, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(guider_ui.main_screen_label_WIFI, LV_OBJ_FLAG_HIDDEN);
 
+        break;
+    }
+    case STATE_MENU_SCREEN:
+    {
+        break;
+    }
+    case STATE_ATTENDANCE_SCREEN:
+    {
+        break;
+    }
+    
+    default:
+        break;
+    }
+}
 
 
 void update_data_gui(ui_state_t current_screen)
 {
-    // update_wifi_status(is_wifi_connected, current_screen);
+    update_wifi_gui(current_screen);
 }
 
 void menu_screen_attendance_check(void)
@@ -2662,57 +2707,81 @@ void update_time_to_gui(void)
     char buf[50] = {0};
     if (current_state == STATE_MAIN_SCREEN)
     {
-        snprintf(buf, sizeof(buf), "%s", ntp_time);
-        lv_label_set_text(guider_ui.main_screen_label_time, buf);
+        if (ntp_time[0] != '\0')
+        {
+            snprintf(buf, sizeof(buf), "%s", ntp_time);
+            lv_label_set_text(guider_ui.main_screen_label_time, buf);
 
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_date);
-        lv_label_set_text(guider_ui.main_screen_label_date, buf);
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_date);
+            lv_label_set_text(guider_ui.main_screen_label_date, buf);
 
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_day);
-        lv_label_set_text(guider_ui.main_screen_label_day, buf);
-    } 
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_day);
+            lv_label_set_text(guider_ui.main_screen_label_day, buf);
+        }
+    }
     else if (current_state == STATE_MENU_SCREEN)
     {
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
-        lv_label_set_text(guider_ui.menu_screen_label_time2, buf);
+        if (ntp_time[0] != '\0')
+        {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+            lv_label_set_text(guider_ui.menu_screen_label_time2, buf);
+        }
     }
     else if (current_state == STATE_CONNECTION_SCREEN)
     {
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
-        lv_label_set_text(guider_ui.connect_screen_label_time9, buf);
+        if (ntp_time[0] != '\0')
+        {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+            lv_label_set_text(guider_ui.connect_screen_label_time9, buf);
+        }
     }
     else if (current_state == STATE_SET_ROLE_SCREEN)
     {
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
-        lv_label_set_text(guider_ui.role_screen_label_time9, buf);
+        if (ntp_time[0] != '\0')
+        {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+            lv_label_set_text(guider_ui.role_screen_label_time9, buf);
+        }
     }
     else if (current_state == STATE_DATA_SCREEN)
     {
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
-        lv_label_set_text(guider_ui.data_screen_label_time4, buf); 
+        if (ntp_time[0] != '\0')
+        {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+            lv_label_set_text(guider_ui.data_screen_label_time4, buf);
+        }
     }
     else if (current_state == STATE_USER_INFO_SCREEN)
     {
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
-        lv_label_set_text(guider_ui.usrinfo_screen_label_time5, buf);
+        if (ntp_time[0] != '\0')
+        {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+            lv_label_set_text(guider_ui.usrinfo_screen_label_time5, buf);
+        }
     }
     else if (current_state == STATE_FINGERPRINT_ENROLL_SCREEN)
     {
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
-        lv_label_set_text(guider_ui.finger_enroll_screen_label_time6, buf);
+        if (ntp_time[0] != '\0')
+        {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+            lv_label_set_text(guider_ui.finger_enroll_screen_label_time6, buf);
+        }
     }
     else if (current_state == STATE_PW_ENTER_SCREEN)
     {
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
-        lv_label_set_text(guider_ui.pw_enter_screen_label_time7, buf);
+        if (ntp_time[0] != '\0')
+        {
+            memset(buf, 0, sizeof(buf));
+            snprintf(buf, sizeof(buf), "%s", ntp_time_no_sec);
+            lv_label_set_text(guider_ui.pw_enter_screen_label_time7, buf);
+        }
     }
 }

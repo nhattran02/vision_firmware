@@ -10,6 +10,11 @@
 #include "gui_guider.h"
 #include "utils.hpp"
 #include "driver/periph_ctrl.h"
+#include "gui_logic_handle.hpp"
+extern "C"
+{
+#include "gui_logic_utils.h"
+}
 
 static const char TAG[] = "lcd";
 
@@ -419,6 +424,7 @@ LCD::LCD(Button *key,
         
         lv_disp_set_rotation(disp, LV_DISP_ROT_270);
         setup_ui(&guider_ui);
+        update_data_gui(STATE_MAIN_SCREEN);
 
         xTaskCreate((TaskFunction_t)lvgl_timer_task, "lvgl timer task", 6 * 1024, this, 5, &xHandle);
         
