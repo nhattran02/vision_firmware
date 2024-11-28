@@ -2458,13 +2458,60 @@ void update_wifi_gui(ui_state_t current_screen)
     }
     case STATE_MENU_SCREEN:
     {
+        if (is_wifi_connected)  
+            lv_obj_clear_flag(guider_ui.menu_screen_label_WIFI2, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(guider_ui.menu_screen_label_WIFI2, LV_OBJ_FLAG_HIDDEN);        
         break;
     }
-    case STATE_ATTENDANCE_SCREEN:
+    case STATE_DATA_SCREEN:
     {
+        if (is_wifi_connected)  
+            lv_obj_clear_flag(guider_ui.data_screen_label_WIFI4, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(guider_ui.data_screen_label_WIFI4, LV_OBJ_FLAG_HIDDEN);
         break;
     }
-    
+    case STATE_USER_INFO_SCREEN:
+    {
+        if (is_wifi_connected)  
+            lv_obj_clear_flag(guider_ui.usrinfo_screen_label_WIFI5, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(guider_ui.usrinfo_screen_label_WIFI5, LV_OBJ_FLAG_HIDDEN);
+        break;
+    }
+    case STATE_FINGERPRINT_ENROLL_SCREEN:
+    {
+        if (is_wifi_connected)  
+            lv_obj_clear_flag(guider_ui.finger_enroll_screen_label_WIFI6, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(guider_ui.finger_enroll_screen_label_WIFI6, LV_OBJ_FLAG_HIDDEN);
+        break;
+    }
+    case STATE_PW_ENTER_SCREEN:
+    {
+        if (is_wifi_connected)  
+            lv_obj_clear_flag(guider_ui.pw_enter_screen_label_WIFI7, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(guider_ui.pw_enter_screen_label_WIFI7, LV_OBJ_FLAG_HIDDEN);
+        break;
+    }
+    case STATE_SET_ROLE_SCREEN:
+    {
+        if (is_wifi_connected)  
+            lv_obj_clear_flag(guider_ui.role_screen_label_WIFI8, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(guider_ui.role_screen_label_WIFI8, LV_OBJ_FLAG_HIDDEN);
+        break;
+    }
+    case STATE_CONNECTION_SCREEN:
+    {
+        if (is_wifi_connected)  
+            lv_obj_clear_flag(guider_ui.connect_screen_label_WIFI9, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(guider_ui.connect_screen_label_WIFI9, LV_OBJ_FLAG_HIDDEN);
+        break;
+    }
     default:
         break;
     }
