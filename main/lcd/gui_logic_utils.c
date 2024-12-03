@@ -19,7 +19,11 @@ uint16_t usr_data_selected_item = 0;
 uint8_t usr_info_selected_item = 0;
 
 EXT_RAM_BSS_ATTR user_data_t users[MAX_USERS] = {0};
+EXT_RAM_BSS_ATTR attendance_data_t attendance_data[MAX_ATTENDANCE] = {0};
 uint16_t n_users = 0;
+uint16_t n_attendance = 0;
+uint16_t n_attendance_actual = 0;
+
 
 TaskHandle_t FingerprintDetectTaskHandle = NULL;
 

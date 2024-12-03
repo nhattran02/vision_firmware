@@ -356,6 +356,52 @@ void load_data_from_database_to_users(void)
     }
 }
 
+
+void load_data_from_database_to_attendance(void)
+{
+    ESP_LOGI(TAG, "Loading attendance data from database");
+    const char *sql = "SELECT * FROM attendance;";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    n_attendance = 0;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        if (n_attendance >= MAX_ATTENDANCE)
+        {
+            ESP_LOGW(TAG, "Reached max number of attendance: %d", MAX_ATTENDANCE);
+            break;
+        }
+
+        int _id = sqlite3_column_int(stmt, 0);
+        snprintf(attendance_data[n_attendance].id, sizeof(attendance_data[n_attendance].id), "%d", _id);
+        const unsigned char *name_text = sqlite3_column_text(stmt, 1);
+        snprintf(attendance_data[n_attendance].name, sizeof(attendance_data[n_attendance].name), "%s", name_text ? reinterpret_cast<const char *>(name_text) : "");
+        const unsigned char *date_text = sqlite3_column_text(stmt, 2);
+        snprintf(attendance_data[n_attendance].date, sizeof(attendance_data[n_attendance].date), "%s", date_text ? reinterpret_cast<const char *>(date_text) : "");
+        const unsigned char *check1_text = sqlite3_column_text(stmt, 3);
+        snprintf(attendance_data[n_attendance].check1, sizeof(attendance_data[n_attendance].check1), "%s", check1_text ? reinterpret_cast<const char *>(check1_text) : "");
+        const unsigned char *check2_text = sqlite3_column_text(stmt, 4);
+        snprintf(attendance_data[n_attendance].check2, sizeof(attendance_data[n_attendance].check2), "%s", check2_text ? reinterpret_cast<const char *>(check2_text) : "");
+        const unsigned char *check3_text = sqlite3_column_text(stmt, 5);
+        snprintf(attendance_data[n_attendance].check3, sizeof(attendance_data[n_attendance].check3), "%s", check3_text ? reinterpret_cast<const char *>(check3_text) : "");
+        const unsigned char *check4_text = sqlite3_column_text(stmt, 6);
+        snprintf(attendance_data[n_attendance].check4, sizeof(attendance_data[n_attendance].check4), "%s", check4_text ? reinterpret_cast<const char *>(check4_text) : "");
+        const unsigned char *check5_text = sqlite3_column_text(stmt, 7);
+        snprintf(attendance_data[n_attendance].check5, sizeof(attendance_data[n_attendance].check5), "%s", check5_text ? reinterpret_cast<const char *>(check5_text) : "");
+        const unsigned char *check6_text = sqlite3_column_text(stmt, 8);
+        snprintf(attendance_data[n_attendance].check6, sizeof(attendance_data[n_attendance].check6), "%s", check6_text ? reinterpret_cast<const char *>(check6_text) : "");
+
+        n_attendance ++;
+    }
+}
+
 void update_finger_print_to_db(int id, int value)
 {
     const char *sql = "UPDATE employee SET FINGER = ? WHERE id = ?;";
@@ -547,6 +593,31 @@ void print_users(void)
         printf("  Name: %s\n", users[i].name);
         printf("  Employee ID: %s\n", users[i].employeeId);
         printf("  Role: %d\n", users[i].role);
+        printf("\n");
+    }
+}
+
+void print_attendance(void)
+{
+    if (n_attendance == 0)
+    {
+        printf("No attendance data loaded from the database.\n");
+        return;
+    }
+
+    printf("Attendance Data:\n");
+    for (int i = 0; i < n_attendance; i++)
+    {
+        printf("Attendance %d:\n", i + 1);
+        printf("  ID: %s\n", attendance_data[i].id);
+        printf("  Name: %s\n", attendance_data[i].name);
+        printf("  Date: %s\n", attendance_data[i].date);
+        printf("  Check1: %s\n", attendance_data[i].check1);
+        printf("  Check2: %s\n", attendance_data[i].check2);
+        printf("  Check3: %s\n", attendance_data[i].check3);
+        printf("  Check4: %s\n", attendance_data[i].check4);
+        printf("  Check5: %s\n", attendance_data[i].check5);
+        printf("  Check6: %s\n", attendance_data[i].check6);
         printf("\n");
     }
 }

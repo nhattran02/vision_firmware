@@ -16,12 +16,14 @@ extern "C"
 #define REPORT_CSV   "/sdcard/report.csv"
 
 void load_data_from_database_to_users(void);
+void load_data_from_database_to_attendance(void);
 void update_finger_print_to_db(int id, int value);
 void update_faceid_to_db(int id, int value);
 void update_role_to_db(int id, int value);
 bool check_admin_exist();
 void update_password_to_db(int id, const char *password_hash);
 void print_users(void);
+void print_attendance(void);
 void create_csv_template(const char *csv_filename);
 void import_csv_to_db(const char* csv_filename);
 void update_attendance_to_db(int id, const char *name, const char *date, const char *time);

@@ -27,8 +27,13 @@
 
 /* Clock for timer. */
 #include "clock.h"
-
+#include "core_json.h"
 #include "utils.hpp"
+#include "sqlite_db.hpp"
+extern "C"
+{
+    #include "gui_logic_utils.h"
+}
 
 #ifdef CONFIG_EXAMPLE_USE_ESP_SECURE_CERT_MGR
     #include "esp_secure_cert_read.h"    
@@ -136,14 +141,14 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
  * The topic name starts with the client identifier to ensure that each demo
  * interacts with a unique topic name.
  */
-#define MQTT_EXAMPLE_TOPIC                  CLIENT_IDENTIFIER "/device2aws"
+#define MQTT_PUBLISH_TOPIC                  "/device2server"
 
-#define MQTT_SUBSCRIBE_TOPIC                  CLIENT_IDENTIFIER "/aws2device"
+#define MQTT_SUBSCRIBE_TOPIC                "/server2device"
 
 /**
  * @brief Length of client MQTT topic.
  */
-#define MQTT_EXAMPLE_TOPIC_LENGTH           ( ( uint16_t ) ( sizeof( MQTT_EXAMPLE_TOPIC ) - 1 ) )
+#define MQTT_PUBLISH_TOPIC_LENGTH           ( ( uint16_t ) ( sizeof( MQTT_PUBLISH_TOPIC ) - 1 ) )
 
 #define MQTT_SUBSCRIBE_TOPIC_LENGTH           ( ( uint16_t ) ( sizeof( MQTT_SUBSCRIBE_TOPIC ) - 1 ) )
 
@@ -161,7 +166,7 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
  * @brief Maximum number of outgoing publishes maintained in the application
  * until an ack is received from the broker.
  */
-#define MAX_OUTGOING_PUBLISHES              ( 5U )
+#define MAX_OUTGOING_PUBLISHES              ( 20U )
 
 /**
  * @brief Invalid packet identifier for the MQTT packets. Zero is always an
@@ -193,7 +198,7 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
 /**
  * @brief Number of PUBLISH messages sent per iteration.
  */
-#define MQTT_PUBLISH_COUNT_PER_LOOP         ( 5U )
+#define MQTT_PUBLISH_COUNT_PER_LOOP         ( 1000U )
 
 /**
  * @brief Delay in seconds between two iterations of subscribePublishLoop().
@@ -238,6 +243,25 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
  * library to track QoS > 0 packet ACKS for incoming publishes.
  */
 #define INCOMING_PUBLISH_RECORD_LEN    ( 10U )
+
+#define DEVICE_ID_QUERY_KEY             "device_id"
+#define DEVICE_ID_QUERY_KEY_LEN         (sizeof(DEVICE_ID_QUERY_KEY) - 1)
+#define ACTION_QUERY_KEY                "action"
+#define ACTION_ID_QUERY_KEY_LEN         (sizeof(ACTION_QUERY_KEY) - 1)
+#define TIMESTAMP_QUERY_KEY             "timestamp"
+#define TIMESTAMP_QUERY_KEY_LEN         (sizeof(TIMESTAMP_QUERY_KEY) - 1)
+#define STATUS_QUERY_KEY                "status"
+#define STATUS_QUERY_KEY_LEN            (sizeof(STATUS_QUERY_KEY) - 1)
+#define DEVICE_ID                       "TMN-001"
+#define ACTION_HANDSHAKE_STR            "handshake"
+#define ACTION_HANDSHAKE_LEN            (sizeof(ACTION_HANDSHAKE_STR) - 1)
+#define ACTION_REQUEST_UPLOAD_STR       "upload_raw_data"
+#define ACTION_REQUEST_UPLOAD_LEN       (sizeof(ACTION_REQUEST_UPLOAD_STR) - 1)
+#define ACK_MESSAGE                     "ACK"
+#define ACK_MESSAGE_LEN                 (sizeof(ACK_MESSAGE) - 1)
+#define NACK_MESSAGE                    "NACK"
+#define NACK_MESSAGE_LEN                (sizeof(NACK_MESSAGE) - 1) 
+#define MAX_PUBLISH_RETRIES             3
 
 /*-----------------------------------------------------------*/
 
@@ -327,6 +351,13 @@ static MQTTPubAckInfo_t pIncomingPublishRecords[ INCOMING_PUBLISH_RECORD_LEN ];
  * @brief Static buffer for TLS Context Semaphore.
  */
 static StaticSemaphore_t xTlsContextSemaphoreBuffer;
+
+static const char * TAG = "MQTT_LOG";
+
+char device_id[10] = {0};
+char action[20] = {0};
+char timestamp[40] = {0};
+
 
 /*-----------------------------------------------------------*/
 
@@ -434,7 +465,7 @@ static int establishMqttSession( MQTTContext_t * pMqttContext,
 static int disconnectMqttSession( MQTTContext_t * pMqttContext );
 
 /**
- * @brief Sends an MQTT SUBSCRIBE to subscribe to #MQTT_EXAMPLE_TOPIC
+ * @brief Sends an MQTT SUBSCRIBE to subscribe to #MQTT_PUBLISH_TOPIC
  * defined at the top of the file.
  *
  * @param[in] pMqttContext MQTT context pointer.
@@ -446,7 +477,7 @@ static int subscribeToTopic( MQTTContext_t * pMqttContext );
 
 /**
  * @brief Sends an MQTT UNSUBSCRIBE to unsubscribe from
- * #MQTT_EXAMPLE_TOPIC defined at the top of the file.
+ * #MQTT_PUBLISH_TOPIC defined at the top of the file.
  *
  * @param[in] pMqttContext MQTT context pointer.
  *
@@ -456,7 +487,7 @@ static int subscribeToTopic( MQTTContext_t * pMqttContext );
 static int unsubscribeFromTopic( MQTTContext_t * pMqttContext );
 
 /**
- * @brief Sends an MQTT PUBLISH to #MQTT_EXAMPLE_TOPIC defined at
+ * @brief Sends an MQTT PUBLISH to #MQTT_PUBLISH_TOPIC defined at
  * the top of the file.
  *
  * @param[in] pMqttContext MQTT context pointer.
@@ -465,6 +496,8 @@ static int unsubscribeFromTopic( MQTTContext_t * pMqttContext );
  * EXIT_FAILURE otherwise.
  */
 static int publishToTopic( MQTTContext_t * pMqttContext );
+
+static int publishToTopicWithMsg(MQTTContext_t *pMqttContext, const char *msg);
 
 /**
  * @brief Function to get the free index at which an outgoing publish
@@ -554,6 +587,7 @@ static int waitForPacketAck( MQTTContext_t * pMqttContext,
  */
 static MQTTStatus_t processLoopWithTimeout( MQTTContext_t * pMqttContext,
                                             uint32_t ulTimeoutMs );
+                                       
 
 /*-----------------------------------------------------------*/
 
@@ -880,11 +914,119 @@ static int handlePublishResend( MQTTContext_t * pMqttContext )
 
 /*-----------------------------------------------------------*/
 
-static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
+static int handleActionUploadRawData(MQTTContext_t *pMqttContext, char *ack_status)
+{
+    TaskHandle_t xHandle = NULL;
+    int returnStatus = EXIT_SUCCESS;
+    MQTTStatus_t mqttStatus = MQTTSuccess;
+    char msg[512] = {0};
+    memset(attendance_data, 0, sizeof(attendance_data));
+    load_data_from_database_to_attendance();
+    print_attendance();
+
+    // Send ACK header
+    snprintf(msg, sizeof(msg), "{\"%s\": \"%s\", \"%s\": \"upload_raw_data_rep\", \"%s\": \"%s\", \"chunk_total\": \"%d\"}",
+             DEVICE_ID_QUERY_KEY, DEVICE_ID, ACTION_QUERY_KEY, STATUS_QUERY_KEY, ack_status, n_attendance);
+    ESP_LOGW("handleActionUploadRawData", "Sending header message: %s\n", msg);
+
+    returnStatus = publishToTopicWithMsg(pMqttContext, msg);
+    if (returnStatus != EXIT_SUCCESS)
+    {
+        ESP_LOGE("handleActionUploadRawData", "Failed to publish message\n");
+        return EXIT_FAILURE;
+    }
+    sleep(2);
+
+#if 1
+    // Send attendance data
+    for (int i = 0; i < n_attendance; i++)
+    {
+        memset(msg, 0, sizeof(msg));
+        snprintf(msg, sizeof(msg), "{\"chunk_index\": \"%d\", \"id\": \"%s\", \"name\": \"%s\", \"date\": \"%s\", \"check1\": \"%s\", \"check2\": \"%s\", \"check3\": \"%s\", \"check4\": \"%s\", \"check5\": \"%s\", \"check6\": \"%s\"}",
+                 i + 1, attendance_data[i].id, attendance_data[i].name, attendance_data[i].date, attendance_data[i].check1,
+                 attendance_data[i].check2, attendance_data[i].check3, attendance_data[i].check4, attendance_data[i].check5, attendance_data[i].check6);
+
+        ESP_LOGW("handleActionUploadRawData", "Sending chunk message: %s\n", msg);
+        returnStatus = publishToTopicWithMsg(pMqttContext, msg);
+        if (returnStatus != EXIT_SUCCESS)
+        {
+            ESP_LOGE("handleActionUploadRawData", "Failed to publish message\n");
+            returnStatus = EXIT_FAILURE;
+            break;
+        } else {
+            cleanupOutgoingPublishes();
+        }
+        usleep(500);
+    }
+#endif
+    return returnStatus;
+}
+
+static int handleActionHandshake(MQTTContext_t *pMqttContext, char *ack_status)
+{
+    int returnStatus = EXIT_FAILURE;
+    int retries = 0;
+
+    // Prepare package to send
+    char msg[150] = {0};
+    snprintf(msg, sizeof(msg), "{\"%s\": \"%s\", \"%s\": \"handshake_rep\", \"%s\": \"%s\"}", DEVICE_ID_QUERY_KEY, DEVICE_ID, ACTION_QUERY_KEY, STATUS_QUERY_KEY, ack_status);
+    ESP_LOGW("handleActionHandshake", "Sending message: %s\n", msg);
+    // Retry logic
+    while (retries < MAX_PUBLISH_RETRIES)
+    {
+        returnStatus = publishToTopicWithMsg(pMqttContext, msg);
+        
+        if (returnStatus == EXIT_SUCCESS)
+        {
+            ESP_LOGI(TAG, "Publish successful on attempt %d\n", retries + 1);
+            break;
+        }
+        else
+        {         
+            ESP_LOGI(TAG, "Publish failed on attempt %d. Retrying...\n", retries + 1);
+            retries++;
+        }
+    }
+
+    if (retries == MAX_PUBLISH_RETRIES && returnStatus != EXIT_SUCCESS)
+    {
+        ESP_LOGI(TAG, "Publish failed after %d attempts.\n", MAX_PUBLISH_RETRIES);
+    }
+
+
+    return returnStatus;
+}
+
+
+
+static JobActionType_t getJobActionType(char * action, int action_len)
+{
+    if (strncmp((const char *)ACTION_HANDSHAKE_STR, action, action_len) == 0)
+    {
+        return JOB_ACTION_HANDSHAKE;
+    }
+    else if (strncmp((const char *)ACTION_REQUEST_UPLOAD_STR, action, action_len) == 0)
+    {
+        return JOB_ACTION_UPLOAD_RAW_DATA;
+    }
+    else if (strncmp("reboot", action, action_len) == 0)
+    {
+        return JOB_ACTION_EXIT;
+    }
+    else
+    {
+        return JOB_ACTION_UNKNOWN;
+    }
+}
+
+
+static void handleIncomingPublish( MQTTContext_t * pMqttContext, 
+                                   MQTTPublishInfo_t * pPublishInfo,
                                    uint16_t packetIdentifier )
 {
+    assert( pMqttContext != NULL );
     assert( pPublishInfo != NULL );
-
+    
     /* Process incoming Publish. */
     LogInfo( ( "Incoming QOS : %d.", pPublishInfo->qos ) );
 
@@ -896,12 +1038,50 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
     {
         LogInfo( ( "Incoming Publish Topic Name: %.*s matches subscribed topic.\n"
                    "Incoming Publish message Packet Id is %u.\n"
-                   "Incoming Publish Message : %.*s.\n\n",
+                   "Incoming Publish Message : \n%.*s.\n\n",
                    pPublishInfo->topicNameLength,
                    pPublishInfo->pTopicName,
                    packetIdentifier,
                    ( int ) pPublishInfo->payloadLength,
                    ( const char * ) pPublishInfo->pPayload ) );
+
+        // Handle incoming publish message from server
+        char * pcJobId = NULL;
+        size_t ulJobIdLength = 0U;
+        if(JSON_Search((char *)pPublishInfo->pPayload, pPublishInfo->payloadLength,
+                    DEVICE_ID_QUERY_KEY,
+                    DEVICE_ID_QUERY_KEY_LEN,
+                    &pcJobId,
+                    &ulJobIdLength) == JSONSuccess)
+        {
+            ESP_LOGI(TAG, "Found: %s -> %.*s\n", DEVICE_ID_QUERY_KEY, ulJobIdLength, pcJobId);
+            if (strncmp(DEVICE_ID, pcJobId, ulJobIdLength) == 0)
+            {
+                if(JSON_Search((char *)pPublishInfo->pPayload, pPublishInfo->payloadLength,
+                    ACTION_QUERY_KEY,
+                    ACTION_ID_QUERY_KEY_LEN,
+                    &pcJobId,
+                    &ulJobIdLength) == JSONSuccess)
+                {
+                    ESP_LOGI(TAG, "Found: %s -> %.*s\n", ACTION_QUERY_KEY, ulJobIdLength, pcJobId);
+                    JobActionType_t action_type = getJobActionType(pcJobId, ulJobIdLength);
+                    switch(action_type)
+                    {
+                        case JOB_ACTION_HANDSHAKE:
+                            ESP_LOGW(TAG, "Handshake action received");
+                            handleActionHandshake(pMqttContext, (char *)ACK_MESSAGE);
+                            break;
+                        case JOB_ACTION_UPLOAD_RAW_DATA:
+                            ESP_LOGW(TAG, "Upload raw data action received");
+                            handleActionUploadRawData(pMqttContext, (char *)ACK_MESSAGE);
+                            break;
+                        default:
+                            ESP_LOGI(TAG, "Unknown action received");
+                            break;
+                    }            
+                }
+            }
+        }
     }
     else
     {
@@ -910,6 +1090,7 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                    pPublishInfo->pTopicName ) );
     }
 }
+
 
 /*-----------------------------------------------------------*/
 
@@ -969,8 +1150,8 @@ static int handleResubscribe( MQTTContext_t * pMqttContext )
         }
 
         LogInfo( ( "SUBSCRIBE sent for topic %.*s to broker.\n\n",
-                   MQTT_EXAMPLE_TOPIC_LENGTH,
-                   MQTT_EXAMPLE_TOPIC ) );
+                   MQTT_SUBSCRIBE_TOPIC_LENGTH,
+                   MQTT_SUBSCRIBE_TOPIC ) );
 
         /* Process incoming packet. */
         returnStatus = waitForPacketAck( pMqttContext,
@@ -1033,7 +1214,7 @@ static void eventCallback( MQTTContext_t * pMqttContext,
     {
         assert( pDeserializedInfo->pPublishInfo != NULL );
         /* Handle incoming publish. */
-        handleIncomingPublish( pDeserializedInfo->pPublishInfo, packetIdentifier );
+        handleIncomingPublish(pMqttContext, pDeserializedInfo->pPublishInfo, packetIdentifier );
     }
     else
     {
@@ -1054,8 +1235,8 @@ static void eventCallback( MQTTContext_t * pMqttContext,
                 if( globalSubAckStatus != MQTTSubAckFailure )
                 {
                     LogInfo( ( "Subscribed to the topic %.*s. with maximum QoS %u.\n\n",
-                               MQTT_EXAMPLE_TOPIC_LENGTH,
-                               MQTT_EXAMPLE_TOPIC,
+                               MQTT_SUBSCRIBE_TOPIC_LENGTH,
+                               MQTT_SUBSCRIBE_TOPIC,
                                globalSubAckStatus ) );
                 }
 
@@ -1068,8 +1249,8 @@ static void eventCallback( MQTTContext_t * pMqttContext,
 
             case MQTT_PACKET_TYPE_UNSUBACK:
                 LogInfo( ( "Unsubscribed from the topic %.*s.\n\n",
-                           MQTT_EXAMPLE_TOPIC_LENGTH,
-                           MQTT_EXAMPLE_TOPIC ) );
+                           MQTT_PUBLISH_TOPIC_LENGTH,
+                           MQTT_PUBLISH_TOPIC ) );
                 /* Make sure ACK packet identifier matches with Request packet identifier. */
                 assert( globalUnsubscribePacketIdentifier == packetIdentifier );
 
@@ -1241,8 +1422,8 @@ static int subscribeToTopic( MQTTContext_t * pMqttContext )
     else
     {
         LogInfo( ( "SUBSCRIBE sent for topic %.*s to broker.\n\n",
-                   MQTT_EXAMPLE_TOPIC_LENGTH,
-                   MQTT_EXAMPLE_TOPIC ) );
+                   MQTT_PUBLISH_TOPIC_LENGTH,
+                   MQTT_PUBLISH_TOPIC ) );
     }
 
     return returnStatus;
@@ -1263,8 +1444,8 @@ static int unsubscribeFromTopic( MQTTContext_t * pMqttContext )
     /* This example subscribes to and unsubscribes from only one topic
      * and uses QOS1. */
     pGlobalSubscriptionList[ 0 ].qos = MQTTQoS1;
-    pGlobalSubscriptionList[ 0 ].pTopicFilter = MQTT_EXAMPLE_TOPIC;
-    pGlobalSubscriptionList[ 0 ].topicFilterLength = MQTT_EXAMPLE_TOPIC_LENGTH;
+    pGlobalSubscriptionList[ 0 ].pTopicFilter = MQTT_PUBLISH_TOPIC;
+    pGlobalSubscriptionList[ 0 ].topicFilterLength = MQTT_PUBLISH_TOPIC_LENGTH;
 
     /* Generate packet identifier for the UNSUBSCRIBE packet. */
     globalUnsubscribePacketIdentifier = MQTT_GetPacketId( pMqttContext );
@@ -1284,14 +1465,66 @@ static int unsubscribeFromTopic( MQTTContext_t * pMqttContext )
     else
     {
         LogInfo( ( "UNSUBSCRIBE sent for topic %.*s to broker.\n\n",
-                   MQTT_EXAMPLE_TOPIC_LENGTH,
-                   MQTT_EXAMPLE_TOPIC ) );
+                   MQTT_PUBLISH_TOPIC_LENGTH,
+                   MQTT_PUBLISH_TOPIC ) );
     }
 
     return returnStatus;
 }
 
 /*-----------------------------------------------------------*/
+
+static int publishToTopicWithMsg(MQTTContext_t *pMqttContext, const char *msg)
+{
+    int returnStatus = EXIT_SUCCESS;
+    MQTTStatus_t mqttStatus = MQTTSuccess;
+    uint8_t publishIndex = MAX_OUTGOING_PUBLISHES;
+
+    assert(pMqttContext != NULL);
+
+    /* Get the next free index for the outgoing publish. All QoS1 outgoing
+     * publishes are stored until a PUBACK is received. These messages are
+     * stored for supporting a resend if a network connection is broken before
+     * receiving a PUBACK. */
+    returnStatus = getNextFreeIndexForOutgoingPublishes(&publishIndex);
+
+    if (returnStatus == EXIT_FAILURE)
+    {
+        LogError(("Unable to find a free spot for outgoing PUBLISH message.\n\n"));
+    }
+    else
+    {
+        outgoingPublishPackets[publishIndex].pubInfo.qos = MQTTQoS0;
+        outgoingPublishPackets[publishIndex].pubInfo.pTopicName = MQTT_PUBLISH_TOPIC;
+        outgoingPublishPackets[publishIndex].pubInfo.topicNameLength = MQTT_PUBLISH_TOPIC_LENGTH;
+        outgoingPublishPackets[publishIndex].pubInfo.pPayload = msg;
+        outgoingPublishPackets[publishIndex].pubInfo.payloadLength = strlen(msg);
+
+        /* Get a new packet id. */
+        outgoingPublishPackets[publishIndex].packetId = MQTT_GetPacketId(pMqttContext);
+
+        /* Send PUBLISH packet. */
+        mqttStatus = MQTT_Publish(pMqttContext,
+                                 &outgoingPublishPackets[publishIndex].pubInfo,
+                                 outgoingPublishPackets[publishIndex].packetId);
+
+        if (mqttStatus != MQTTSuccess)
+        {
+            LogError(("Failed to send PUBLISH packet to broker with error = %s.", MQTT_Status_strerror(mqttStatus)));
+            cleanupOutgoingPublishAt(publishIndex);
+            returnStatus = EXIT_FAILURE;
+        }
+        else
+        {
+            LogInfo(("PUBLISH sent for topic %.*s to broker with packet ID %u.\n\n",
+                     MQTT_PUBLISH_TOPIC_LENGTH,
+                     MQTT_PUBLISH_TOPIC,
+                     outgoingPublishPackets[publishIndex].packetId));
+        }
+    }
+
+    return returnStatus;
+}
 
 static int publishToTopic( MQTTContext_t * pMqttContext )
 {
@@ -1314,9 +1547,9 @@ static int publishToTopic( MQTTContext_t * pMqttContext )
     else
     {
         /* This example publishes to only one topic and uses QOS1. */
-        outgoingPublishPackets[ publishIndex ].pubInfo.qos = MQTTQoS1;
-        outgoingPublishPackets[ publishIndex ].pubInfo.pTopicName = MQTT_EXAMPLE_TOPIC;
-        outgoingPublishPackets[ publishIndex ].pubInfo.topicNameLength = MQTT_EXAMPLE_TOPIC_LENGTH;
+        outgoingPublishPackets[ publishIndex ].pubInfo.qos = MQTTQoS0;
+        outgoingPublishPackets[ publishIndex ].pubInfo.pTopicName = MQTT_PUBLISH_TOPIC;
+        outgoingPublishPackets[ publishIndex ].pubInfo.topicNameLength = MQTT_PUBLISH_TOPIC_LENGTH;
         outgoingPublishPackets[ publishIndex ].pubInfo.pPayload = MQTT_EXAMPLE_MESSAGE;
         outgoingPublishPackets[ publishIndex ].pubInfo.payloadLength = MQTT_EXAMPLE_MESSAGE_LENGTH;
 
@@ -1330,16 +1563,15 @@ static int publishToTopic( MQTTContext_t * pMqttContext )
 
         if( mqttStatus != MQTTSuccess )
         {
-            LogError( ( "Failed to send PUBLISH packet to broker with error = %s.",
-                        MQTT_Status_strerror( mqttStatus ) ) );
+            LogError( ( "Failed to send PUBLISH packet to broker with error = %s.", MQTT_Status_strerror( mqttStatus ) ) );
             cleanupOutgoingPublishAt( publishIndex );
             returnStatus = EXIT_FAILURE;
         }
         else
         {
             LogInfo( ( "PUBLISH sent for topic %.*s to broker with packet ID %u.\n\n",
-                       MQTT_EXAMPLE_TOPIC_LENGTH,
-                       MQTT_EXAMPLE_TOPIC,
+                       MQTT_PUBLISH_TOPIC_LENGTH,
+                       MQTT_PUBLISH_TOPIC,
                        outgoingPublishPackets[ publishIndex ].packetId ) );
         }
     }
@@ -1404,6 +1636,79 @@ static int initializeMqtt( MQTTContext_t * pMqttContext,
 
 /*-----------------------------------------------------------*/
 
+
+static int subscribeListenLoop(MQTTContext_t *pMqttContext)
+{
+    int returnStatus = EXIT_SUCCESS;
+    MQTTStatus_t mqttStatus = MQTTSuccess;
+
+    assert(pMqttContext != NULL);
+
+    /* Subscribe to the topic. */
+    LogInfo(("Subscribing to the MQTT topic %.*s.", MQTT_SUBSCRIBE_TOPIC_LENGTH, MQTT_SUBSCRIBE_TOPIC));
+    returnStatus = subscribeToTopic(pMqttContext);
+
+    if (returnStatus == EXIT_SUCCESS)
+    {
+        returnStatus = waitForPacketAck(pMqttContext,
+                                        globalSubscribePacketIdentifier,
+                                        MQTT_PROCESS_LOOP_TIMEOUT_MS);
+    }
+
+    if ((returnStatus == EXIT_SUCCESS) && (globalSubAckStatus == MQTTSubAckFailure))
+    {
+        LogInfo(("Server rejected initial subscription request. Attempting to re-subscribe to topic %.*s.",
+                 MQTT_PUBLISH_TOPIC_LENGTH,
+                 MQTT_PUBLISH_TOPIC));
+        returnStatus = handleResubscribe(pMqttContext);
+    }
+
+    if (returnStatus == EXIT_SUCCESS)
+    {
+        #if 1
+        /* Process incoming publish messages. */
+        while (1)
+        {
+            LogInfo(("Entering listen loop."));
+            /* Calling MQTT_ProcessLoop to receive incoming publish messages. */
+            ESP_LOGI(TAG, "processLoopWithTimeout in listen loop.");
+            mqttStatus = processLoopWithTimeout(pMqttContext, MQTT_PROCESS_LOOP_TIMEOUT_MS);
+
+            /* For any error in #MQTT_ProcessLoop, exit the loop and disconnect from the broker. */
+            if ((mqttStatus != MQTTSuccess) && (mqttStatus != MQTTNeedMoreBytes))
+            {
+                LogError(("MQTT_ProcessLoop returned with status = %s.", MQTT_Status_strerror(mqttStatus)));
+                returnStatus = EXIT_FAILURE;
+                break;              
+            }
+        }
+        #endif
+    }
+
+    if (returnStatus == EXIT_SUCCESS)
+    {
+        /* Unsubscribe from the topic before exiting. */
+        LogInfo(("Unsubscribing from the MQTT topic %.*s.",
+                 MQTT_SUBSCRIBE_TOPIC_LENGTH,
+                 MQTT_SUBSCRIBE_TOPIC));
+        returnStatus = unsubscribeFromTopic(pMqttContext);
+
+        if (returnStatus == EXIT_SUCCESS)
+        {
+            returnStatus = waitForPacketAck(pMqttContext,
+                                            globalUnsubscribePacketIdentifier,
+                                            MQTT_PROCESS_LOOP_TIMEOUT_MS);
+        }
+    }
+
+    if (returnStatus == EXIT_SUCCESS)
+    {
+        LogInfo(("Disconnecting MQTT session."));
+        returnStatus = disconnectMqttSession(pMqttContext);
+    }
+    return returnStatus;
+}
+
 static int subscribePublishLoop( MQTTContext_t * pMqttContext )
 {
     int returnStatus = EXIT_SUCCESS;
@@ -1416,7 +1721,7 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
     if( returnStatus == EXIT_SUCCESS )
     {
         /* The client is now connected to the broker. Subscribe to the topic
-         * as specified in MQTT_EXAMPLE_TOPIC at the top of this file by sending a
+         * as specified in MQTT_PUBLISH_TOPIC at the top of this file by sending a
          * subscribe packet. This client will then publish to the same topic it
          * subscribed to, so it will expect all the messages it sends to the broker
          * to be sent back to it from the broker. This demo uses QOS1 in Subscribe,
@@ -1449,8 +1754,8 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
          * Attempts are made according to the exponential backoff retry strategy
          * implemented in retryUtils. */
         LogInfo( ( "Server rejected initial subscription request. Attempting to re-subscribe to topic %.*s.",
-                   MQTT_EXAMPLE_TOPIC_LENGTH,
-                   MQTT_EXAMPLE_TOPIC ) );
+                   MQTT_PUBLISH_TOPIC_LENGTH,
+                   MQTT_PUBLISH_TOPIC ) );
         returnStatus = handleResubscribe( pMqttContext );
     }
 
@@ -1458,11 +1763,11 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
     {
         /* Publish messages with QOS1, receive incoming messages and
          * send keep alive messages. */
-        for( publishCount = 0; publishCount < maxPublishCount; publishCount++ )
+        for( publishCount = 0; publishCount < 100; publishCount++ )
         {
             LogInfo( ( "Sending Publish to the MQTT topic %.*s.",
-                       MQTT_EXAMPLE_TOPIC_LENGTH,
-                       MQTT_EXAMPLE_TOPIC ) );
+                       MQTT_PUBLISH_TOPIC_LENGTH,
+                       MQTT_PUBLISH_TOPIC ) );
             returnStatus = publishToTopic( pMqttContext );
 
             /* Calling MQTT_ProcessLoop to process incoming publish echo, since
@@ -1471,6 +1776,7 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
              * sends ping request to broker if MQTT_KEEP_ALIVE_INTERVAL_SECONDS
              * has expired since the last MQTT packet sent and receive
              * ping responses. */
+
             mqttStatus = processLoopWithTimeout( pMqttContext, MQTT_PROCESS_LOOP_TIMEOUT_MS );
 
             /* For any error in #MQTT_ProcessLoop, exit the loop and disconnect
@@ -1485,7 +1791,7 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
             LogInfo( ( "Delay before continuing to next iteration.\n\n" ) );
 
             /* Leave connection idle for some time. */
-            sleep( DELAY_BETWEEN_PUBLISHES_SECONDS );
+            usleep( 500 );
         }
     }
 
@@ -1493,8 +1799,8 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
     {
         /* Unsubscribe from the topic. */
         LogInfo( ( "Unsubscribing from the MQTT topic %.*s.",
-                   MQTT_EXAMPLE_TOPIC_LENGTH,
-                   MQTT_EXAMPLE_TOPIC ) );
+                   MQTT_PUBLISH_TOPIC_LENGTH,
+                   MQTT_PUBLISH_TOPIC ) );
         returnStatus = unsubscribeFromTopic( pMqttContext );
     }
 
@@ -1583,6 +1889,7 @@ static int waitForPacketAck( MQTTContext_t * pMqttContext,
 static MQTTStatus_t processLoopWithTimeout( MQTTContext_t * pMqttContext,
                                             uint32_t ulTimeoutMs )
 {
+
     uint32_t ulMqttProcessLoopTimeoutTime;
     uint32_t ulCurrentTime;
 
@@ -1621,6 +1928,7 @@ static MQTTStatus_t processLoopWithTimeout( MQTTContext_t * pMqttContext,
  */
 int aws_iot_main( int argc, char ** argv )
 {
+    LogInfo( ( "MQTT run started" ) );
     int returnStatus = EXIT_SUCCESS;
     MQTTContext_t mqttContext = { 0 };
     NetworkContext_t xNetworkContext = { 0 };
@@ -1690,7 +1998,9 @@ int aws_iot_main( int argc, char ** argv )
                 }
 
                 /* If TLS session is established, execute Subscribe/Publish loop. */
-                returnStatus = subscribePublishLoop( &mqttContext );
+                // returnStatus = subscribePublishLoop( &mqttContext );
+
+                returnStatus = subscribeListenLoop( &mqttContext );
 
                 /* End TLS session, then close TCP connection. */
                 cleanupESPSecureMgrCerts( &xNetworkContext );
@@ -1731,7 +2041,7 @@ void aws_iot_task(void *pvParameters)
 
 void aws_iot_run(void)
 {
-    esp_log_level_set("coreMQTT", ESP_LOG_NONE);
-    xTaskCreate(aws_iot_task, "aws_iot_task", 4096, NULL, 5, NULL);
+    esp_log_level_set("coreMQTT", ESP_LOG_INFO);
+    xTaskCreate(aws_iot_task, "aws_iot_task", 2 * 4096, NULL, 5, NULL);
 }
 /*-----------------------------------------------------------*/

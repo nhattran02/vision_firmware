@@ -70,6 +70,6 @@ void sntp_task_run(void)
     EventBits_t uxBits = xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT, false, false, portMAX_DELAY);
     if (uxBits & CONNECTED_BIT)
     {
-        xTaskCreate(&sntp_task, "sntp_task", 4096, NULL, 5, NULL);
+        xTaskCreate(&sntp_task, "sntp_task", 4096 * 2, NULL, 5, NULL);
     }
 }

@@ -1709,7 +1709,7 @@ static MQTTStatus_t receiveSingleIteration( MQTTContext_t * pContext,
             }
         }
     }
-
+    
     /* Check whether there is data available before processing the packet further. */
     if( ( status == MQTTNeedMoreBytes ) || ( status == MQTTNoDataAvailable ) )
     {

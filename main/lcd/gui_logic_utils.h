@@ -13,6 +13,7 @@
 #include "esp_sleep.h"
 
 #define MAX_USERS 500
+#define MAX_ATTENDANCE 1000
 
 typedef struct 
 {
@@ -25,8 +26,23 @@ typedef struct
     char password_hash[65];
 } user_data_t;
 
+typedef struct
+{
+    char id[5];
+    char name[50];
+    char date[11];
+    char check1[9];
+    char check2[9];
+    char check3[9];
+    char check4[9];
+    char check5[9];
+    char check6[9];
+} attendance_data_t;
+
+extern attendance_data_t attendance_data[MAX_ATTENDANCE];
 extern user_data_t users[MAX_USERS];
 extern uint16_t n_users;
+extern uint16_t n_attendance;
 extern TaskHandle_t FingerprintDetectTaskHandle;
 
 extern char ntp_date[11];

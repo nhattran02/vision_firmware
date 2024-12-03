@@ -2,7 +2,7 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.5)
 
-set(EXTRA_COMPONENT_DIRS ../../components aws_libraries/backoffAlgorithm aws_libraries/coreMQTT aws_libraries/common/posix_compat)
+set(EXTRA_COMPONENT_DIRS ../../components aws_libraries/backoffAlgorithm aws_libraries/coreMQTT aws_libraries/coreJSON aws_libraries/common/posix_compat)
 
 
 add_compile_options(-fdiagnostics-color=always)

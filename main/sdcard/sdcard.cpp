@@ -15,11 +15,9 @@ sdmmc_card_t *card;
 static FILE *video_file = NULL;
 volatile bool is_start_record = false;
 
-AppSDCard::AppSDCard(Button *key,
-                     QueueHandle_t queue_i,
+AppSDCard::AppSDCard(QueueHandle_t queue_i,
                      QueueHandle_t queue_o,
                      void (*callback)(camera_fb_t *)) : Frame(queue_i, queue_o, callback),
-                                                        key(key),
                                                         state(SDCARD_IDLE),
                                                         switch_on(false)
 {

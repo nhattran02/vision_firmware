@@ -29,8 +29,7 @@ public:
     sdcard_action_t state;
     bool switch_on;
 
-    AppSDCard(Button *key,
-              QueueHandle_t queue_i = nullptr,
+    AppSDCard(QueueHandle_t queue_i = nullptr,
               QueueHandle_t queue_o = nullptr,
               void (*callback)(camera_fb_t *) = esp_camera_fb_return);
     ~AppSDCard();
