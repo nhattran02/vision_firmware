@@ -22,11 +22,14 @@ Face *face = NULL;
 extern "C" void app_main()
 {
     AppSDCard *sd_card = new AppSDCard();
+    // AppUSBMSC *usb_msc = new AppUSBMSC();
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
     initialise_wifi();
 
     aws_iot_run();
 
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    // vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     QueueHandle_t xQueueFrame1 = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueFrame2 = xQueueCreate(2, sizeof(camera_fb_t *));
@@ -34,26 +37,21 @@ extern "C" void app_main()
     Button *matrix_button = new Button();
     Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
     face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
-    LCD *lcd = new LCD(matrix_button, xQueueFrame2); 
+    LCD *lcd = new LCD(matrix_button, xQueueFrame2);
     GUIHandler *gui_handler = new GUIHandler(matrix_button);
     Fingerprint *fingerprint = new Fingerprint(matrix_button);
     SQLiteDB *sqlite_db = new SQLiteDB(matrix_button);
-    // AppUSBMSC *usb_msc = new AppUSBMSC();
     
-    matrix_button->attach(face);
+    matrix_button->attach(face);    
     matrix_button->attach(lcd);
     matrix_button->attach(gui_handler);
     matrix_button->attach(fingerprint);
-    // matrix_button->attach(sd_card);
-    
+
     lcd->run();
     face->run();
     camera->run();
     matrix_button->run();
-    // fingerprint->fingerprint_enroll_run();
     fingerprint->fingerprint_detect_run();
-    
-    // sd_card->run();
 
     sntp_task_run();
 

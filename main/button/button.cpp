@@ -43,7 +43,7 @@ Button::Button() : key_configs({{BUTTON_0}, {BUTTON_1}, {BUTTON_2}, {BUTTON_3},
         {I2C_MASTER_FREQ_HZ}, 
         0
     };
-
+    
     i2c_bus = i2c_bus_create(I2C_MASTER_NUM, &conf);
     device = mcp23017_create(i2c_bus, MCP23017_I2C_ADDRESS_DEFAULT);
 

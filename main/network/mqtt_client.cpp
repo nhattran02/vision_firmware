@@ -2024,18 +2024,31 @@ int aws_iot_main( int argc, char ** argv )
 void aws_iot_task(void *pvParameters)
 {
     (void)pvParameters;
-    EventBits_t uxBits;
+    const int timeout_ms = 5000;
+    const int delay_ms = 100;
+    int elapsed_time = 0;
+
     while (1)
     {
-        uxBits = xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT, false, false, portMAX_DELAY);
-        if (uxBits & CONNECTED_BIT)
+        while (!is_wifi_connected && elapsed_time < timeout_ms)
+        {
+            vTaskDelay(delay_ms / portTICK_PERIOD_MS);
+            elapsed_time += delay_ms;
+        }
+
+        if (is_wifi_connected)
         {
             ESP_LOGI("MQTT Client", "Connected to AP");
             aws_iot_main(0, NULL);
         }
+        else
+        {
+            ESP_LOGW("MQTT Client", "Timeout waiting for Wi-Fi connection");
+            break;
+        }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
-    
+
     vTaskDelete(NULL);
 }
 
