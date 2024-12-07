@@ -237,7 +237,6 @@ void update_attendance_to_db(int id, const char *name, const char *date, const c
     }
 }
 
-
 void SQLiteDB::delete_db()
 {
     int rc = db_exec(db, "DELETE FROM employee;");

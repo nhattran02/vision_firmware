@@ -36,6 +36,8 @@
 /* Include header that defines log levels. */
 #include "logging_levels.h"
 
+
+
 /* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
     #define LIBRARY_LOG_NAME     "MQTT_LOG"

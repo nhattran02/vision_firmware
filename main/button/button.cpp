@@ -119,6 +119,7 @@ static void button_task(Button *self)
     }
 }
 
+
 void Button::run()
 {
     xTaskCreatePinnedToCore((TaskFunction_t)button_task, TAG, 8 * 1024, this, 5, NULL, 0);

@@ -51,7 +51,8 @@ extern "C" void app_main()
     face->run();
     camera->run();
     matrix_button->run();
-    fingerprint->fingerprint_detect_run();
+    fingerprint->fingerprint_detect_run(); 
+
 
     sntp_task_run();
 
