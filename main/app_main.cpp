@@ -46,7 +46,7 @@ extern "C" void app_main()
     matrix_button->attach(lcd);
     matrix_button->attach(gui_handler);
     matrix_button->attach(fingerprint);
-
+    
     lcd->run();
     face->run();
     camera->run();

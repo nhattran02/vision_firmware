@@ -6,7 +6,7 @@ typedef enum JobActionType
 {
     JOB_ACTION_HANDSHAKE,  
     JOB_ACTION_UPLOAD_RAW_DATA,
-    JOB_ACTION_EXIT,
+    JOB_ACTION_IMPORT_DATA,
     JOB_ACTION_UNKNOWN
 } JobActionType_t;
 
