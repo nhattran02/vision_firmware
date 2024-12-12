@@ -206,7 +206,7 @@ void finger_delete_all()
 {
     uint8_t confirmation_code;
     char start_page[2] = {0x00, 0x00};
-    char page_number[2] = {0x00, 0x64};
+    char page_number[2] = {0x00, 0xC8};
 
     confirmation_code = DeletChar(default_address, start_page, page_number);
     if (confirmation_code != 0)
@@ -216,11 +216,25 @@ void finger_delete_all()
     ESP_LOGI(TAG, "Deleted all Fingerprint templates");
 }
 
+void test()
+{
+    uint8_t confirmation_code;
+    char start_page[2] = {0x00, 0x09};
+    char page_number[2] = {0x00, 0x05};
+
+    confirmation_code = DeletChar(default_address, start_page, page_number);
+    if (confirmation_code != 0)
+    {
+        ESP_LOGE(TAG, "Failed to delete all templates");
+    }
+    ESP_LOGI(TAG, "Deleted all Fingerprint templates");    
+}
+
 static void fingerprint_detect_task(Fingerprint *self)
 {
     uint8_t confirmation_code;
     char start_page[2] = {0x00, 0x00};      // Specify the start page for the search
-    char page_number[2] = {0x00, 0x64};     // Specify the page range for the search
+    char page_number[2] = {0x00, 0xC8};     // Specify the page range for the search
     
     while (1)
     {

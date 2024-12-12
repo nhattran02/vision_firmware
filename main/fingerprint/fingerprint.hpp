@@ -8,6 +8,7 @@ void r307_stop();
 void r307_run();
 void fingerprint_detect_task_run();
 void finger_delete_all();
+void test();
 
 extern volatile bool finger_detected;
 extern volatile bool is_finger_true;

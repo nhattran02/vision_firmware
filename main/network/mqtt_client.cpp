@@ -257,11 +257,14 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
 #define ACTION_HANDSHAKE_LEN            (sizeof(ACTION_HANDSHAKE_STR) - 1)
 #define ACTION_REQUEST_UPLOAD_STR       "upload_raw_data"
 #define ACTION_REQUEST_UPLOAD_LEN       (sizeof(ACTION_REQUEST_UPLOAD_STR) - 1)
+#define ACTION_IMPORT_DATA_STR          "import_data"
+#define ACTION_IMPORT_DATA_LEN          (sizeof(ACTION_IMPORT_DATA_STR) - 1)
 #define ACK_MESSAGE                     "ACK"
 #define ACK_MESSAGE_LEN                 (sizeof(ACK_MESSAGE) - 1)
 #define NACK_MESSAGE                    "NACK"
 #define NACK_MESSAGE_LEN                (sizeof(NACK_MESSAGE) - 1) 
 #define MAX_PUBLISH_RETRIES             3
+#define MAX_CHUNKS                      100
 
 /*-----------------------------------------------------------*/
 
@@ -914,6 +917,130 @@ static int handlePublishResend( MQTTContext_t * pMqttContext )
 
 /*-----------------------------------------------------------*/
 
+void sortChunks(RawDataChunk_t *chunks, int count) 
+{
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (chunks[j].chunk_index > chunks[j + 1].chunk_index) {
+                RawDataChunk_t temp = chunks[j];
+                chunks[j] = chunks[j + 1];
+                chunks[j + 1] = temp;
+            }
+        }
+    }
+    
+    for (int i = 0; i < count; i++) {
+        ESP_LOGI(TAG, "Chunk %d: id=%s, name=%s, employeeId=%s, role=%s", 
+                 chunks[i].chunk_index + 1, 
+                 chunks[i].id, 
+                 chunks[i].name, 
+                 chunks[i].employeeId, 
+                 chunks[i].role);
+    }
+}
+
+
+
+static int handleActionImportData(MQTTContext_t *pMqttContext, MQTTPublishInfo_t *pPublishInfo, char *ackMessage)
+{
+    static int chunk_total = 0;
+    static int received_count = 0;             
+    static bool header_received = false;
+    static RawDataChunk_t received_chunks[MAX_CHUNKS];
+
+    char *pcChunkIndex;
+    size_t ulChunkIndexLength;
+
+    // Kiểm tra tin nhắn header
+    if (!header_received && 
+        JSON_Search((char *)pPublishInfo->pPayload, pPublishInfo->payloadLength,
+                    "chunk_total", strlen("chunk_total"), 
+                    &pcChunkIndex, &ulChunkIndexLength) == JSONSuccess) {
+        
+        chunk_total = atoi(pcChunkIndex);
+        header_received = true;
+        received_count = 0;
+        memset(received_chunks, 0, sizeof(received_chunks));
+        ESP_LOGI(TAG, "Header received. Total chunks: %d", chunk_total);
+    }
+
+    // Xử lý tin nhắn chứa dữ liệu
+    if (header_received && 
+        JSON_Search((char *)pPublishInfo->pPayload, pPublishInfo->payloadLength,
+                    "chunk_index", strlen("chunk_index"), 
+                    &pcChunkIndex, &ulChunkIndexLength) == JSONSuccess) {
+        int chunk_index = atoi(pcChunkIndex) - 1;
+        if (chunk_index >= 0 && chunk_index < MAX_CHUNKS) {
+            RawDataChunk_t *chunk = &received_chunks[chunk_index];
+            chunk->chunk_index = chunk_index;
+
+            // Phân tích các trường JSON
+            char *field_value;
+            size_t field_length;
+
+            if (JSON_Search((char *)pPublishInfo->pPayload, pPublishInfo->payloadLength, "id", strlen("id"),
+                            &field_value, &field_length) == JSONSuccess) {
+                strncpy(chunk->id, field_value, field_length);
+                chunk->id[field_length] = '\0';
+            }
+
+            if (JSON_Search((char *)pPublishInfo->pPayload, pPublishInfo->payloadLength, "name", strlen("name"),
+                            &field_value, &field_length) == JSONSuccess) {
+                strncpy(chunk->name, field_value, field_length);
+                chunk->name[field_length] = '\0';
+            }
+
+            if (JSON_Search((char *)pPublishInfo->pPayload, pPublishInfo->payloadLength, "employee_id", strlen("employee_id"),
+                            &field_value, &field_length) == JSONSuccess) {
+                strncpy(chunk->employeeId, field_value, field_length);
+                chunk->employeeId[field_length] = '\0';
+            }
+
+            if (JSON_Search((char *)pPublishInfo->pPayload, pPublishInfo->payloadLength, "role", strlen("role"),
+                            &field_value, &field_length) == JSONSuccess) {
+                strncpy(chunk->role, field_value, field_length);
+                chunk->role[field_length] = '\0';
+            }
+
+            received_count++;
+            ESP_LOGI(TAG, "Chunk %d received. Total received: %d/%d", chunk_index + 1, received_count, chunk_total);
+
+            if (received_count == chunk_total) {
+                ESP_LOGI(TAG, "All chunks received. Sorting and processing data...");
+
+                sortChunks(received_chunks, chunk_total);
+
+                import_webserver_data_to_db(received_chunks, chunk_total);
+
+                // Send ACK message
+                char msg[512] = {0};
+                snprintf(msg, sizeof(msg), "{\"%s\": \"%s\", \"%s\": \"import_data_rep\", \"%s\": \"%s\"}",
+                        DEVICE_ID_QUERY_KEY, DEVICE_ID, ACTION_QUERY_KEY, STATUS_QUERY_KEY, "ACK");
+                ESP_LOGW("handleActionUploadRawData", "Sending header message: %s\n", msg);
+
+                int returnStatus = publishToTopicWithMsg(pMqttContext, msg);
+                if (returnStatus != EXIT_SUCCESS)
+                {
+                    ESP_LOGE("handleActionUploadRawData", "Failed to publish message\n");
+                    return EXIT_FAILURE;
+                }
+
+                header_received = false;
+                received_count = 0;
+                memset(received_chunks, 0, sizeof(received_chunks));
+            }
+        } else {
+            ESP_LOGW(TAG, "Invalid chunk index: %d", chunk_index);
+        }
+    } else {
+        ESP_LOGW(TAG, "Unexpected message received.");
+    }
+    return EXIT_SUCCESS;
+}
+
+
+
+
 static int handleActionUploadRawData(MQTTContext_t *pMqttContext, char *ack_status)
 {
     TaskHandle_t xHandle = NULL;
@@ -936,7 +1063,7 @@ static int handleActionUploadRawData(MQTTContext_t *pMqttContext, char *ack_stat
         return EXIT_FAILURE;
     }
     sleep(2);
-
+    
 #if 1
     // Send attendance data
     for (int i = 0; i < n_attendance; i++)
@@ -1009,9 +1136,9 @@ static JobActionType_t getJobActionType(char * action, int action_len)
     {
         return JOB_ACTION_UPLOAD_RAW_DATA;
     }
-    else if (strncmp("reboot", action, action_len) == 0)
+    else if (strncmp((const char *)ACTION_IMPORT_DATA_STR, action, action_len) == 0)
     {
-        return JOB_ACTION_EXIT;
+        return JOB_ACTION_IMPORT_DATA;
     }
     else
     {
@@ -1074,6 +1201,10 @@ static void handleIncomingPublish( MQTTContext_t * pMqttContext,
                         case JOB_ACTION_UPLOAD_RAW_DATA:
                             ESP_LOGW(TAG, "Upload raw data action received");
                             handleActionUploadRawData(pMqttContext, (char *)ACK_MESSAGE);
+                            break;
+                        case JOB_ACTION_IMPORT_DATA:
+                            ESP_LOGW(TAG, "Import data action received");
+                            handleActionImportData(pMqttContext, pPublishInfo, (char *)ACK_MESSAGE);
                             break;
                         default:
                             ESP_LOGI(TAG, "Unknown action received");

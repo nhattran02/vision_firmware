@@ -124,6 +124,55 @@ void create_csv_template(const char *csv_filename)
     ESP_LOGI(TAG, "Created csv template %s", csv_filename);
 }
 
+void import_webserver_data_to_db(RawDataChunk_t *chunks, int chunk_count) 
+{
+    int rc = db_exec(db, "DELETE FROM employee;");
+    if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Failed to clear employee table.");
+        sqlite3_close(db);
+        return;
+    }
+
+    // rc = db_exec(db, "DELETE FROM attendance;");
+    // if (rc != SQLITE_OK) {
+    //     ESP_LOGE(TAG, "Failed to clear attendance table.");
+    //     sqlite3_close(db);
+    //     return;
+    // }    
+
+    ESP_LOGI(TAG, "Old data cleared from the employee table.");
+
+    for (int i = 0; i < chunk_count; i++) {
+        RawDataChunk_t *chunk = &chunks[i];
+
+        if (strlen(chunk->id) == 0 || strlen(chunk->name) == 0 || 
+            strlen(chunk->employeeId) == 0 || strlen(chunk->role) == 0) {
+            ESP_LOGE(TAG, "Invalid data format in chunk %d: id=%s, name=%s, employeeId=%s, role=%s",
+                     i + 1, chunk->id, chunk->name, chunk->employeeId, chunk->role);
+            continue;
+        }
+
+        char sql[512] = {0};
+        snprintf(sql, sizeof(sql),
+                 "INSERT INTO employee (ID, NAME, EMPLOYEEID, ROLE) VALUES ('%s', '%s', '%s', '%s');",
+                 chunk->id, chunk->name, chunk->employeeId, chunk->role);
+
+        rc = db_exec(db, sql);
+        if (rc != SQLITE_OK) {
+            ESP_LOGE(TAG, "Failed to insert data from chunk %d: %s", i + 1, sql);
+            sqlite3_close(db);
+            return;
+        }
+
+        ESP_LOGI(TAG, "Inserted data from chunk %d: id=%s, name=%s, employeeId=%s, role=%s",
+                 i + 1, chunk->id, chunk->name, chunk->employeeId, chunk->role);
+    }
+
+    ESP_LOGI(TAG, "All data from chunks imported to database successfully.");
+}
+
+
+
 void import_csv_to_db(const char *csv_filename)
 {  
     int rc = db_exec(db, "DELETE FROM employee;");

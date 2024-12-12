@@ -25,9 +25,9 @@ extern "C" void app_main()
     // AppUSBMSC *usb_msc = new AppUSBMSC();
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    initialise_wifi();
+    // initialise_wifi();
 
-    aws_iot_run();
+    // aws_iot_run();
 
     // vTaskDelay(2000 / portTICK_PERIOD_MS);
 
@@ -37,16 +37,19 @@ extern "C" void app_main()
     Button *matrix_button = new Button();
     Camera *camera = new Camera(PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2, xQueueFrame1);
     face = new Face(matrix_button, xQueueFrame1, xQueueFrame2);
+    // face->face_delete_all();
     LCD *lcd = new LCD(matrix_button, xQueueFrame2);
     GUIHandler *gui_handler = new GUIHandler(matrix_button);
     Fingerprint *fingerprint = new Fingerprint(matrix_button);
+    // finger_delete_all();
+    // test();
     SQLiteDB *sqlite_db = new SQLiteDB(matrix_button);
-    
+
     matrix_button->attach(face);    
     matrix_button->attach(lcd);
     matrix_button->attach(gui_handler);
     matrix_button->attach(fingerprint);
-    
+
     lcd->run();
     face->run();
     camera->run();
@@ -54,6 +57,6 @@ extern "C" void app_main()
     fingerprint->fingerprint_detect_run(); 
 
 
-    sntp_task_run();
+    // sntp_task_run();
 
 }

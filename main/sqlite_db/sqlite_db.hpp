@@ -7,6 +7,7 @@
 #include "driver/sdmmc_host.h"
 #include "camera.hpp"
 #include "sqlite3.h"
+#include "mqtt_client.hpp"
 extern "C"
 {
     #include "gui_logic_utils.h"
@@ -28,6 +29,7 @@ void create_csv_template(const char *csv_filename);
 void import_csv_to_db(const char* csv_filename);
 void update_attendance_to_db(int id, const char *name, const char *date, const char *time);
 void save_report_to_csv(const char *csv_file_path);
+void import_webserver_data_to_db(RawDataChunk_t *chunks, int chunk_count);
 
 class SQLiteDB : public Observer, public Frame
 {

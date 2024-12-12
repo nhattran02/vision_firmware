@@ -421,7 +421,7 @@ static void face_task(Face *self)
                 }
                 else // is finger detected
                 {
-                    if (is_finger_true == true) // match
+                    if (is_finger_true == true && users[_page_id - 1].fingerprint == 1) // match
                     {
                         char text[60] = {0};
                         snprintf(text, sizeof(text), "ID-%d  %s", users[_page_id - 1].id, users[_page_id - 1].name);
@@ -576,7 +576,7 @@ static void face_task(Face *self)
                 }
                 else // is finger detected
                 {
-                    if (is_finger_true == true) // match
+                    if (is_finger_true == true && users[_page_id - 1].fingerprint == 1) // match
                     {
                         char text[60] = {0};
                         snprintf(text, sizeof(text), "ID-%d  %s", users[_page_id - 1].id, users[_page_id - 1].name);
